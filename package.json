@@ -10,8 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@carbon/icons-react": "^11.92.0",
+    "@carbon/react": "^1.120.0",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "sass": "^1.108.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

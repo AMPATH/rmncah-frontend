@@ -1,0 +1,80 @@
+
+.topbar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 72px;
+  min-height: 72px;
+  padding: 0 32px;
+  background: #FFFFFF;
+  border-bottom: 1px solid #DFE8F2;
+  box-sizing: border-box;
+}
+
+.topbar__breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #8999AA;
+  font-size: 13px;
+}
+
+.topbar__breadcrumb strong {
+  color: #263C50;
+  font-weight: 600;
+}
+
+.topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.topbar__actions button {
+  display: grid;
+  place-items: center;
+  padding: 6px;
+  border: none;
+  background: transparent;
+  color: #687F94;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.topbar__actions button:hover {
+  color: #1769AA;
+}
+
+.topbar__profile {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #DCE8F5;
+  color: #163B63;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+@media (max-width: 700px) {
+  .topbar {
+    height: 64px;
+    min-height: 64px;
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .topbar__breadcrumb {
+    gap: 7px;
+    font-size: 11px;
+  }
+
+  .topbar__actions {
+    gap: 10px;
+  }
+}
