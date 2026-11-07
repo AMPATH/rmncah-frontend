@@ -1,14 +1,24 @@
 
 import { useState } from 'react'
+
 import type { RoleNavigation } from '../../../config/navigation/navigation.types'
+
 import SidebarBrand from './SidebarBrand'
 import SidebarNavigation from './SidebarNavigation'
+
 import './Sidebar.scss'
 
 interface SidebarProps {
   navigation: RoleNavigation
   activePath: string
   onNavigate: (path: string) => void
+}
+
+const roleShortLabels: Record<string, string> = {
+  'county-mentor': 'CM',
+  mentor: 'M',
+  mentee: 'ME',
+  developer: 'SA',
 }
 
 export default function Sidebar({
@@ -22,10 +32,13 @@ export default function Sidebar({
     setCollapsed((previous) => !previous)
   }
 
+  const roleLabel = navigation.title
+  const roleShortLabel = roleShortLabels[navigation.role] ?? 'U'
+
   return (
     <aside
       className={`sidebar ${collapsed ? 'sidebar--collapsed' : ''}`}
-      aria-label="Main navigation"
+      aria-label={`${roleLabel} navigation`}
     >
       <SidebarBrand
         collapsed={collapsed}
@@ -41,12 +54,12 @@ export default function Sidebar({
 
       <div className="sidebar__footer">
         <div className="sidebar__avatar" aria-hidden="true">
-          CM
+          {roleShortLabel}
         </div>
 
         {!collapsed && (
           <div className="sidebar__user">
-            <strong>County Mentor</strong>
+            <strong>{roleLabel}</strong>
           </div>
         )}
       </div>

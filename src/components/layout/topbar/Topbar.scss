@@ -1,30 +1,46 @@
 
 .topbar {
+  position: relative;
+  z-index: 100;
+
   display: flex;
   flex-shrink: 0;
   align-items: center;
   justify-content: space-between;
+
   width: 100%;
   height: 72px;
   min-height: 72px;
+
   padding: 0 32px;
-  background: #FFFFFF;
-  border-bottom: 1px solid #DFE8F2;
+
+  background: #ffffff;
+  border-bottom: 1px solid #dfe8f2;
+
   box-sizing: border-box;
 }
+
+/* Breadcrumb */
 
 .topbar__breadcrumb {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: #8999AA;
+
+  color: #8999aa;
   font-size: 13px;
 }
 
 .topbar__breadcrumb strong {
-  color: #263C50;
+  color: #263c50;
   font-weight: 600;
 }
+
+.topbar__breadcrumb-separator {
+  color: #bdc9d4;
+}
+
+/* Topbar actions */
 
 .topbar__actions {
   display: flex;
@@ -32,49 +48,288 @@
   gap: 18px;
 }
 
-.topbar__actions button {
+.topbar__icon-button {
   display: grid;
   place-items: center;
+
+  width: 36px;
+  height: 36px;
   padding: 6px;
+
   border: none;
+  border-radius: 8px;
+
   background: transparent;
-  color: #687F94;
+  color: #687f94;
+
   cursor: pointer;
-  transition: color 0.2s ease;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
-.topbar__actions button:hover {
-  color: #1769AA;
+.topbar__icon-button:hover {
+  background: #f1f5f9;
+  color: #1769aa;
 }
+
+/* Role switcher */
+
+.topbar__role-switcher {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Role trigger */
+
+.topbar__role-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  min-height: 44px;
+  padding: 5px 12px 5px 5px;
+
+  border: 1px solid #dfe8f2;
+  border-radius: 9px;
+
+  background: #ffffff;
+  color: #263c50;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.topbar__role-trigger:hover,
+.topbar__role-trigger--open {
+  background: #f8fafc;
+  border-color: #a9bfd2;
+}
+
+.topbar__role-trigger--open {
+  box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.08);
+}
+
+/* Role avatar */
 
 .topbar__profile {
   display: grid;
-  flex-shrink: 0;
   place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #DCE8F5;
-  color: #163B63;
+
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+
+  border-radius: 8px;
+
+  background: #163b63;
+  color: #ffffff;
+
   font-size: 11px;
   font-weight: 700;
+  letter-spacing: 0.3px;
 }
 
-@media (max-width: 700px) {
-  .topbar {
-    height: 64px;
-    min-height: 64px;
-    padding: 0 16px;
+/* Selected role name */
+
+.topbar__role-name {
+  color: #263c50;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Chevron */
+
+.topbar__chevron {
+  flex-shrink: 0;
+  color: #8294a7;
+
+  transition: transform 0.2s ease;
+}
+
+.topbar__chevron--open {
+  transform: rotate(180deg);
+}
+
+/* Dropdown menu */
+
+.topbar__role-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+
+  z-index: 1000;
+
+  width: 280px;
+  padding: 8px;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e9f1;
+  border-radius: 12px;
+
+  box-shadow:
+    0 12px 32px rgba(20, 42, 64, 0.12),
+    0 2px 8px rgba(20, 42, 64, 0.05);
+
+  animation: role-menu-enter 0.16s ease-out;
+}
+
+@keyframes role-menu-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@media (max-width: 420px) {
+/* Dropdown heading */
+
+.topbar__role-menu-heading {
+  padding: 10px 12px 12px;
+
+  color: #8999aa;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* Role option */
+
+.topbar__role-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+  min-height: 46px;
+  padding: 8px 10px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: transparent;
+  color: #52677b;
+
+  text-align: left;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.topbar__role-option:hover {
+  background: #f3f7fb;
+  color: #163b63;
+}
+
+.topbar__role-option--active {
+  background: #edf4fa;
+  color: #163b63;
+  font-weight: 600;
+}
+
+.topbar__role-option--active:hover {
+  background: #e6eff8;
+}
+
+/* Option label */
+
+.topbar__role-option-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Small avatar inside dropdown */
+
+.topbar__role-option-avatar {
+  display: grid;
+  place-items: center;
+
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+
+  border-radius: 7px;
+
+  background: #eef3f8;
+  color: #52677b;
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.topbar__role-option--active .topbar__role-option-avatar {
+  background: #163b63;
+  color: #ffffff;
+}
+
+/* Active checkmark */
+
+.topbar__role-check {
+  flex-shrink: 0;
+  color: #1769aa;
+}
+
+/* Responsive layout */
+
+@media (max-width: 768px) {
+  .topbar {
+    padding: 0 18px;
+  }
+
+  .topbar__actions {
+    gap: 10px;
+  }
+
+  .topbar__role-name {
+    max-width: 145px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar {
+    padding: 0 12px;
+  }
+
   .topbar__breadcrumb {
     gap: 7px;
     font-size: 11px;
   }
 
   .topbar__actions {
-    gap: 10px;
+    gap: 5px;
+  }
+
+  .topbar__role-trigger {
+    gap: 7px;
+    padding-right: 8px;
+  }
+
+  .topbar__role-name {
+    display: none;
+  }
+
+  .topbar__role-menu {
+    width: min(280px, calc(100vw - 24px));
   }
 }

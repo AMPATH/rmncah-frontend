@@ -14,7 +14,7 @@ import type { RoleNavigation } from './navigation.types'
 
 export const countyMentorNavigation: RoleNavigation = {
   role: 'county-mentor',
-  title: 'County Mentor / RH',
+  title: 'County Mentor / RH / MOH',
 
   groups: [
     {
