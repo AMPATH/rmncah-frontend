@@ -22,22 +22,22 @@ export const programLeadNavigation: RoleNavigation = {
         },
         {
           label: 'Training Modules',
-          path: '/program-lead/modules',
+          path: '/program-lead/training-modules',
           icon: <DocumentTasks size={20} />,
         },
         {
           label: 'Module Sections',
-          path: '/program-lead/sections',
+          path: '/program-lead/module-sections',
           icon: <Document size={20} />,
         },
         {
           label: 'Learning Materials',
-          path: '/program-lead/materials',
+          path: '/program-lead/learning-materials',
           icon: <CloudUpload size={20} />,
         },
         {
           label: 'Module Library',
-          path: '/program-lead/library',
+          path: '/program-lead/module-library',
           icon: <Catalog size={20} />,
         },
       ],

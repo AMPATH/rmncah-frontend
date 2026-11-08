@@ -1,4 +1,3 @@
-
 import { useState } from 'react'
 
 import Sidebar from './components/layout/sidebar/Sidebar'
@@ -17,6 +16,12 @@ import AssessmentsPage from './features/mentor/pages/AssessmentsPage'
 import ResourcesPage from './features/mentor/pages/ResourcesPage'
 import CohortSubmissionsPage from './features/mentor/pages/CohortSubmissionsPage'
 import FeedbackPage from './features/mentor/pages/FeedbackPage'
+
+import ProgramLeadOverviewPage from './features/program-lead/pages/OverviewPage'
+import TrainingModulesPage from './features/program-lead/pages/TrainingModulesPage'
+import ModuleSectionsPage from './features/program-lead/pages/ModuleSectionsPage'
+import LearningMaterialsPage from './features/program-lead/pages/LearningMaterialsPage'
+import ModuleLibraryPage from './features/program-lead/pages/ModuleLibraryPage'
 
 import './App.css'
 
@@ -61,6 +66,63 @@ function App() {
       return <CountyMentorOverviewPage title={pageTitle} />
     }
 
+    // PROGRAM LEAD - OVERVIEW
+    if (
+      activeRole === 'program-lead' &&
+      activePath === '/program-lead/overview'
+    ) {
+      return (
+        <ProgramLeadOverviewPage
+          title={pageTitle}
+          onNavigate={handleNavigate}
+        />
+      )
+    }
+
+    // PROGRAM LEAD - TRAINING MODULES
+    // PROGRAM LEAD - TRAINING MODULES
+    if (
+      activeRole === 'program-lead' &&
+      activePath === '/program-lead/training-modules'
+    ) {
+      return (
+        <TrainingModulesPage
+          title={pageTitle}
+          onNavigate={handleNavigate}
+        />
+      )
+    }
+
+        // PROGRAM LEAD - MODULE SECTIONS
+    if (
+      activeRole === 'program-lead' &&
+      activePath === '/program-lead/module-sections'
+    ) {
+      return <ModuleSectionsPage title={pageTitle} />
+    }
+
+    // PROGRAM LEAD - MODULE SECTIONS
+    // PROGRAM LEAD - LEARNING MATERIALS
+    if (
+      activeRole === 'program-lead' &&
+      activePath === '/program-lead/learning-materials'
+    ) {
+    return <LearningMaterialsPage title={pageTitle} />
+    }
+
+    // PROGRAM LEAD - MODULE LIBRARY
+if (
+  activeRole === 'program-lead' &&
+  activePath === '/program-lead/module-library'
+) {
+  return (
+    <ModuleLibraryPage
+      title={pageTitle}
+      onNavigate={handleNavigate}
+    />
+  )
+}
+
     // MENTOR OVERVIEW
     if (
       activeRole === 'mentor' &&
@@ -100,19 +162,25 @@ function App() {
     ) {
       return <AssessmentsPage title={pageTitle} />
     }
-        if (
+
+    // MENTOR - RESOURCES
+    if (
       activeRole === 'mentor' &&
       activePath === '/mentor/resources'
     ) {
       return <ResourcesPage title={pageTitle} />
     }
-            if (
+
+    // MENTOR - COHORT SUBMISSIONS
+    if (
       activeRole === 'mentor' &&
       activePath === '/mentor/cohort-submissions'
     ) {
       return <CohortSubmissionsPage title={pageTitle} />
     }
-                if (
+
+    // MENTOR - FEEDBACK
+    if (
       activeRole === 'mentor' &&
       activePath === '/mentor/feedback'
     ) {
