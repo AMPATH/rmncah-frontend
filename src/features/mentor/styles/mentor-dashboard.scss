@@ -1,0 +1,532 @@
+.mentor-dashboard {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  color: #252b29;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+
+    h1 {
+      margin: 0;
+      color: #202925;
+      font-size: 25px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    p {
+      margin: 7px 0 0;
+      color: #747d78;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+  }
+
+  &__eyebrow {
+    display: block;
+    margin-bottom: 8px;
+    color: #52635a;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  // The separate welcome card is no longer needed.
+  &__welcome {
+    display: none;
+  }
+
+  &__section {
+    margin-bottom: 25px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: 18px;
+    margin-bottom: 25px;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 0 8px;
+    border-top: 1px solid #e7eae8;
+    color: #8a928d;
+    font-size: 11px;
+  }
+}
+
+.mentor-section-heading {
+  margin-bottom: 13px;
+
+  h2 {
+    margin: 0;
+    color: #28312c;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 5px 0 0;
+    color: #7d8680;
+    font-size: 12px;
+  }
+}
+
+/* Statistics */
+
+.mentor-statistics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  background: #fff;
+  border: 1px solid #e4e8e5;
+  border-radius: 4px;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    min-width: 0;
+    padding: 19px 20px;
+    border-right: 1px solid #e8ebe9;
+
+    &:last-child {
+      border-right: 0;
+    }
+  }
+
+  &__label {
+    color: #69746d;
+    font-size: 12px;
+  }
+
+  &__value {
+    color: #26352c;
+    font-size: 27px;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  &__description {
+    color: #89918c;
+    font-size: 10px;
+    line-height: 1.5;
+  }
+}
+
+/* Shared panels */
+
+.mentor-panel {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid #e4e8e5;
+  border-radius: 4px;
+  background: #fff;
+
+  &__heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 21px;
+
+    h2 {
+      margin: 0;
+      color: #28312c;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 6px 0 0;
+      color: #7d8680;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+  }
+
+  &__count {
+    flex-shrink: 0;
+    color: #52635a;
+    font-size: 11px;
+    font-weight: 600;
+  }
+}
+
+.mentor-empty {
+  display: grid;
+  place-items: center;
+  min-height: 110px;
+  color: #828b85;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* Cohort progress */
+
+.mentor-cohort-list {
+  display: flex;
+  flex-direction: column;
+  gap: 19px;
+}
+
+.mentor-cohort {
+  padding-bottom: 17px;
+  border-bottom: 1px solid #edf0ee;
+
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  &__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 11px;
+
+    h3 {
+      margin: 0;
+      color: #303a34;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    span {
+      display: block;
+      margin-top: 4px;
+      color: #828b85;
+      font-size: 10px;
+    }
+
+    strong {
+      color: #315c43;
+      font-size: 12px;
+      font-weight: 600;
+    }
+  }
+
+  &__summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 13px;
+    margin-top: 10px;
+
+    span {
+      color: #858e88;
+      font-size: 10px;
+    }
+
+    strong {
+      color: #424d46;
+      font-weight: 600;
+    }
+  }
+
+  &__footer {
+    margin-top: 9px;
+    color: #89918c;
+    font-size: 10px;
+  }
+}
+
+.mentor-progress {
+  height: 4px;
+  overflow: hidden;
+  border-radius: 0;
+  background: #edf0ee;
+
+  &__fill {
+    height: 100%;
+    border-radius: 0;
+    background: #315c43;
+    transition: width 0.3s ease;
+  }
+}
+
+/* Upcoming sessions */
+
+.mentor-session-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.mentor-session {
+  display: flex;
+  gap: 13px;
+  padding: 14px 0;
+  border-bottom: 1px solid #edf0ee;
+
+  &:first-child {
+    padding-top: 0;
+  }
+
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  &__date {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 76px;
+
+    span {
+      color: #59675e;
+      font-size: 10px;
+    }
+
+    strong {
+      margin-top: 5px;
+      color: #303a34;
+      font-size: 11px;
+      font-weight: 600;
+    }
+  }
+
+  &__details {
+    min-width: 0;
+
+    h3 {
+      margin: 0;
+      color: #303a34;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.5;
+    }
+
+    p {
+      margin: 5px 0;
+      color: #7d8680;
+      font-size: 10px;
+    }
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 7px;
+
+    span {
+      color: #858e88;
+      font-size: 10px;
+    }
+  }
+
+  &__type {
+    color: #42634e !important;
+    font-weight: 600;
+  }
+}
+
+/* Mentees requiring attention */
+
+.mentor-attention-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.mentor-attention-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid #edf0ee;
+
+  &:first-child {
+    padding-top: 0;
+  }
+
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  &__main {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+
+    h3 {
+      margin: 0;
+      color: #303a34;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 4px 0;
+      color: #7d8680;
+      font-size: 10px;
+    }
+
+    span {
+      display: block;
+      color: #59645d;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+  }
+
+  &__status {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
+
+    small {
+      color: #89918c;
+      font-size: 10px;
+    }
+  }
+}
+
+.mentor-avatar {
+  display: none;
+}
+
+.mentor-priority {
+  color: #66716a;
+  font-size: 10px;
+  font-weight: 600;
+
+  &--high {
+    color: #a0443d;
+  }
+
+  &--medium {
+    color: #8a6a32;
+  }
+
+  &--low {
+    color: #66716a;
+  }
+}
+
+/* Recent activity */
+
+.mentor-activity-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.mentor-activity-item {
+  display: flex;
+  gap: 13px;
+  padding: 12px 0;
+  border-bottom: 1px solid #edf0ee;
+
+  &:first-child {
+    padding-top: 0;
+  }
+
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+}
+
+.mentor-activity-marker {
+  display: none;
+}
+
+.mentor-activity-item__content {
+  p {
+    margin: 0;
+    color: #66716a;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  strong {
+    color: #303a34;
+    font-weight: 600;
+  }
+
+  small {
+    display: block;
+    margin-top: 5px;
+    color: #89918c;
+    font-size: 10px;
+  }
+}
+
+/* Responsive layout */
+
+@media (max-width: 1100px) {
+  .mentor-statistics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    &__item:nth-child(2) {
+      border-right: 0;
+    }
+
+    &__item:nth-child(-n + 2) {
+      border-bottom: 1px solid #e8ebe9;
+    }
+  }
+
+  .mentor-dashboard__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .mentor-dashboard {
+    &__header {
+      margin-bottom: 22px;
+
+      h1 {
+        font-size: 22px;
+      }
+    }
+
+    &__footer {
+      flex-direction: column;
+      gap: 6px;
+    }
+  }
+
+  .mentor-statistics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    &__item {
+      padding: 15px;
+    }
+
+    &__value {
+      font-size: 23px;
+    }
+  }
+
+  .mentor-panel {
+    padding: 15px;
+  }
+
+  .mentor-attention-item {
+    align-items: flex-start;
+    flex-direction: column;
+
+    &__status {
+      align-items: flex-start;
+      padding-left: 0;
+    }
+  }
+
+  .mentor-cohort__summary {
+    gap: 8px;
+  }
+}

@@ -7,7 +7,16 @@ import Topbar from './components/layout/topbar/Topbar'
 import type { UserRole } from './config/roles'
 import { navigationByRole } from './config/navigation'
 
-import OverviewPage from './features/county-mentor/pages/OverviewPage'
+import CountyMentorOverviewPage from './features/county-mentor/pages/OverviewPage'
+
+import MentorOverviewPage from './features/mentor/pages/OverviewPage'
+import MyCohortsPage from './features/mentor/pages/MyCohortsPage'
+import MenteesPage from './features/mentor/pages/MenteesPage'
+import LearningPlanPage from './features/mentor/pages/LearningPlanPage'
+import AssessmentsPage from './features/mentor/pages/AssessmentsPage'
+import ResourcesPage from './features/mentor/pages/ResourcesPage'
+import CohortSubmissionsPage from './features/mentor/pages/CohortSubmissionsPage'
+import FeedbackPage from './features/mentor/pages/FeedbackPage'
 
 import './App.css'
 
@@ -43,6 +52,87 @@ function App() {
     setActivePath(path)
   }
 
+  function renderPage() {
+    // COUNTY MENTOR DASHBOARD
+    if (
+      activeRole === 'county-mentor' &&
+      activePath === '/county-mentor/overview'
+    ) {
+      return <CountyMentorOverviewPage title={pageTitle} />
+    }
+
+    // MENTOR OVERVIEW
+    if (
+      activeRole === 'mentor' &&
+      activePath === '/mentor/overview'
+    ) {
+      return <MentorOverviewPage title={pageTitle} />
+    }
+
+    // MENTOR - MY COHORTS
+    if (
+      activeRole === 'mentor' &&
+      activePath === '/mentor/cohorts'
+    ) {
+      return <MyCohortsPage title={pageTitle} />
+    }
+
+    // MENTOR - MENTEES
+    if (
+      activeRole === 'mentor' &&
+      activePath === '/mentor/mentees'
+    ) {
+      return <MenteesPage title={pageTitle} />
+    }
+
+    // MENTOR - LEARNING PLAN
+    if (
+      activeRole === 'mentor' &&
+      activePath === '/mentor/learning-plan'
+    ) {
+      return <LearningPlanPage title={pageTitle} />
+    }
+
+    // MENTOR - ASSESSMENTS
+    if (
+      activeRole === 'mentor' &&
+      activePath === '/mentor/assessments'
+    ) {
+      return <AssessmentsPage title={pageTitle} />
+    }
+        if (
+      activeRole === 'mentor' &&
+      activePath === '/mentor/resources'
+    ) {
+      return <ResourcesPage title={pageTitle} />
+    }
+            if (
+      activeRole === 'mentor' &&
+      activePath === '/mentor/cohort-submissions'
+    ) {
+      return <CohortSubmissionsPage title={pageTitle} />
+    }
+                if (
+      activeRole === 'mentor' &&
+      activePath === '/mentor/feedback'
+    ) {
+      return <FeedbackPage title={pageTitle} />
+    }
+
+    // OTHER PAGES - TEMPORARY PLACEHOLDER
+    return (
+      <section className="section-placeholder">
+        <p>{currentNavigation.title.toUpperCase()}</p>
+
+        <h1>{pageTitle}</h1>
+
+        <span>
+          This section will be implemented in its own feature module.
+        </span>
+      </section>
+    )
+  }
+
   return (
     <div className="app-layout">
       <Sidebar
@@ -59,20 +149,7 @@ function App() {
         />
 
         <div className="app-content">
-          {activeRole === 'county-mentor' &&
-          activePath === '/county-mentor/overview' ? (
-            <OverviewPage title={pageTitle} />
-          ) : (
-            <section className="section-placeholder">
-              <p>{currentNavigation.title.toUpperCase()}</p>
-
-              <h1>{pageTitle}</h1>
-
-              <span>
-                This section will be implemented in its own feature module.
-              </span>
-            </section>
-          )}
+          {renderPage()}
         </div>
       </main>
     </div>
