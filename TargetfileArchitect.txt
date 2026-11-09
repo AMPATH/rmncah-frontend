@@ -1,0 +1,220 @@
+EmONC/
+│
+├── public/
+│   ├── images/
+│   ├── icons/
+│   └── favicon.svg
+│
+├── src/
+│   │
+│   ├── app/
+│   │   ├── App.tsx
+│   │   ├── AppProviders.tsx
+│   │   ├── AppRouter.tsx
+│   │   ├── RouteGuard.tsx
+│   │   └── routes.tsx
+│   │
+│   ├── assets/
+│   │   ├── images/
+│   │   ├── icons/
+│   │   └── fonts/
+│   │
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── sidebar/
+│   │   │   │   ├── Sidebar.tsx
+│   │   │   │   ├── SidebarBrand.tsx
+│   │   │   │   ├── SidebarNavigation.tsx
+│   │   │   │   ├── SidebarNavItem.tsx
+│   │   │   │   └── Sidebar.scss
+│   │   │   │
+│   │   │   ├── topbar/
+│   │   │   │   ├── Topbar.tsx
+│   │   │   │   └── Topbar.scss
+│   │   │   │
+│   │   │   ├── DashboardLayout.tsx
+│   │   │   └── PageContainer.tsx
+│   │   │
+│   │   ├── common/
+│   │   │   ├── PageHeader.tsx
+│   │   │   ├── StatCard.tsx
+│   │   │   ├── EmptyState.tsx
+│   │   │   ├── LoadingState.tsx
+│   │   │   ├── ErrorState.tsx
+│   │   │   ├── ConfirmDialog.tsx
+│   │   │   └── StatusBadge.tsx
+│   │   │
+│   │   ├── forms/
+│   │   ├── tables/
+│   │   └── feedback/
+│   │
+│   ├── config/
+│   │   ├── roles.ts
+│   │   ├── permissions.ts
+│   │   └── navigation/
+│   │       ├── navigation.types.ts
+│   │       ├── index.ts
+│   │       ├── programLead.tsx
+│   │       ├── countyMentor.tsx
+│   │       ├── mentor.tsx
+│   │       ├── mentee.tsx
+│   │       └── developer.tsx
+│   │
+│   ├── features/
+│   │   │
+│   │   ├── program-lead/
+│   │   │   ├── pages/
+│   │   │   │   ├── OverviewPage.tsx
+│   │   │   │   ├── TrainingModulesPage.tsx
+│   │   │   │   ├── ModuleSectionsPage.tsx
+│   │   │   │   ├── LearningMaterialsPage.tsx
+│   │   │   │   └── ModuleLibraryPage.tsx
+│   │   │   ├── components/
+│   │   │   │   ├── dashboard/
+│   │   │   │   ├── modules/
+│   │   │   │   ├── sections/
+│   │   │   │   ├── materials/
+│   │   │   │   └── library/
+│   │   │   ├── services/
+│   │   │   ├── types/
+│   │   │   └── styles/
+│   │   │
+│   │   ├── county-mentor/
+│   │   │   ├── pages/
+│   │   │   │   ├── OverviewPage.tsx
+│   │   │   │   ├── MentorsPage.tsx
+│   │   │   │   ├── MenteesPage.tsx
+│   │   │   │   ├── CohortsPage.tsx
+│   │   │   │   ├── FacilitiesPage.tsx
+│   │   │   │   ├── SiteAssessmentsPage.tsx
+│   │   │   │   ├── FeedbackChallengesPage.tsx
+│   │   │   │   ├── CertificationPage.tsx
+│   │   │   │   └── ReportsPage.tsx
+│   │   │   ├── components/
+│   │   │   │   ├── dashboard/
+│   │   │   │   ├── mentors/
+│   │   │   │   ├── mentees/
+│   │   │   │   ├── cohorts/
+│   │   │   │   ├── facilities/
+│   │   │   │   ├── assessments/
+│   │   │   │   ├── feedback/
+│   │   │   │   ├── certification/
+│   │   │   │   └── reports/
+│   │   │   ├── services/
+│   │   │   ├── types/
+│   │   │   └── styles/
+│   │   │
+│   │   ├── mentor/
+│   │   │   ├── pages/
+│   │   │   │   ├── OverviewPage.tsx
+│   │   │   │   ├── MyCohortsPage.tsx
+│   │   │   │   ├── MenteesPage.tsx
+│   │   │   │   ├── LearningPlanPage.tsx
+│   │   │   │   ├── AssessmentsPage.tsx
+│   │   │   │   ├── ResourcesPage.tsx
+│   │   │   │   ├── CohortSubmissionsPage.tsx
+│   │   │   │   └── FeedbackPage.tsx
+│   │   │   ├── components/
+│   │   │   │   ├── dashboard/
+│   │   │   │   ├── cohorts/
+│   │   │   │   ├── mentees/
+│   │   │   │   ├── learning-plan/
+│   │   │   │   ├── assessments/
+│   │   │   │   ├── resources/
+│   │   │   │   ├── submissions/
+│   │   │   │   └── feedback/
+│   │   │   ├── services/
+│   │   │   ├── types/
+│   │   │   └── styles/
+│   │   │
+│   │   ├── mentee/
+│   │   │   ├── pages/
+│   │   │   │   ├── OverviewPage.tsx
+│   │   │   │   ├── MyLearningPage.tsx
+│   │   │   │   ├── SchedulePage.tsx
+│   │   │   │   ├── AssessmentsPage.tsx
+│   │   │   │   ├── ResourcesPage.tsx
+│   │   │   │   └── FeedbackPage.tsx
+│   │   │   ├── components/
+│   │   │   │   ├── dashboard/
+│   │   │   │   ├── learning/
+│   │   │   │   ├── schedule/
+│   │   │   │   ├── assessments/
+│   │   │   │   ├── resources/
+│   │   │   │   └── feedback/
+│   │   │   ├── services/
+│   │   │   ├── types/
+│   │   │   └── styles/
+│   │   │
+│   │   └── developer/
+│   │       ├── pages/
+│   │       │   ├── OverviewPage.tsx
+│   │       │   ├── UserManagementPage.tsx
+│   │       │   ├── RolePermissionsPage.tsx
+│   │       │   ├── SystemConfigurationPage.tsx
+│   │       │   ├── ModuleManagementPage.tsx
+│   │       │   ├── AuditLogsPage.tsx
+│   │       │   └── ReportsPage.tsx
+│   │       ├── components/
+│   │       │   ├── dashboard/
+│   │       │   ├── users/
+│   │       │   ├── permissions/
+│   │       │   ├── configuration/
+│   │       │   ├── modules/
+│   │       │   ├── audit/
+│   │       │   └── reports/
+│   │       ├── services/
+│   │       ├── types/
+│   │       └── styles/
+│   │
+│   ├── services/
+│   │   ├── api/
+│   │   │   ├── apiClient.ts
+│   │   │   ├── endpoints.ts
+│   │   │   └── api.types.ts
+│   │   └── auth/
+│   │       └── authService.ts
+│   │
+│   ├── hooks/
+│   │   ├── useAuth.ts
+│   │   └── useCurrentUser.ts
+│   │
+│   ├── types/
+│   │   ├── user.types.ts
+│   │   ├── api.types.ts
+│   │   └── common.types.ts
+│   │
+│   ├── utils/
+│   │   ├── date.utils.ts
+│   │   ├── format.utils.ts
+│   │   └── validation.utils.ts
+│   │
+│   ├── styles/
+│   │   ├── _variables.scss
+│   │   ├── _mixins.scss
+│   │   ├── _reset.scss
+│   │   ├── _typography.scss
+│   │   └── global.scss
+│   │
+│   ├── App.css
+│   ├── index.css
+│   └── main.tsx
+│
+├── tests/
+│   ├── components/
+│   ├── features/
+│   │   ├── program-lead/
+│   │   ├── county-mentor/
+│   │   ├── mentor/
+│   │   ├── mentee/
+│   │   └── developer/
+│   └── integration/
+│
+├── .env.example
+├── .gitignore
+├── eslint.config.js
+├── index.html
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+└── README.md

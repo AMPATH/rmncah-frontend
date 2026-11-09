@@ -7,6 +7,13 @@ import type { UserRole } from './config/roles'
 import { navigationByRole } from './config/navigation'
 
 import CountyMentorOverviewPage from './features/county-mentor/pages/OverviewPage'
+import CountyMentorsPage from './features/county-mentor/pages/MentorsPage'
+import CountyCohortsPage from './features/county-mentor/pages/CohortsPage'
+import CountyMenteesPage from './features/county-mentor/pages/MenteesPage'
+import CountyFacilitiesPage from './features/county-mentor/pages/FacilitiesPage'
+import CountySiteAssessmentsPage from './features/county-mentor/pages/SiteAssessmentsPage'
+import CountyFeedbackPage from './features/county-mentor/pages/FeedbackPage'
+
 
 import MentorOverviewPage from './features/mentor/pages/OverviewPage'
 import MyCohortsPage from './features/mentor/pages/MyCohortsPage'
@@ -59,12 +66,74 @@ function App() {
 
   function renderPage() {
     // COUNTY MENTOR DASHBOARD
-    if (
-      activeRole === 'county-mentor' &&
-      activePath === '/county-mentor/overview'
-    ) {
-      return <CountyMentorOverviewPage title={pageTitle} />
-    }
+// COUNTY MENTOR - OVERVIEW
+if (
+  activeRole === 'county-mentor' &&
+  activePath === '/county-mentor/overview'
+) {
+  return (
+    <CountyMentorOverviewPage
+      title={pageTitle}
+      onNavigate={handleNavigate}
+    />
+  )
+
+}
+
+ // COUNTY MENTOR - MENTORS
+if (
+  activeRole === 'county-mentor' &&
+  activePath === '/county-mentor/mentors'
+) {
+  return <CountyMentorsPage title={pageTitle} />
+}
+
+
+if (
+  activeRole === 'county-mentor' &&
+  activePath === '/county-mentor/cohorts'
+) {
+  return (
+    <CountyCohortsPage
+      title={pageTitle}
+    />
+  )
+}
+
+if (
+  activeRole === 'county-mentor' &&
+  activePath === '/county-mentor/mentees'
+) {
+  return (
+    <CountyMenteesPage
+      title={pageTitle}
+    />
+  )
+}
+
+// COUNTY MENTOR - FACILITIES
+if (
+  activeRole === 'county-mentor' &&
+  activePath === '/county-mentor/facilities'
+) {
+  return <CountyFacilitiesPage title={pageTitle} />
+}
+// COUNTY MENTOR - SITE ASSESSMENTS
+if (
+  activeRole === 'county-mentor' &&
+  activePath === '/county-mentor/site-assessments'
+) {
+  return <CountySiteAssessmentsPage title={pageTitle} />
+}
+
+
+// COUNTY MENTOR - FEEDBACK & CHALLENGES
+if (
+  activeRole === 'county-mentor' &&
+  activePath === '/county-mentor/feedback'
+) {
+  return <CountyFeedbackPage title={pageTitle} />
+}
 
     // PROGRAM LEAD - OVERVIEW
     if (
@@ -122,7 +191,6 @@ if (
     />
   )
 }
-
     // MENTOR OVERVIEW
     if (
       activeRole === 'mentor' &&

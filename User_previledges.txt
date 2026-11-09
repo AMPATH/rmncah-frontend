@@ -1,0 +1,355 @@
+# EmONC Mentorship System — Application Roles, Sidebar Navigation & Capabilities
+
+This is the consolidated role and privilege specification for the frontend architecture. It combines the original workflow requirements with our subsequent decisions about the five application roles.
+
+The system will have five application roles, each with its own dashboard, sidebar navigation, pages and permissions. All roles will use the same reusable sidebar component.
+
+## 1. Program Lead — National / Program Level
+
+Role 01
+
+Primary responsibility: Training content and module management.
+
+### Sidebar navigation and capabilities
+
+| Sidebar section    | Capabilities                                                                                                |
+| ------------------ | ----------------------------------------------------------------------------------------------------------- |
+| Overview           | View training content activity, module statistics, publishing status and content summaries.                 |
+| Training Modules   | Create, view, edit, organize and manage training modules.                                                   |
+| Module Sections    | Create sections under modules, edit section details, organize section sequences and manage section content. |
+| Learning Materials | Upload, organize, view, update and manage e-books, slides, videos and other learning materials.             |
+| Module Library     | Publish modules and learning materials, view published content and manage content availability for mentors. |
+
+### Key responsibilities
+
+- Create and manage training modules.
+- Add and organize sections under each module.
+- Upload learning materials.
+- Organize e-books, slides and videos.
+- Publish modules and learning materials to the Module Library.
+- Make published learning content available for mentors to select.
+
+Expected outcome: A centralized library of approved training modules, sections and learning materials for mentorship activities.
+
+## 2. County Mentor / RH / MOH
+
+
+
+Role 02
+
+Unified dashboard and privileges
+
+
+
+Primary responsibility: County-level account management, mentorship coordination, monitoring and oversight.
+
+County Mentor, RH and MOH will share one application role, one dashboard, one sidebar and one set of privileges for now.
+
+### Sidebar navigation and capabilities
+
+| Sidebar section       | Capabilities                                                                                                                                                                         |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Overview              | View county-wide mentorship activity, mentor statistics, mentee statistics, cohort summaries and overall progress.                                                                   |
+| Mentors               | Create mentor accounts, view mentor profiles, update account information, activate accounts, deactivate accounts and monitor mentor activity.                                        |
+| Mentees               | Create mentee accounts, view mentee profiles, update account information, activate accounts, deactivate accounts and monitor individual learning progress.                           |
+| Cohorts               | View and monitor cohorts, track cohort progress, review cohort membership, reassign cohorts to other mentors, transfer mentees between cohorts and record reasons for these changes. |
+| Facilities            | View and manage facility information and coordinate mentorship activities associated with facilities.                                                                                |
+| Site assessments      | View, manage and monitor facility site assessments and their outcomes.                                                                                                               |
+| Feedback & challenges | Review feedback submitted by mentors and mentees, review reported challenges, coordinate follow-up support and monitor resolution.                                                   |
+| Certification         | Review completed cohort submissions, coordinate mentor certification with MOH and monitor certification progress.                                                                    |
+| Reports               | Generate individual mentee reports, mentor reports, cohort reports and county-level progress reports. Support continuous improvement through reporting.                              |
+
+### Key responsibilities
+
+- Create mentor and mentee accounts.
+- View and update user accounts.
+- Activate and deactivate accounts.
+- Monitor individual mentee progress.
+- Monitor overall cohort progress.
+- Review feedback and challenges.
+- Coordinate cohort reassignment.
+- Coordinate mentee transfers.
+- Record reasons for cohort reassignment and mentee transfers.
+- Review completed cohort submissions.
+- Coordinate mentor certification.
+- Generate individual and cohort reports.
+- Support continuous improvement.
+
+### Important workflow rules
+
+Cohort reassignment
+
+- Transfer responsibility for an existing cohort to another mentor.
+- Record the reason for reassignment.
+- Preserve the cohort's existing records and progress.
+
+Mentee transfer
+
+- Move an individual mentee from one cohort to another.
+- Record the reason for transfer.
+- Preserve the mentee's historical learning progress and assessment records.
+
+Certification
+
+- Receive completed cohort submissions.
+- Review cohort completion information.
+- Coordinate mentor certification.
+- Track certification progress.
+
+Expected outcome: County-level oversight of mentorship activities, users, cohorts, progress, feedback and mentor certification.
+
+## 3. Mentor
+
+Role 03
+
+Primary responsibility: Cohort management, mentorship activities, training delivery and mentee competency development.
+
+### Sidebar navigation and capabilities
+
+| Sidebar section    | Capabilities                                                                                                                                                                                             |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Overview           | View assigned cohorts, mentee statistics, upcoming training activities, assessment summaries and overall mentorship progress.                                                                            |
+| My cohorts         | Create and manage training cohorts, view cohort information, manage cohort membership and monitor cohort activities.                                                                                     |
+| Mentees            | Add or invite mentees to cohorts, view mentee profiles, monitor individual progress and review mentee competency development.                                                                            |
+| Learning plan      | Select published training modules, select module sections, organize training content, plan training dates and structure mentorship activities.                                                           |
+| Assessments        | Assess mentee understanding, conduct theory quizzes, conduct practical assessments, record competency results, provide refresher training and coaching, and track assessment outcomes.                   |
+| Resources          | Access published learning materials, organize and share relevant e-books, slides, videos and other learning resources with mentees.                                                                      |
+| Cohort submissions | Review cohort completion status, confirm theory and practical competency requirements, mark modules completed for cohorts where requirements are met and submit completed cohorts to County Mentor / RH. |
+| Feedback           | Submit feedback, report mentorship challenges and communicate issues requiring additional support.                                                                                                       |
+
+### Key responsibilities
+
+- Create and manage training cohorts.
+- Add or invite mentees to cohorts.
+- Select published training modules.
+- Select module sections.
+- Plan training dates.
+- Share learning resources.
+- Conduct theory training online or in person.
+- Conduct practical training and demonstrations.
+- Assess mentee understanding.
+- Conduct theory quizzes.
+- Conduct practical assessments.
+- Provide refresher training and coaching.
+- Record competency results.
+- Mark modules as completed for a cohort when competency requirements are met.
+- Track mentee progress.
+- Submit completed cohorts to County Mentor / RH.
+
+### Important workflow rules
+
+Training delivery
+
+- Select modules from the published Module Library.
+- Organize theory and practical training.
+- Plan training dates and share resources.
+- Record participation and training outcomes.
+
+Competency assessment
+
+- Evaluate mentee understanding.
+- Conduct theory and practical assessments.
+- Record results.
+- If competency requirements are not met, provide refresher training and additional coaching.
+- Repeat the relevant assessment as required.
+
+Module completion
+
+\- Mark a module completed for a cohort only after the required competency has been achieved.
+
+Cohort submission
+
+- Confirm that cohort completion requirements have been met.
+- Submit completed cohorts to County Mentor / RH for review.
+
+Expected outcome: Effective training delivery, improved mentee competency and successful completion of mentorship cohorts.
+
+## 4. Mentee
+
+Role 04
+
+Primary responsibility: Personal learning, assessment participation and competency development.
+
+### Sidebar navigation and capabilities
+
+| Sidebar section | Capabilities                                                                                                                                    |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Overview        | View personal learning progress, assigned modules, upcoming training activities, assessment summaries and completion status.                    |
+| My learning     | Access assigned training modules, view module sections, study assigned learning content and monitor module and section completion status.       |
+| Schedule        | View assigned cohorts, upcoming training dates, scheduled theory sessions, practical training and mentorship activities.                        |
+| Assessments     | Participate in theory quizzes, complete assigned assessments, participate in practical assessments and view assessment results where permitted. |
+| Resources       | Access assigned e-books, slides, videos and other learning materials shared by mentors.                                                         |
+| Feedback        | Submit feedback, report challenges and communicate learning or mentorship difficulties.                                                         |
+
+### Key responsibilities
+
+- Access assigned training modules.
+- Access learning materials.
+- View assigned cohorts and training schedules.
+- Participate in theory training.
+- Participate in practical training.
+- Complete theory quizzes.
+- Participate in practical assessments.
+- View personal progress.
+- View module and section completion status.
+- Share feedback and report challenges.
+
+### Important workflow rules
+
+- Mentees access learning modules assigned to their cohorts.
+- Mentees can track their own learning progress.
+- Mentees participate in theory and practical assessments.
+- Mentees can submit feedback and report challenges.
+- Mentees cannot independently mark modules or cohorts as completed.
+
+Expected outcome: A clear personal learning journey with access to training materials, scheduled activities, assessments and progress information.
+
+## 5. Developer / System Administrator
+
+Role 05
+
+Primary responsibility: Technical configuration, system administration and application maintenance.
+
+Developer and System Administrator will share one application role, one dashboard, one sidebar and one set of privileges for now.
+
+### Sidebar navigation and capabilities
+
+| Sidebar section      | Capabilities                                                                                                    |
+| -------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Overview             | View system status, administrative summaries, system activity and important technical information.              |
+| User Management      | View and manage application user accounts, account status and user administration records.                      |
+| Role & Permissions   | Manage application roles, role assignments and access permissions, subject to the system's authorization rules. |
+| System Configuration | Manage application settings, technical configurations and system-wide setup.                                    |
+| Module Management    | Monitor training module configuration and support technical maintenance of module-related functionality.        |
+| Audit Logs           | Review system activity, administrative actions and relevant security events.                                    |
+| Reports              | View system usage, administrative activity and technical reports.                                               |
+
+### Key responsibilities
+
+- Handle system configuration and setup.
+- Maintain application settings.
+- Support technical administration.
+- Manage system-level user and role configuration.
+- Monitor administrative activity.
+- Review audit records.
+- Support system maintenance and troubleshooting.
+
+Expected outcome: A properly configured, secure and maintainable application.
+
+Note: The Developer / System Administrator navigation above is our initial standard administration proposal. These privileges should be finalized against the technical administration requirements.
+
+# 6. Consolidated sidebar navigation matrix
+
+This is the complete reference for the role-specific sidebar configurations.
+
+| Navigation section    | Program Lead | County Mentor / RH / MOH | Mentor | Mentee | Developer |
+| --------------------- | ------------ | ------------------------ | ------ | ------ | --------- |
+| Overview              | ✓            | ✓                        | ✓      | ✓      | ✓         |
+| Training Modules      | ✓            | —                        | —      | —      | —         |
+| Module Sections       | ✓            | —                        | —      | —      | —         |
+| Learning Materials    | ✓            | —                        | —      | —      | —         |
+| Module Library        | ✓            | —                        | —      | —      | —         |
+| Mentors               | —            | ✓                        | —      | —      | —         |
+| Mentees               | —            | ✓                        | ✓      | —      | —         |
+| Cohorts               | —            | ✓                        | —      | —      | —         |
+| Facilities            | —            | ✓                        | —      | —      | —         |
+| Site assessments      | —            | ✓                        | —      | —      | —         |
+| Feedback & challenges | —            | ✓                        | —      | —      | —         |
+| Certification         | —            | ✓                        | —      | —      | —         |
+| Reports               | —            | ✓                        | —      | —      | ✓         |
+| My cohorts            | —            | —                        | ✓      | —      | —         |
+| Learning plan         | —            | —                        | ✓      | —      | —         |
+| Assessments           | —            | —                        | ✓      | ✓      | —         |
+| Resources             | —            | —                        | ✓      | ✓      | —         |
+| Cohort submissions    | —            | —                        | ✓      | —      | —         |
+| Feedback              | —            | —                        | ✓      | ✓      | —         |
+| My learning           | —            | —                        | —      | ✓      | —         |
+| Schedule              | —            | —                        | —      | ✓      | —         |
+| User Management       | —            | —                        | —      | —      | ✓         |
+| Role & Permissions    | —            | —                        | —      | —      | ✓         |
+| System Configuration  | —            | —                        | —      | —      | ✓         |
+| Module Management     | —            | —                        | —      | —      | ✓         |
+| Audit Logs            | —            | —                        | —      | —      | ✓         |
+
+The matrix describes sidebar visibility, not the complete permission model. For example, Mentor and Mentee both see Assessments, but they have different actions and access rights.
+
+# 7. Application architecture
+
+All five roles will use the same shared dashboard infrastructure.
+
+```
+EmONC Mentorship System
+│
+├── Program Lead Dashboard
+│   └── Program Lead Navigation
+│
+├── County Mentor / RH / MOH Dashboard
+│   └── County Mentor Navigation
+│
+├── Mentor Dashboard
+│   └── Mentor Navigation
+│
+├── Mentee Dashboard
+│   └── Mentee Navigation
+│
+└── Developer / System Administrator Dashboard
+    └── Developer Navigation
+
+
+          SHARED DASHBOARD LAYOUT
+                    │
+          ┌─────────┴─────────┐
+          │                   │
+       Sidebar              Topbar
+          │
+   Role-specific navigation
+          │
+   Role-specific pages
+```
+
+## 8. Navigation configuration files
+
+The configuration will be maintained independently for each role:
+
+```
+src/config/navigation/
+│
+├── navigation.types.ts
+├── programLead.tsx
+├── countyMentor.tsx
+├── mentor.tsx
+├── mentee.tsx
+├── developer.tsx
+└── index.ts
+```
+
+Role identifiers:
+
+| Role                             | Identifier      |
+| -------------------------------- | --------------- |
+| Program Lead                     | `program-lead`  |
+| County Mentor / RH / MOH         | `county-mentor` |
+| Mentor                           | `mentor`        |
+| Mentee                           | `mentee`        |
+| Developer / System Administrator | `developer`     |
+
+## 9. Rules governing privileges
+
+1. Every application role has its own navigation configuration.
+2. The sidebar component is shared across all roles.
+3. Each navigation item must lead to a corresponding implemented feature and page when that feature is released.
+4. Related operations should be grouped inside their appropriate pages rather than creating excessive sidebar items.
+5. A user must only see the navigation permitted for their assigned role.
+6. Page-level actions must respect the user's permissions.
+7. Backend authorization must independently enforce all protected operations.
+8. Changing a role in a development selector must never grant real permissions.
+9. Cohort reassignment and mentee transfer must record reasons.
+10. Mentee transfers must preserve historical progress.
+11. Module completion, cohort completion and mentor certification must remain distinct workflows.
+12. Mentor certification follows the successful cohort completion and review process.
+13. Developer / System Administrator remains one role until separate privileges are formally required.
+14. County Mentor / RH / MOH remains one unified role with one dashboard and one permission set.
+
+Consolidated specification
+
+This is our working role-and-sidebar specification for EmONC V2. We should use it to implement the five navigation configurations, then build the actual role-specific pages and permission checks incrementally.
