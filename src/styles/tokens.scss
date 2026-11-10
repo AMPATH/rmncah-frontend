@@ -1,0 +1,14 @@
+
+$primary: #1d4ed8;
+$background: #f4f5f4;
+$card: #ffffff;
+$border: #dde1df;
+$text: #1c2321;
+$muted: #5f6b67;
+
+
+@mixin box {
+  background: $card;
+  border: 1px solid $border;
+  border-radius: 8px;
+}

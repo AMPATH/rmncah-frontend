@@ -1,0 +1,6 @@
+@use '../../../styles/tokens' as *;
+
+.topbar {
+  background-color: $primary;
+  border-block-end: none;
+}
