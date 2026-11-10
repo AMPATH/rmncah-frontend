@@ -1,0 +1,53 @@
+@use 'tokens' as *;
+
+
+
+.form-card {
+  @include box;
+  padding: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-note {
+  margin: 16px 0;
+  font-size: 0.85rem;
+  color: $muted;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  input,
+  select,
+  textarea {
+    padding: 9px 10px;
+    border: 1px solid $border;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: #ffffff;
+
+    &:focus {
+      outline: 2px solid $primary;
+      outline-offset: -1px;
+    }
+  }
+
+  select:disabled {
+    background: $background;
+    color: $muted;
+  }
+}
