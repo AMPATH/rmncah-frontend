@@ -1,3 +1,4 @@
+.emonc-app {
 .program-dashboard {
   width: 100%;
   max-width: 1600px;
@@ -437,4 +438,5 @@
   .program-statistics {
     grid-template-columns: minmax(0, 1fr);
   }
+}
 }

@@ -7,20 +7,20 @@ import {
   Checkmark,
 } from '@carbon/icons-react'
 
-import { roles, type UserRole } from '../../../config/roles'
-import './Topbar.scss'
+import { roles, type UserRole } from '../../../../../config/roles'
+import './EmONCTopbar.scss'
 
-interface TopbarProps {
+interface EmONCTopbarProps {
   pageTitle: string
   activeRole: UserRole
   onRoleChange: (role: UserRole) => void
 }
 
-export default function Topbar({
+export default function EmONCTopbar({
   pageTitle,
   activeRole,
   onRoleChange,
-}: TopbarProps) {
+}: EmONCTopbarProps) {
   const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false)
   const roleSwitcherRef = useRef<HTMLDivElement>(null)
 
@@ -67,17 +67,17 @@ export default function Topbar({
   }
 
   return (
-    <header className="topbar">
-      <div className="topbar__breadcrumb">
+    <header className="emonc-topbar">
+      <div className="emonc-topbar__breadcrumb">
         <span>Workspace</span>
-        <span className="topbar__breadcrumb-separator">/</span>
+        <span className="emonc-topbar__breadcrumb-separator">/</span>
         <strong>{pageTitle}</strong>
       </div>
 
-      <div className="topbar__actions">
+      <div className="emonc-topbar__actions">
         <button
           type="button"
-          className="topbar__icon-button"
+          className="emonc-topbar__icon-button"
           aria-label="Search"
         >
           <Search size={20} />
@@ -85,49 +85,49 @@ export default function Topbar({
 
         <button
           type="button"
-          className="topbar__icon-button"
+          className="emonc-topbar__icon-button"
           aria-label="Notifications"
         >
           <Notification size={20} />
         </button>
 
         <div
-          className="topbar__role-switcher"
+          className="emonc-topbar__role-switcher"
           ref={roleSwitcherRef}
         >
           <button
             type="button"
-            className={`topbar__role-trigger ${
-              isRoleMenuOpen ? 'topbar__role-trigger--open' : ''
+            className={`emonc-topbar__role-trigger ${
+              isRoleMenuOpen ? 'emonc-topbar__role-trigger--open' : ''
             }`}
             aria-label="Select application role"
             aria-expanded={isRoleMenuOpen}
             aria-haspopup="menu"
             onClick={() => setIsRoleMenuOpen((open) => !open)}
           >
-            <span className="topbar__profile">
+            <span className="emonc-topbar__profile">
               {selectedRole?.shortLabel ?? 'CM'}
             </span>
 
-            <span className="topbar__role-name">
+            <span className="emonc-topbar__role-name">
               {selectedRole?.label ?? 'County Mentor / RH'}
             </span>
 
             <ChevronDown
               size={16}
-              className={`topbar__chevron ${
-                isRoleMenuOpen ? 'topbar__chevron--open' : ''
+              className={`emonc-topbar__chevron ${
+                isRoleMenuOpen ? 'emonc-topbar__chevron--open' : ''
               }`}
             />
           </button>
 
           {isRoleMenuOpen && (
             <div
-              className="topbar__role-menu"
+              className="emonc-topbar__role-menu"
               role="menu"
               aria-label="Switch application role"
             >
-              <div className="topbar__role-menu-heading">
+              <div className="emonc-topbar__role-menu-heading">
                 SWITCH ROLE
               </div>
 
@@ -140,13 +140,13 @@ export default function Topbar({
                     key={role.id}
                     role="menuitemradio"
                     aria-checked={isActive}
-                    className={`topbar__role-option ${
-                      isActive ? 'topbar__role-option--active' : ''
+                    className={`emonc-topbar__role-option ${
+                      isActive ? 'emonc-topbar__role-option--active' : ''
                     }`}
                     onClick={() => handleRoleSelection(role.id)}
                   >
-                    <span className="topbar__role-option-label">
-                      <span className="topbar__role-option-avatar">
+                    <span className="emonc-topbar__role-option-label">
+                      <span className="emonc-topbar__role-option-avatar">
                         {role.shortLabel}
                       </span>
 
@@ -156,7 +156,7 @@ export default function Topbar({
                     {isActive && (
                       <Checkmark
                         size={16}
-                        className="topbar__role-check"
+                        className="emonc-topbar__role-check"
                       />
                     )}
                   </button>

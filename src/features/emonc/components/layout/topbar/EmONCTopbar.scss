@@ -1,5 +1,6 @@
+.emonc-app {
 
-.topbar {
+.emonc-topbar {
   position: relative;
   z-index: 100;
 
@@ -22,7 +23,7 @@
 
 /* Breadcrumb */
 
-.topbar__breadcrumb {
+.emonc-topbar__breadcrumb {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -31,24 +32,24 @@
   font-size: 13px;
 }
 
-.topbar__breadcrumb strong {
+.emonc-topbar__breadcrumb strong {
   color: #263c50;
   font-weight: 600;
 }
 
-.topbar__breadcrumb-separator {
+.emonc-topbar__breadcrumb-separator {
   color: #bdc9d4;
 }
 
 /* Topbar actions */
 
-.topbar__actions {
+.emonc-topbar__actions {
   display: flex;
   align-items: center;
   gap: 18px;
 }
 
-.topbar__icon-button {
+.emonc-topbar__icon-button {
   display: grid;
   place-items: center;
 
@@ -69,14 +70,14 @@
     color 0.2s ease;
 }
 
-.topbar__icon-button:hover {
+.emonc-topbar__icon-button:hover {
   background: #f1f5f9;
   color: #1769aa;
 }
 
 /* Role switcher */
 
-.topbar__role-switcher {
+.emonc-topbar__role-switcher {
   position: relative;
   display: flex;
   align-items: center;
@@ -84,7 +85,7 @@
 
 /* Role trigger */
 
-.topbar__role-trigger {
+.emonc-topbar__role-trigger {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -106,19 +107,19 @@
     box-shadow 0.2s ease;
 }
 
-.topbar__role-trigger:hover,
-.topbar__role-trigger--open {
+.emonc-topbar__role-trigger:hover,
+.emonc-topbar__role-trigger--open {
   background: #f8fafc;
   border-color: #a9bfd2;
 }
 
-.topbar__role-trigger--open {
+.emonc-topbar__role-trigger--open {
   box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.08);
 }
 
 /* Role avatar */
 
-.topbar__profile {
+.emonc-topbar__profile {
   display: grid;
   place-items: center;
 
@@ -138,7 +139,7 @@
 
 /* Selected role name */
 
-.topbar__role-name {
+.emonc-topbar__role-name {
   color: #263c50;
   font-size: 13px;
   font-weight: 600;
@@ -147,20 +148,20 @@
 
 /* Chevron */
 
-.topbar__chevron {
+.emonc-topbar__chevron {
   flex-shrink: 0;
   color: #8294a7;
 
   transition: transform 0.2s ease;
 }
 
-.topbar__chevron--open {
+.emonc-topbar__chevron--open {
   transform: rotate(180deg);
 }
 
 /* Dropdown menu */
 
-.topbar__role-menu {
+.emonc-topbar__role-menu {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
@@ -196,7 +197,7 @@
 
 /* Dropdown heading */
 
-.topbar__role-menu-heading {
+.emonc-topbar__role-menu-heading {
   padding: 10px 12px 12px;
 
   color: #8999aa;
@@ -207,7 +208,7 @@
 
 /* Role option */
 
-.topbar__role-option {
+.emonc-topbar__role-option {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -234,24 +235,24 @@
     color 0.2s ease;
 }
 
-.topbar__role-option:hover {
+.emonc-topbar__role-option:hover {
   background: #f3f7fb;
   color: #163b63;
 }
 
-.topbar__role-option--active {
+.emonc-topbar__role-option--active {
   background: #edf4fa;
   color: #163b63;
   font-weight: 600;
 }
 
-.topbar__role-option--active:hover {
+.emonc-topbar__role-option--active:hover {
   background: #e6eff8;
 }
 
 /* Option label */
 
-.topbar__role-option-label {
+.emonc-topbar__role-option-label {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -259,7 +260,7 @@
 
 /* Small avatar inside dropdown */
 
-.topbar__role-option-avatar {
+.emonc-topbar__role-option-avatar {
   display: grid;
   place-items: center;
 
@@ -276,14 +277,14 @@
   font-weight: 700;
 }
 
-.topbar__role-option--active .topbar__role-option-avatar {
+.emonc-topbar__role-option--active .emonc-topbar__role-option-avatar {
   background: #163b63;
   color: #ffffff;
 }
 
-/* Active checkmark */
 
-.topbar__role-check {
+
+.emonc-topbar__role-check {
   flex-shrink: 0;
   color: #1769aa;
 }
@@ -291,15 +292,15 @@
 /* Responsive layout */
 
 @media (max-width: 768px) {
-  .topbar {
+  .emonc-topbar {
     padding: 0 18px;
   }
 
-  .topbar__actions {
+  .emonc-topbar__actions {
     gap: 10px;
   }
 
-  .topbar__role-name {
+  .emonc-topbar__role-name {
     max-width: 145px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -307,29 +308,30 @@
 }
 
 @media (max-width: 480px) {
-  .topbar {
+  .emonc-topbar {
     padding: 0 12px;
   }
 
-  .topbar__breadcrumb {
+  .emonc-topbar__breadcrumb {
     gap: 7px;
     font-size: 11px;
   }
 
-  .topbar__actions {
+  .emonc-topbar__actions {
     gap: 5px;
   }
 
-  .topbar__role-trigger {
+  .emonc-topbar__role-trigger {
     gap: 7px;
     padding-right: 8px;
   }
 
-  .topbar__role-name {
+  .emonc-topbar__role-name {
     display: none;
   }
 
-  .topbar__role-menu {
+  .emonc-topbar__role-menu {
     width: min(280px, calc(100vw - 24px));
   }
+}
 }
