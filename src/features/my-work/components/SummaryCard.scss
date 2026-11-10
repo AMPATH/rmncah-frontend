@@ -1,0 +1,18 @@
+@use '../../../styles/tokens' as *;
+
+.summary-card {
+  @include box;
+  padding: 14px 16px;
+
+  &__title {
+    margin: 0 0 8px;
+    font-size: 0.85rem;
+    color: $muted;
+  }
+
+  &__count {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+}
