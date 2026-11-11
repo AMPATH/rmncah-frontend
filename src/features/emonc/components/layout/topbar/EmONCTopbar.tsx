@@ -37,7 +37,6 @@ export default function EmONCTopbar({
     (role) => role.id === activeRole
   )
 
-  // Close the role dropdown when clicking outside it.
   useEffect(() => {
     function handleOutsideClick(event: MouseEvent) {
       if (
@@ -55,7 +54,6 @@ export default function EmONCTopbar({
     }
   }, [])
 
-  // Close the role dropdown when pressing Escape.
   useEffect(() => {
     function handleEscape(event: KeyboardEvent) {
       if (event.key === 'Escape') {
@@ -70,7 +68,6 @@ export default function EmONCTopbar({
     }
   }, [])
 
-  // Handle application role selection.
   function handleRoleSelection(role: UserRole) {
     onRoleChange(role)
     setIsRoleMenuOpen(false)
@@ -78,8 +75,6 @@ export default function EmONCTopbar({
 
   return (
     <header className="emonc-topbar">
-
-      {/* Mobile navigation toggle */}
       <button
         type="button"
         className="emonc-topbar__menu-button"
@@ -99,20 +94,13 @@ export default function EmONCTopbar({
         )}
       </button>
 
-      {/* Current page breadcrumb */}
       <div className="emonc-topbar__breadcrumb">
         <span>Workspace</span>
-
-        <span className="emonc-topbar__breadcrumb-separator">
-          /
-        </span>
-
+        <span className="emonc-topbar__breadcrumb-separator">/</span>
         <strong>{pageTitle}</strong>
       </div>
 
-      {/* Topbar actions */}
       <div className="emonc-topbar__actions">
-
         <button
           type="button"
           className="emonc-topbar__icon-button"
@@ -129,7 +117,6 @@ export default function EmONCTopbar({
           <Notification size={20} />
         </button>
 
-        {/* Application role switcher */}
         <div
           className="emonc-topbar__role-switcher"
           ref={roleSwitcherRef}
@@ -146,12 +133,8 @@ export default function EmONCTopbar({
             aria-haspopup="menu"
             onClick={() => setIsRoleMenuOpen((open) => !open)}
           >
-            <span className="emonc-topbar__profile">
-              {selectedRole?.shortLabel ?? 'CM'}
-            </span>
-
             <span className="emonc-topbar__role-name">
-              {selectedRole?.label ?? 'County Mentor / RH'}
+              {selectedRole?.label ?? 'County Mentor / RH / MOH'}
             </span>
 
             <ChevronDown
@@ -191,10 +174,6 @@ export default function EmONCTopbar({
                     onClick={() => handleRoleSelection(role.id)}
                   >
                     <span className="emonc-topbar__role-option-label">
-                      <span className="emonc-topbar__role-option-avatar">
-                        {role.shortLabel}
-                      </span>
-
                       <span>{role.label}</span>
                     </span>
 
