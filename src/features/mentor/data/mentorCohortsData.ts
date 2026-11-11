@@ -1,0 +1,88 @@
+import type { MentorCohort } from '../types/mentor.types'
+
+export const mentorCohortsData: MentorCohort[] = [
+  {
+    id: 'cohort-001',
+    name: 'Cohort A',
+    facility: 'Facility A',
+    menteesCount: 10,
+    completedCount: 6,
+    inProgressCount: 3,
+    needsSupportCount: 1,
+    progress: 60,
+    status: 'Active',
+    startDate: '2026-09-01',
+    endDate: '2026-12-15',
+    trainingModules: [
+      'Postpartum Haemorrhage Management',
+      'Essential Newborn Care',
+      'Maternal Assessment',
+    ],
+    nextSession: '2026-11-09',
+    description:
+      'Mentorship cohort focusing on essential emergency obstetric and newborn care competencies.',
+  },
+  {
+    id: 'cohort-002',
+    name: 'Cohort B',
+    facility: 'Facility B',
+    menteesCount: 8,
+    completedCount: 4,
+    inProgressCount: 3,
+    needsSupportCount: 1,
+    progress: 50,
+    status: 'Active',
+    startDate: '2026-09-08',
+    endDate: '2026-12-20',
+    trainingModules: [
+      'Essential Newborn Care',
+      'Hypertensive Disorders in Pregnancy',
+      'Infection Prevention',
+    ],
+    nextSession: '2026-11-10',
+    description:
+      'Mentorship cohort focused on maternal and newborn care practices.',
+  },
+  {
+    id: 'cohort-003',
+    name: 'Cohort C',
+    facility: 'Facility C',
+    menteesCount: 7,
+    completedCount: 5,
+    inProgressCount: 2,
+    needsSupportCount: 0,
+    progress: 71,
+    status: 'Active',
+    startDate: '2026-09-15',
+    endDate: '2026-12-22',
+    trainingModules: [
+      'Maternal Assessment',
+      'Labour Monitoring',
+      'Immediate Newborn Care',
+    ],
+    nextSession: '2026-11-11',
+    description:
+      'Mentorship cohort working towards competency in maternal and newborn emergency care.',
+  },
+  {
+    id: 'cohort-004',
+    name: 'Cohort D',
+    facility: 'Facility D',
+    menteesCount: 7,
+    completedCount: 3,
+    inProgressCount: 3,
+    needsSupportCount: 1,
+    progress: 43,
+    status: 'Active',
+    startDate: '2026-09-20',
+    endDate: '2026-12-28',
+    trainingModules: [
+      'Basic Emergency Obstetric Care',
+      'Newborn Resuscitation',
+      'Postpartum Care',
+    ],
+    nextSession: '2026-11-13',
+    description:
+      'Mentorship cohort requiring continued training and competency follow-up.',
+  },
+]

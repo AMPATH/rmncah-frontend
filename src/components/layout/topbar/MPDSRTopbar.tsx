@@ -12,10 +12,10 @@ import {
   Theme,
 } from '@carbon/react';
 import { Notification, Switcher as SwitcherIcon } from '@carbon/icons-react';
-import './Topbar.scss';
+import './MPDSRTopbar.scss';
 
 const pages = [
-  { path: '/my-work', label: 'My work' },
+  { path: '/mpdsr', label: 'MPDSR' },
   { path: '/issues/new', label: 'Log issue' },
 ];
 
@@ -31,7 +31,7 @@ function HeaderContent() {
 
   return (
     <Header aria-label="MPDSR" className="topbar">
-      <HeaderName as={Link} to="/my-work" prefix="">
+      <HeaderName as={Link} to="/mpdsr" prefix="">
         MPDSR
       </HeaderName>
 
@@ -71,7 +71,7 @@ function HeaderContent() {
   );
 }
 
-function Topbar() {
+function MPDSRTopbar() {
   return (
     <Theme theme="g100">
       <HeaderContainer render={HeaderContent} />
@@ -79,4 +79,4 @@ function Topbar() {
   );
 }
 
-export default Topbar;
+export default MPDSRTopbar;

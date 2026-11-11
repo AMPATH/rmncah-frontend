@@ -1,0 +1,411 @@
+.emonc-app {
+
+.mentor-learning-plan {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 28px 32px 40px;
+  color: #262626;
+
+  &__header {
+    margin-bottom: 28px;
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    p {
+      margin: 0;
+      color: #6f6f6f;
+      font-size: 14px;
+    }
+  }
+}
+
+.learning-plan-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+
+  &__item {
+    min-height: 108px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    span {
+      color: #6f6f6f;
+      font-size: 13px;
+    }
+
+    strong {
+      color: #262626;
+      font-size: 28px;
+      font-weight: 600;
+    }
+  }
+}
+
+.learning-plan-filters {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.8fr) repeat(2, minmax(170px, 1fr)) auto;
+  align-items: end;
+  gap: 16px;
+  margin-bottom: 32px;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+
+  &__search,
+  &__dropdown {
+    min-width: 0;
+  }
+
+  &__clear {
+    display: flex;
+    align-items: end;
+    min-height: 48px;
+  }
+
+  .cds--search,
+  .cds--dropdown {
+    width: 100%;
+  }
+}
+
+.learning-plan-list {
+  &__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+
+    h2 {
+      margin: 0 0 6px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0;
+      color: #6f6f6f;
+      font-size: 13px;
+    }
+
+    > span {
+      color: #6f6f6f;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+  }
+
+  &__items {
+    display: grid;
+    gap: 16px;
+  }
+}
+
+.learning-plan-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+
+  &__main {
+    padding: 22px;
+  }
+
+  &__title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+  }
+
+  &__heading p {
+    margin: 8px 0 0;
+    color: #6f6f6f;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 28px;
+    margin-top: 20px;
+    padding: 14px 0;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+
+    span {
+      color: #525252;
+      font-size: 13px;
+    }
+
+    strong {
+      color: #262626;
+      font-weight: 600;
+    }
+  }
+
+  &__progress {
+    max-width: 480px;
+    margin-top: 18px;
+
+    > div:first-child {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      color: #525252;
+      font-size: 12px;
+    }
+  }
+
+  &__progress-track {
+    height: 6px;
+    overflow: hidden;
+    background: #e8e8e8;
+
+    span {
+      display: block;
+      height: 100%;
+      background: #0e6251;
+      transition: width 180ms ease;
+    }
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 18px;
+
+    > span {
+      color: #6f6f6f;
+      font-size: 12px;
+    }
+  }
+
+  &__details {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 28px;
+    padding: 24px 22px;
+    background: #f4f4f4;
+    border-top: 1px solid #e0e0e0;
+  }
+}
+
+.learning-plan-modules,
+.learning-plan-sessions {
+  min-width: 0;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    h4 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    span {
+      color: #6f6f6f;
+      font-size: 12px;
+    }
+  }
+}
+
+.learning-plan-module {
+  padding: 16px 0;
+  border-top: 1px solid #dcdcdc;
+
+  &__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+
+    h5 {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 6px 0 0;
+      color: #6f6f6f;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+  }
+
+  &__progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 14px;
+
+    .cds--progress-bar {
+      flex: 1;
+      min-width: 0;
+    }
+
+    > span {
+      color: #6f6f6f;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+  }
+
+  &__competency {
+    margin: 10px 0 0;
+    color: #6f6f6f;
+    font-size: 11px;
+
+    strong {
+      color: #262626;
+    }
+  }
+}
+
+.learning-plan-sessions {
+  &__list {
+    border-top: 1px solid #dcdcdc;
+  }
+
+  &__empty {
+    color: #6f6f6f;
+    font-size: 13px;
+  }
+}
+
+.learning-plan-session {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.8fr) minmax(0, 1.5fr) auto;
+  align-items: start;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid #dcdcdc;
+
+  &__date,
+  &__details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+  }
+
+  &__date strong,
+  &__details strong {
+    color: #262626;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  &__date span,
+  &__details span {
+    color: #6f6f6f;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+}
+
+.learning-plan-empty {
+  padding: 48px 24px;
+  text-align: center;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+
+  h3 {
+    margin: 0 0 8px;
+    font-size: 16px;
+  }
+
+  p {
+    margin: 0;
+    color: #6f6f6f;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .learning-plan-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .learning-plan-card__details {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .mentor-learning-plan {
+    padding: 20px 16px 32px;
+  }
+
+  .learning-plan-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+
+    &__item {
+      min-height: 96px;
+      padding: 14px;
+
+      strong {
+        font-size: 24px;
+      }
+    }
+  }
+
+  .learning-plan-filters {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+
+  .learning-plan-list__header {
+    align-items: flex-start;
+  }
+
+  .learning-plan-card__main {
+    padding: 16px;
+  }
+
+  .learning-plan-card__meta {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .learning-plan-card__details {
+    padding: 18px 16px;
+  }
+
+  .learning-plan-session {
+    grid-template-columns: 1fr auto;
+
+    &__details {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+  }
+}
+}

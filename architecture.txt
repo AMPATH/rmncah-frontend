@@ -1,0 +1,507 @@
+# EmONC Mentorship System — Frontend Architecture
+
+We will build the frontend around four actual user roles, one shared dashboard layout, reusable sidebar components, and independent role-specific pages.
+
+The most important architectural decision is this:
+
+The sidebar is shared, but the navigation, pages, features, and permissions are specific to each role.
+
+This means we can change the Mentor sidebar without accidentally changing the Mentee sidebar, and we can add new pages without turning the application into one large, difficult-to-maintain component.
+
+## 1. The four user roles
+
+| Role                             | Responsibility                                           |
+| -------------------------------- | -------------------------------------------------------- |
+| County Mentor / RH               | County-level mentorship coordination and oversight       |
+| Mentor                           | Mentorship activities, cohorts and mentee progress       |
+| Mentee                           | Personal learning, assessments and mentorship activities |
+| Developer / System Administrator | Technical administration and system management           |
+
+T
+
+## 2. Overall architecture
+
+EmONC Mentorship System
+
+React + TypeScript + Vite + Carbon Design System
+
+Authentication & Role Resolution
+
+Identify the authenticated user and retrieve their assigned role
+
+Application Router
+
+Determines the correct role-specific dashboard
+
+County Mentor / RH
+
+Mentor
+
+Mentee
+
+Developer / Admin
+
+Shared Dashboard Layout
+
+Sidebar
+
+Role-specific navigation
+
+Main content
+
+Role-specific pages
+
+Role-specific features and pages
+
+Components, services, types and data
+
+## 3. Recommended folder structure
+
+This is the structure I recommend for the project. It separates application infrastructure, shared components, role navigation, and role-specific features.
+
+```
+src/
+│
+├── app/
+│   ├── App.tsx
+│   ├── router/
+│   │   ├── index.tsx
+│   │   ├── ProtectedRoute.tsx
+│   │   └── RoleRoute.tsx
+│   │
+│   └── providers/
+│       └── AppProviders.tsx
+│
+├── components/
+│   ├── layout/
+│   │   ├── DashboardLayout.tsx
+│   │   │
+│   │   ├── sidebar/
+│   │   │   ├── Sidebar.tsx
+│   │   │   ├── SidebarBrand.tsx
+│   │   │   ├── SidebarNavigation.tsx
+│   │   │   ├── SidebarNavItem.tsx
+│   │   │   └── Sidebar.scss
+│   │   │
+│   │   └── topbar/
+│   │       ├── Topbar.tsx
+│   │       └── Topbar.scss
+│   │
+│   └── shared/
+│       ├── LoadingScreen.tsx
+│       ├── ErrorState.tsx
+│       └── PageHeader.tsx
+│
+├── config/
+│   └── navigation/
+│       ├── navigation.types.ts
+│       ├── countyMentor.ts
+│       ├── mentor.ts
+│       ├── mentee.ts
+│       ├── developer.ts
+│       └── index.ts
+│
+├── features/
+│   │
+│   ├── county-mentor/
+│   │   ├── pages/
+│   │   ├── components/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   └── types/
+│   │
+│   ├── mentor/
+│   │   ├── pages/
+│   │   ├── components/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   └── types/
+│   │
+│   ├── mentee/
+│   │   ├── pages/
+│   │   ├── components/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   └── types/
+│   │
+│   └── developer/
+│       ├── pages/
+│       ├── components/
+│       ├── routes/
+│       ├── services/
+│       └── types/
+│
+├── services/
+│   ├── api/
+│   │   └── apiClient.ts
+│   └── auth/
+│       └── authService.ts
+│
+├── styles/
+│   ├── tokens.scss
+│   ├── global.scss
+│   └── carbon-overrides.scss
+│
+└── main.tsx
+```
+
+We will create these folders as we need them rather than generating dozens of empty files immediately.
+
+## 4. How the sidebar and pages connect
+
+This is the most important part to understand.
+
+The sidebar contains navigation links. Each link points to an actual page in the corresponding role's feature folder.
+
+For example:
+
+County Mentor / RH
+
+Sidebar
+
+Navigation configuration: `countyMentor.ts`
+
+Overview
+
+OverviewPage.tsx
+
+Page
+
+Mentors
+
+MentorsPage.tsx
+
+Page
+
+Mentees
+
+MenteesPage.tsx
+
+Page
+
+Cohorts
+
+CohortsPage.tsx
+
+Page
+
+Facilities
+
+FacilitiesPage.tsx
+
+Page
+
+Site assessments
+
+SiteAssessmentsPage.tsx
+
+Page
+
+Feedback & challenges
+
+FeedbackChallengesPage.tsx
+
+Page
+
+Certification
+
+CertificationPage.tsx
+
+Page
+
+Reports
+
+ReportsPage.tsx
+
+Page
+
+Each menu item opens its corresponding page inside the shared dashboard layout.
+
+The actual files will live here:
+
+```
+features/county-mentor/pages/
+├── OverviewPage.tsx
+├── MentorsPage.tsx
+├── MenteesPage.tsx
+├── CohortsPage.tsx
+├── FacilitiesPage.tsx
+├── SiteAssessmentsPage.tsx
+├── FeedbackChallengesPage.tsx
+├── CertificationPage.tsx
+└── ReportsPage.tsx
+```
+
+The same approach applies to Mentor and Mentee.
+
+Important: A page can contain its own smaller components. For example, `MentorsPage.tsx` might use a mentors table, search filters, status indicators and an invitation dialog. Those components belong in that role's `components/` folder, not in the shared sidebar.
+
+## 5. Each role gets its own navigation
+
+These are the navigation definitions we currently have:
+
+County Mentor / RH
+
+`countyMentor.ts`
+
+Overview · Mentors · Mentees · Cohorts · Facilities · Site assessments · Feedback & challenges · Certification · Reports
+
+Mentor
+
+`mentor.ts`
+
+Overview · My cohorts · Mentees · Learning plan · Assessments · Resources · Cohort submissions · Feedback
+
+Mentee
+
+`mentee.ts`
+
+Overview · My learning · Schedule · Assessments · Resources · Feedback
+
+Developer / System Administrator
+
+`developer.ts`
+
+Menu items not yet defined
+
+We will establish its navigation from the system administration requirements.
+
+The role configuration determines what appears in the sidebar. It does not determine the actual page implementation.
+
+## 6. Shared components: what we build once
+
+| Component               | Responsibility                                |
+| ----------------------- | --------------------------------------------- |
+| `Sidebar.tsx`           | Combines branding and navigation              |
+| `SidebarBrand.tsx`      | Displays EmONC and MENTORSHIP SYSTEM          |
+| `SidebarNavigation.tsx` | Displays the Workspace heading and menu       |
+| `SidebarNavItem.tsx`    | Renders each clickable navigation item        |
+| `DashboardLayout.tsx`   | Combines sidebar, topbar and page content     |
+| `Topbar.tsx`            | Displays user information and global controls |
+
+The branding will always be:
+
+# EmONC
+
+### MENTORSHIP SYSTEM
+
+Workspace
+
+Role-specific navigation appears here.
+
+The sidebar can also support active links, nested navigation, responsive mobile behavior and collapsible mode without duplicating code for different roles.
+
+## 7. Routing architecture
+
+We will use React Router.
+
+Each role gets a route prefix, keeping its pages organized and predictable.
+
+| Role               | Route prefix     | Example                   |
+| ------------------ | ---------------- | ------------------------- |
+| County Mentor / RH | `/county-mentor` | `/county-mentor/overview` |
+| Mentor             | `/mentor`        | `/mentor/learning-plan`   |
+| Mentee             | `/mentee`        | `/mentee/schedule`        |
+| Developer / Admin  | `/developer`     | `/developer/overview`     |
+
+Conceptually:
+
+```
+<Routes>
+  <Route element={<ProtectedRoute />}>
+    <Route
+      path="/county-mentor"
+      element={<RoleRoute allowedRoles={['county-mentor']} />}
+    >
+      <Route element={<DashboardLayout />}>
+        <Route index element={<Navigate to="overview" replace />} />
+        <Route path="overview" element={<OverviewPage />} />
+        <Route path="mentors" element={<MentorsPage />} />
+      </Route>
+    </Route>
+  </Route>
+</Routes>
+```
+
+This is illustrative; the final router will compose the role-specific route definitions rather than putting every page in one central file.
+
+## 8. Authentication and authorization
+
+We should keep three responsibilities separate:
+
+1. Authentication: Who has signed in?
+2. Role resolution: Which of the four roles belongs to that user?
+3. Authorization: Which operations and resources can that role access?
+
+The frontend will use the authenticated user's assigned role to select the correct dashboard. The backend must independently enforce permissions.
+
+For example, a Mentee should not be able to access County Mentor management endpoints simply by manually entering a URL.
+
+## 9. How we will implement the project
+
+I recommend this development sequence:
+
+1. Foundation
+   - Remove the default Vite starter screen.
+   - Configure global styles and Carbon React.
+   - Establish the application structure.
+2. Navigation architecture
+   - Define navigation types.
+   - Create County Mentor, Mentor and Mentee configurations.
+   - Reserve the Developer configuration.
+3. Shared sidebar
+   - Build SidebarBrand.
+   - Build SidebarNavigation.
+   - Build SidebarNavItem.
+   - Combine them in Sidebar.
+4. Dashboard layout
+   - Build the topbar.
+   - Integrate the sidebar.
+   - Add React Router Outlet.
+   - Implement responsive behavior.
+5. County Mentor pages
+   - Implement Overview first.
+   - Add the remaining pages incrementally.
+   - Connect navigation to actual routes.
+6. Other role dashboards
+   - Implement Mentor.
+   - Implement Mentee.
+   - Implement Developer / System Administrator.
+7. Integration and testing
+   - Role-based access.
+   - Direct URL access.
+   - Responsive navigation.
+   - Loading, error and empty states.
+
+## 10. Architectural rules we should maintain
+
+- Never create a separate sidebar component for every role.
+- Never put all role pages inside one folder.
+- Never put every route inside one enormous router file.
+- Never use scattered role-based conditions throughout page components.
+- Keep role-specific business logic inside its own feature.
+- Keep genuinely reusable components in `components/shared`.
+- Keep API calls in services rather than directly inside every page.
+- Use Carbon React consistently for UI components and Carbon Icons for navigation.
+- Do not create placeholder pages just to make the sidebar links work.
+- Keep backend authorization separate from frontend navigation visibility.
+
+
+
+Correct. We will follow exactly this architecture. I misunderstood your intention earlier.
+
+The important distinction is that we are separating the sidebar's implementation from each role's navigation data.
+
+### 1. Navigation configurations
+
+Each role owns its own menu items:
+
+```
+src/config/navigation/
+├── navigation.types.ts
+├── countyMentor.tsx
+├── mentor.tsx
+├── mentee.tsx
+├── developer.tsx
+└── index.ts
+```
+
+- `countyMentor.tsx` — County Mentor menu.
+- `mentor.tsx` — Mentor menu.
+- `mentee.tsx` — Mentee menu.
+- `developer.tsx` — Developer / System Administrator menu.
+- `navigation.types.ts` — shared TypeScript interfaces.
+- `index.ts` — exports the configurations.
+
+### 2. Shared sidebar components
+
+The sidebar itself is divided into reusable components:
+
+```
+src/components/layout/sidebar/
+├── Sidebar.tsx
+├── SidebarBrand.tsx
+├── SidebarNavigation.tsx
+├── SidebarNavItem.tsx
+└── Sidebar.scss
+```
+
+Their responsibilities:
+
+| Component               | Responsibility                                             |
+| ----------------------- | ---------------------------------------------------------- |
+| `Sidebar.tsx`           | Combines the sidebar components and manages collapse state |
+| `SidebarBrand.tsx`      | Displays EmONC branding                                    |
+| `SidebarNavigation.tsx` | Renders navigation groups                                  |
+| `SidebarNavItem.tsx`    | Renders an individual menu item                            |
+| `Sidebar.scss`          | Controls sidebar styling                                   |
+
+### 3. How they work together
+
+Role-specific navigation configuration
+
+County Mentor
+
+Own menu items
+
+Mentor
+
+Own menu items
+
+Mentee
+
+Own menu items
+
+Developer
+
+Own menu items
+
+Shared Sidebar components
+
+Same implementation and visual design
+
+The selected role's dashboard
+
+### 4. Our implementation order
+
+We will not jump between roles.
+
+1. Complete `navigation.types.ts`.
+2. Complete `countyMentor.tsx`.
+3. Build `SidebarBrand.tsx`.
+4. Build `SidebarNavItem.tsx`.
+5. Build `SidebarNavigation.tsx`.
+6. Refactor `Sidebar.tsx` to compose them.
+7. Style and test the County Mentor sidebar.
+8. Add the other three navigation configurations when their requirements are ready.
+
+We are currently implementing County Mentor, but building the architecture so all four roles can use it without duplicating components.
+
+
+Understood. This is now a firm architectural decision for V2.
+
+County Mentor / RH / MOH will operate as one unified application role, sharing:
+
+- One login role.
+- One dashboard.
+- One sidebar and navigation configuration.
+- One set of privileges and permissions.
+- The same access to county-level management, oversight, feedback, certification and reporting.
+
+We will not distinguish County Mentor, RH and MOH in the frontend authorization system for now.
+
+### Final application roles
+
+| # | Application role                 | Dashboard               |
+| - | -------------------------------- | ----------------------- |
+| 1 | Program Lead                     | Program Lead Dashboard  |
+| 2 | County Mentor / RH / MOH         | Shared County Dashboard |
+| 3 | Mentor                           | Mentor Dashboard        |
+| 4 | Mentee                           | Mentee Dashboard        |
+| 5 | Developer / System Administrator | Developer Dashboard     |
+
+Important implementation rule: The combined role will be represented by one role identifier, for example `county-mentor`, with the display name `County Mentor / RH / MOH`.
+
+We can revisit separate RH and MOH privileges if the requirements change later.
+
+This is the role structure we will use when rebuilding the frontend architecture.

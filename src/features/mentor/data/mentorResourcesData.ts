@@ -1,0 +1,111 @@
+
+import type { MentorResource } from '../types/mentor.types'
+
+export const mentorResourcesData: MentorResource[] = [
+  {
+    id: 'resource-001',
+    title: 'Postpartum Haemorrhage Management Guide',
+    description:
+      'A learning guide covering recognition, initial management and emergency response to postpartum haemorrhage.',
+    type: 'E-book',
+    moduleTitle: 'Postpartum Haemorrhage Management',
+    sectionTitle: 'Recognition and Initial Management',
+    fileName: 'postpartum-haemorrhage-guide.pdf',
+    fileUrl: '',
+    publishedDate: '2026-09-10',
+    fileSize: '4.2 MB',
+  },
+  {
+    id: 'resource-002',
+    title: 'Essential Newborn Care Presentation',
+    description:
+      'Presentation material covering essential newborn care practices and routine newborn assessment.',
+    type: 'Slides',
+    moduleTitle: 'Essential Newborn Care',
+    sectionTitle: 'Essential Newborn Care Practices',
+    fileName: 'essential-newborn-care-slides.pdf',
+    fileUrl: '',
+    publishedDate: '2026-09-12',
+    fileSize: '2.8 MB',
+  },
+  {
+    id: 'resource-003',
+    title: 'Newborn Resuscitation Demonstration',
+    description:
+      'Video learning material demonstrating newborn resuscitation procedures.',
+    type: 'Video',
+    moduleTitle: 'Essential Newborn Care',
+    sectionTitle: 'Newborn Resuscitation',
+    fileName: 'newborn-resuscitation.mp4',
+    fileUrl: '',
+    publishedDate: '2026-09-15',
+    fileSize: '85 MB',
+    duration: '18 minutes',
+  },
+  {
+    id: 'resource-004',
+    title: 'Maternal Assessment Learning Guide',
+    description:
+      'Reference material covering maternal assessment, danger signs and identification of obstetric complications.',
+    type: 'E-book',
+    moduleTitle: 'Maternal Assessment',
+    sectionTitle: 'Maternal Assessment and Danger Signs',
+    fileName: 'maternal-assessment-guide.pdf',
+    fileUrl: '',
+    publishedDate: '2026-09-18',
+    fileSize: '3.6 MB',
+  },
+  {
+    id: 'resource-005',
+    title: 'Hypertensive Disorders in Pregnancy',
+    description:
+      'Teaching slides covering identification and assessment of hypertensive disorders in pregnancy.',
+    type: 'Slides',
+    moduleTitle: 'Hypertensive Disorders in Pregnancy',
+    sectionTitle: 'Recognition and Assessment',
+    fileName: 'hypertensive-disorders-slides.pdf',
+    fileUrl: '',
+    publishedDate: '2026-09-20',
+    fileSize: '5.1 MB',
+  },
+  {
+    id: 'resource-006',
+    title: 'Infection Prevention and Control',
+    description:
+      'Learning material covering infection prevention and control practices in maternity and newborn care.',
+    type: 'E-book',
+    moduleTitle: 'Infection Prevention',
+    sectionTitle: 'Standard Precautions',
+    fileName: 'infection-prevention-guide.pdf',
+    fileUrl: '',
+    publishedDate: '2026-09-22',
+    fileSize: '3.1 MB',
+  },
+  {
+    id: 'resource-007',
+    title: 'Labour Monitoring Presentation',
+    description:
+      'Presentation material covering labour progress monitoring and identification of complications.',
+    type: 'Slides',
+    moduleTitle: 'Labour Monitoring',
+    sectionTitle: 'Monitoring Labour Progress',
+    fileName: 'labour-monitoring-slides.pdf',
+    fileUrl: '',
+    publishedDate: '2026-09-25',
+    fileSize: '2.4 MB',
+  },
+  {
+    id: 'resource-008',
+    title: 'Emergency Response Learning Video',
+    description:
+      'Video learning material supporting emergency response training and team preparation.',
+    type: 'Video',
+    moduleTitle: 'Postpartum Haemorrhage Management',
+    sectionTitle: 'Emergency Response',
+    fileName: 'emergency-response-training.mp4',
+    fileUrl: '',
+    publishedDate: '2026-09-28',
+    fileSize: '72 MB',
+    duration: '14 minutes',
+  },
+]

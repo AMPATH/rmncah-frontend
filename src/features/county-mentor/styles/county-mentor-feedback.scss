@@ -1,0 +1,575 @@
+.emonc-app {
+.county-feedback {
+  width: 100%;
+  padding-bottom: 32px;
+  color: #202b27;
+
+  &__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 28px;
+
+    h1 {
+      margin: 7px 0;
+      font-size: 28px;
+      font-weight: 650;
+      letter-spacing: -0.8px;
+    }
+
+    > div > p:not(.county-feedback__eyebrow) {
+      max-width: 650px;
+      color: #68766f;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+  }
+
+  &__eyebrow {
+    color: #397d64;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+  }
+}
+
+.county-feedback-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+
+  &__card {
+    min-height: 126px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #e8eeea;
+    border-radius: 12px;
+
+    span {
+      display: block;
+      color: #68766f;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    strong {
+      display: block;
+      margin-top: 13px;
+      color: #174f3c;
+      font-size: 30px;
+      font-weight: 650;
+      letter-spacing: -1px;
+    }
+
+    p {
+      margin-top: 6px;
+      color: #87928c;
+      font-size: 12px;
+    }
+  }
+}
+
+.county-feedback-register,
+.county-feedback-detail__section {
+  margin-bottom: 22px;
+  padding: 22px;
+  background: #fff;
+  border: 1px solid #e8eeea;
+  border-radius: 12px;
+}
+
+.county-feedback-register__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+
+  h2 {
+    margin-bottom: 5px;
+    font-size: 17px;
+    font-weight: 650;
+  }
+
+  p {
+    color: #78847e;
+    font-size: 13px;
+  }
+
+  > span {
+    color: #64736b;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+}
+
+.county-feedback-filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.5fr) repeat(3, minmax(145px, 1fr));
+  gap: 14px;
+  align-items: end;
+  margin-bottom: 22px;
+}
+
+.county-feedback-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.county-feedback-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+
+  th {
+    padding: 13px 12px;
+    color: #728078;
+    background: #f7f9f7;
+    border-bottom: 1px solid #e8eeea;
+    font-size: 11px;
+    font-weight: 650;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 15px 12px;
+    color: #48564f;
+    border-bottom: 1px solid #edf1ee;
+    font-size: 12px;
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  &__row {
+    cursor: pointer;
+    transition: background 120ms ease;
+
+    &:hover {
+      background: #f8fbf8;
+    }
+  }
+
+  &__subject {
+    display: inline-block;
+    padding: 0;
+    color: #176345;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 650;
+    text-align: left;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  small {
+    display: block;
+    margin-top: 5px;
+    color: #87928c;
+    font-size: 11px;
+    line-height: 1.5;
+    white-space: normal;
+    min-width: 130px;
+    max-width: 260px;
+  }
+
+  strong {
+    color: #394b40;
+    font-size: 12px;
+    font-weight: 600;
+  }
+}
+
+.county-feedback-empty {
+  display: flex;
+  min-height: 150px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 9px;
+  color: #87928c;
+  text-align: center;
+
+  strong {
+    color: #36453d;
+    font-size: 14px;
+  }
+
+  p {
+    max-width: 340px;
+    color: #7c8982;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+}
+
+.county-feedback-demo-note {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 13px 16px;
+  color: #79867e;
+  border: 1px solid #e8eeea;
+  border-radius: 8px;
+  font-size: 11px;
+  line-height: 1.5;
+
+  span {
+    color: #397d64;
+    font-size: 9px;
+    font-weight: 750;
+    letter-spacing: 1px;
+  }
+}
+
+.county-feedback-form {
+  display: grid;
+  gap: 18px;
+  padding-top: 8px;
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  &__error {
+    padding: 11px 13px;
+    color: #a32923;
+    background: #fff1f0;
+    border-radius: 6px;
+    font-size: 12px;
+  }
+
+  &__hint {
+    padding: 12px;
+    color: #5e7466;
+    background: #f2f7f3;
+    border-radius: 7px;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+}
+
+.county-feedback-detail {
+  &__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  &__hero {
+    margin-bottom: 20px;
+    padding: 24px;
+    background: #f4f8f5;
+    border: 1px solid #e5eee7;
+    border-radius: 12px;
+
+    h1 {
+      margin: 14px 0 8px;
+      color: #194c39;
+      font-size: 25px;
+      font-weight: 650;
+      letter-spacing: -0.5px;
+    }
+
+    p {
+      color: #718078;
+      font-size: 12px;
+    }
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+
+    article {
+      min-width: 0;
+      padding: 18px;
+      background: #fff;
+      border: 1px solid #e8eeea;
+      border-radius: 10px;
+
+      span {
+        display: block;
+        color: #75827a;
+        font-size: 12px;
+      }
+
+      strong {
+        display: block;
+        margin-top: 9px;
+        color: #264c3b;
+        font-size: 14px;
+        overflow-wrap: anywhere;
+      }
+
+      small {
+        display: block;
+        margin-top: 5px;
+        color: #87928c;
+        font-size: 11px;
+      }
+    }
+  }
+
+  &__section {
+    h2 {
+      margin-bottom: 12px;
+      color: #2d4136;
+      font-size: 17px;
+      font-weight: 650;
+    }
+
+    > p {
+      color: #65736b;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+  }
+
+  &__message {
+    white-space: pre-wrap;
+  }
+
+  &__follow-up {
+    margin-top: 18px;
+    padding: 14px;
+    background: #f4f8f5;
+    border-left: 3px solid #397d64;
+    border-radius: 5px;
+
+    strong {
+      display: block;
+      margin-bottom: 7px;
+      color: #315743;
+      font-size: 12px;
+    }
+
+    p {
+      color: #65736b;
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+  }
+
+  &__section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+
+    h2 {
+      margin-bottom: 5px;
+    }
+
+    p {
+      color: #87928c;
+      font-size: 12px;
+    }
+  }
+
+  &__resolution {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 18px;
+    padding: 16px;
+    color: #28684a;
+    background: #f0f7f2;
+    border: 1px solid #dcece0;
+    border-radius: 9px;
+
+    strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    p {
+      color: #536e5d;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    small {
+      display: block;
+      margin-top: 8px;
+      color: #788c7d;
+      font-size: 11px;
+    }
+  }
+}
+
+.county-feedback-conversation {
+  display: grid;
+  gap: 14px;
+}
+
+.county-feedback-response {
+  padding: 17px;
+  background: #fafcfb;
+  border: 1px solid #e8eeea;
+  border-radius: 9px;
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+
+    > div {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    strong {
+      color: #344b3d;
+      font-size: 13px;
+    }
+
+    span,
+    time {
+      color: #87928c;
+      font-size: 11px;
+    }
+  }
+
+  > p {
+    color: #5e6d64;
+    font-size: 13px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+}
+
+@media (max-width: 1100px) {
+  .county-feedback-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .county-feedback-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .county-feedback-filters > :first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 700px) {
+  .county-feedback {
+    &__header {
+      align-items: flex-start;
+      flex-direction: column;
+
+      h1 {
+        font-size: 24px;
+      }
+    }
+  }
+
+  .county-feedback-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+
+    &__card {
+      padding: 15px;
+
+      strong {
+        font-size: 25px;
+      }
+    }
+  }
+
+  .county-feedback-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .county-feedback-filters > :first-child {
+    grid-column: auto;
+  }
+
+  .county-feedback-register,
+  .county-feedback-detail__section {
+    padding: 16px;
+  }
+
+  .county-feedback-register__heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .county-feedback-form__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .county-feedback-detail {
+    &__top {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    &__actions {
+      width: 100%;
+    }
+
+    &__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    &__hero {
+      padding: 18px;
+
+      h1 {
+        font-size: 21px;
+      }
+    }
+
+    &__section-heading {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+}
+
+@media (max-width: 420px) {
+  .county-feedback-summary,
+  .county-feedback-detail__grid {
+    grid-template-columns: 1fr;
+  }
+}
+}

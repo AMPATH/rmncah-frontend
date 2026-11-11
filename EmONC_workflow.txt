@@ -1,0 +1,124 @@
+Yes. I recommend we establish a persistent data layer now, before building more County Mentor pages. It will make the eventual backend integration much easier and prevent us from building every page around temporary React state.
+
+However, I would avoid building a full backend prematurely. We should create a frontend data architecture with a mock persistence layer that follows the future API contract.
+
+The key idea is:
+
+- Today: the application reads and writes data through a local data service, backed by persistent browser storage.
+- Later: we replace the local storage implementation with HTTP API calls.
+- The pages, components, forms and business logic should remain largely unchanged.
+
+That gives us persistence now without locking the project into a temporary backend design.
+
+## 1. The architecture I recommend
+
+I would use a repository pattern with two interchangeable data sources.
+
+County Mentor pages
+
+Mentors · Mentees · Cohorts · Facilities · Assessments · Reports
+
+Feature services / repositories
+
+getMentors · createMentor · updateMentor · deactivateMentor
+
+Now: Local adapter
+
+Browser persistence and demo data
+
+Later: API adapter
+
+Backend API and database
+
+The pages should never need to know whether their data comes from browser storage or a server.
+
+## 2. What should persist?
+
+We should organize the data around the actual EmONC workflow, not just around dashboard screens.
+
+| Data domain        | Important information                                           |
+| ------------------ | --------------------------------------------------------------- |
+| Users              | Name, email, role, account status                               |
+| Facilities         | Facility name, county, level, location                          |
+| Mentors            | Professional role, facility, account status                     |
+| Mentees            | Facility, assigned mentor, account status                       |
+| Cohorts            | Cohort name, assigned mentor, members, dates, status            |
+| Training modules   | Module details, sections, publication status                    |
+| Learning materials | File metadata, module and section relationships                 |
+| Assessments        | Assessment records, competency results, evidence                |
+| Site assessments   | Facility findings, assessment dates, follow-up                  |
+| Feedback           | Challenges, comments, responses, status                         |
+| Certifications     | Mentor eligibility, evidence, review status                     |
+| Action follow-ups  | Action, responsible person, status, escalation reason, approval |
+
+We should also preserve relationships between records. For example, a mentee should reference a mentor and facility by ID, rather than storing disconnected copies of their names.
+
+## 3. Where should we store the data now?
+
+I recommend:
+
+- localStorage: simple demo records and application preferences.
+- IndexedDB: larger structured records and, if needed, locally stored demonstration files.
+- Backend database later: authoritative shared records, access control and multi-user operations.
+
+Important: local browser storage is only persistent on that browser/device. It is not a shared database, is not suitable for real patient or sensitive programme records, and can be cleared by the user.
+
+For our current demo, localStorage is sufficient to get started. We should not store actual uploaded learning files in localStorage.
+
+## 4. Suggested frontend folder structure
+
+I would introduce a central data layer instead of allowing each page to manage its own demo arrays.
+
+```
+src/
+├── core/
+│   └── data/
+│       ├── storage/
+│       │   ├── storage.interface.ts
+│       │   └── local-storage.adapter.ts
+│       ├── repositories/
+│       │   ├── mentors.repository.ts
+│       │   ├── mentees.repository.ts
+│       │   ├── cohorts.repository.ts
+│       │   ├── facilities.repository.ts
+│       │   ├── modules.repository.ts
+│       │   └── assessments.repository.ts
+│       └── seed/
+│           └── initial-demo-data.ts
+│
+├── features/
+│   ├── county-mentor/
+│   │   ├── components/
+│   │   ├── data/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── styles/
+│   │   └── types/
+│   ├── mentor/
+│   ├── mentee/
+│   └── program-lead/
+│
+└── services/
+    └── api/
+        ├── api-client.ts
+        └── api-config.ts
+```
+
+The repository interfaces define what each feature can do. The storage adapter implements those operations locally. When the backend is ready, we add API-backed implementations.
+
+## 5. How we should work from here
+
+I suggest this sequence:
+
+1. Establish the shared data architecture. Define storage interfaces, repositories, IDs, timestamps and demo-data initialization.
+2. Move existing Program Lead data into it. This prevents the Program Lead and County Mentor dashboards from having separate, disconnected versions of the same modules.
+3. Move the County Mentor Mentors page onto the repository. Its create, edit, activate and deactivate operations should persist after refreshing the browser.
+4. Build Mentees and Cohorts using the same data. Assignments should update the relationships between records.
+5. Connect the remaining pages to those shared records.
+6. When the backend arrives, map the repositories to its API endpoints.
+
+One important architectural decision: authentication and authorization must eventually come from the backend, not from browser storage. The local implementation is for frontend development only.
+
+My recommendation: Let's pause building additional County Mentor pages briefly and establish this data foundation first. It will also help us coordinate with the backend developer because we can agree on the data entities and API contracts before integration becomes urgent.
+
+We can start by inspecting the existing `src` structure and current data files, then introduce this architecture without breaking the completed Program Lead and Mentor dashboards.&#x20;

@@ -1,0 +1,474 @@
+.emonc-app {
+.county-site-assessments {
+  width: 100%;
+  color: #202b27;
+  padding-bottom: 32px;
+
+  &__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 28px;
+
+    h1 {
+      margin: 7px 0;
+      font-size: 28px;
+      font-weight: 650;
+      letter-spacing: -0.8px;
+    }
+
+    p:not(.county-site-assessments__eyebrow) {
+      color: #68766f;
+      font-size: 14px;
+      max-width: 650px;
+      line-height: 1.6;
+    }
+  }
+
+  &__eyebrow {
+    color: #397d64;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+  }
+}
+
+.site-assessment-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+
+  &__card {
+    background: #fff;
+    border: 1px solid #e8eeea;
+    border-radius: 12px;
+    padding: 20px;
+    min-height: 132px;
+
+    span {
+      display: block;
+      color: #68766f;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    strong {
+      display: block;
+      margin-top: 13px;
+      font-size: 30px;
+      font-weight: 650;
+      letter-spacing: -1px;
+      color: #174f3c;
+    }
+
+    p {
+      margin-top: 6px;
+      color: #87928c;
+      font-size: 12px;
+    }
+  }
+}
+
+.site-assessment-register,
+.site-assessment-detail__section {
+  background: #fff;
+  border: 1px solid #e8eeea;
+  border-radius: 12px;
+  padding: 22px;
+  margin-bottom: 22px;
+}
+
+.site-assessment-register__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+
+  h2 {
+    font-size: 17px;
+    font-weight: 650;
+    margin-bottom: 5px;
+  }
+
+  p {
+    font-size: 13px;
+    color: #78847e;
+  }
+
+  > span {
+    color: #64736b;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+}
+
+.site-assessment-filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.5fr) repeat(2, minmax(170px, 1fr));
+  gap: 14px;
+  align-items: end;
+  margin-bottom: 22px;
+}
+
+.site-assessment-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.site-assessment-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+
+  th {
+    padding: 13px 12px;
+    color: #728078;
+    background: #f7f9f7;
+    font-size: 11px;
+    font-weight: 650;
+    white-space: nowrap;
+    border-bottom: 1px solid #e8eeea;
+  }
+
+  td {
+    padding: 15px 12px;
+    font-size: 12px;
+    color: #48564f;
+    border-bottom: 1px solid #edf1ee;
+    white-space: nowrap;
+  }
+
+  tbody tr:hover {
+    background: #fbfcfb;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  small {
+    display: block;
+    margin-top: 5px;
+    color: #87928c;
+    font-size: 11px;
+  }
+}
+
+.site-assessment-facility-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #176345;
+  font-size: 12px;
+  font-weight: 650;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.site-assessment-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.site-assessment-empty {
+  min-height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 9px;
+  color: #7c8982;
+  text-align: center;
+
+  strong {
+    color: #36453d;
+    font-size: 14px;
+  }
+
+  p {
+    font-size: 12px;
+    max-width: 340px;
+    line-height: 1.5;
+  }
+}
+
+.site-assessment-detail {
+  &__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 26px;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 24px;
+    background: #f4f8f5;
+    border: 1px solid #e5eee7;
+    border-radius: 12px;
+    margin-bottom: 20px;
+
+    h1 {
+      font-size: 25px;
+      margin: 7px 0;
+      color: #194c39;
+    }
+
+    p:not(.county-site-assessments__eyebrow) {
+      color: #718078;
+      font-size: 13px;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+
+    article {
+      background: #fff;
+      border: 1px solid #e8eeea;
+      border-radius: 10px;
+      padding: 18px;
+
+      span {
+        display: block;
+        color: #75827a;
+        font-size: 12px;
+      }
+
+      strong {
+        display: block;
+        margin-top: 10px;
+        color: #264c3b;
+        font-size: 16px;
+      }
+    }
+  }
+
+  &__section {
+    h2 {
+      font-size: 17px;
+      font-weight: 650;
+      margin-bottom: 12px;
+    }
+
+    > p {
+      color: #65736b;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+  }
+}
+
+.site-assessment-status-control {
+  max-width: 320px;
+  margin-top: 20px;
+}
+
+.site-assessment-findings {
+  display: grid;
+  gap: 14px;
+}
+
+.site-assessment-finding {
+  border: 1px solid #e8eeea;
+  border-radius: 10px;
+  padding: 18px;
+
+  &__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+
+    > div:first-child {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    h3 {
+      font-size: 14px;
+      font-weight: 650;
+      color: #31463a;
+    }
+  }
+
+  > p {
+    margin: 12px 0;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #718078;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+    color: #78847e;
+    font-size: 12px;
+
+    strong {
+      color: #394b40;
+    }
+  }
+
+  &__resolution {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #f0f7f2;
+    color: #28684a;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+}
+
+.site-assessment-form {
+  display: grid;
+  gap: 18px;
+  padding-top: 8px;
+
+  &__error {
+    padding: 11px 13px;
+    background: #fff1f0;
+    color: #a32923;
+    border-radius: 6px;
+    font-size: 12px;
+  }
+
+  &__hint {
+    padding: 12px;
+    background: #f2f7f3;
+    border-radius: 7px;
+    color: #5e7466;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+}
+
+.site-assessment-demo-note {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 13px 16px;
+  margin-top: 18px;
+  border: 1px solid #e8eeea;
+  border-radius: 8px;
+  color: #79867e;
+  font-size: 11px;
+  line-height: 1.5;
+
+  span {
+    color: #397d64;
+    font-size: 9px;
+    font-weight: 750;
+    letter-spacing: 1px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .site-assessment-summary,
+  .site-assessment-detail__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .site-assessment-filters {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .site-assessment-filters > :first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 700px) {
+  .county-site-assessments {
+    &__header {
+      align-items: flex-start;
+      flex-direction: column;
+
+      h1 {
+        font-size: 24px;
+      }
+    }
+  }
+
+  .site-assessment-summary,
+  .site-assessment-detail__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .site-assessment-summary__card {
+    padding: 15px;
+
+    strong {
+      font-size: 25px;
+    }
+  }
+
+  .site-assessment-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .site-assessment-filters > :first-child {
+    grid-column: auto;
+  }
+
+  .site-assessment-register,
+  .site-assessment-detail__section {
+    padding: 15px;
+  }
+
+  .site-assessment-register__heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .site-assessment-detail__header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 18px;
+  }
+
+  .site-assessment-detail__top {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .site-assessment-finding__meta {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 420px) {
+  .site-assessment-summary,
+  .site-assessment-detail__grid {
+    grid-template-columns: 1fr;
+  }
+}
+}

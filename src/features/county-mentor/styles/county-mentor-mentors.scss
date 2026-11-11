@@ -1,0 +1,508 @@
+.emonc-app {
+
+.county-mentors {
+  width: 100%;
+  min-width: 0;
+  padding: 4px 0 32px;
+  color: #24332c;
+
+  * {
+    box-sizing: border-box;
+  }
+
+  // --------------------------------------------------
+  // Page header
+  // --------------------------------------------------
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 22px;
+
+    h1 {
+      margin: 5px 0 8px;
+      color: #1f3028;
+      font-size: 27px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+  }
+
+  &__eyebrow {
+    margin: 0;
+    color: #557267;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.1px;
+  }
+
+  &__description {
+    max-width: 650px;
+    margin: 0;
+    color: #697970;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  // --------------------------------------------------
+  // Demo storage notice
+  // --------------------------------------------------
+
+  &__demo-note {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 12px 14px;
+    border: 1px solid #dce8e0;
+    border-radius: 5px;
+    background: #f5f9f6;
+    color: #607268;
+    font-size: 12px;
+    line-height: 1.5;
+
+    span {
+      flex-shrink: 0;
+      color: #28634c;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.7px;
+    }
+  }
+
+  // --------------------------------------------------
+  // Mentor directory
+  // --------------------------------------------------
+
+  &__directory {
+    margin-top: 22px;
+    padding: 22px;
+    border: 1px solid #e1e8e3;
+    border-radius: 6px;
+    background: #ffffff;
+  }
+
+  &__section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+
+    h2 {
+      margin: 0 0 5px;
+      color: #26372f;
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0;
+      color: #78867e;
+      font-size: 12px;
+    }
+  }
+
+  &__result-count {
+    color: #64756b;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  // --------------------------------------------------
+  // Search and filters
+  // --------------------------------------------------
+
+  &__filters {
+    display: grid;
+    grid-template-columns:
+      minmax(240px, 1fr)
+      minmax(170px, 220px)
+      minmax(190px, 260px);
+    gap: 14px;
+    align-items: end;
+    margin-bottom: 20px;
+  }
+
+  &__search,
+  &__filter {
+    min-width: 0;
+  }
+
+  // --------------------------------------------------
+  // Directory table
+  // --------------------------------------------------
+
+  &__table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+
+    table {
+      min-width: 900px;
+    }
+
+    th {
+      color: #64746b;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    td {
+      color: #405148;
+      font-size: 12px;
+      vertical-align: middle;
+    }
+  }
+
+  &__identity {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 180px;
+
+    > div:last-child {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    strong {
+      color: #2c3d34;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    span {
+      color: #859188;
+      font-size: 10px;
+    }
+  }
+
+  &__avatar {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #e8f1eb;
+    color: #28634c;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  &__row-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 36px 12px;
+    color: #829087;
+    text-align: center;
+
+    strong {
+      color: #42544a;
+      font-size: 13px;
+    }
+
+    span {
+      font-size: 11px;
+    }
+  }
+
+  // --------------------------------------------------
+  // Add / Edit mentor form
+  // --------------------------------------------------
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-top: 8px;
+
+    > p {
+      margin: 0 0 2px;
+      color: #6d7b72;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+  }
+}
+
+// ======================================================
+// MENTOR SUMMARY CARDS
+// ======================================================
+
+.county-mentor-summary {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 4px;
+
+  &__card {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    min-width: 0;
+    min-height: 112px;
+    padding: 17px;
+    border: 1px solid #e1e8e3;
+    border-radius: 6px;
+    background: #ffffff;
+
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease,
+      transform 160ms ease;
+
+    &:hover {
+      border-color: #c5d8cb;
+      box-shadow: 0 4px 14px rgba(35, 74, 53, 0.06);
+      transform: translateY(-2px);
+    }
+  }
+
+  &__icon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 5px;
+    background: #edf4ef;
+    color: #28634c;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    span {
+      color: #718077;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    strong {
+      margin: 5px 0;
+      color: #26372f;
+      font-size: 25px;
+      font-weight: 600;
+      line-height: 1.1;
+    }
+
+    small {
+      color: #8a968e;
+      font-size: 10px;
+      line-height: 1.4;
+    }
+  }
+}
+
+// ======================================================
+// SELECTED MENTOR DETAILS
+// ======================================================
+
+.county-mentor-details {
+  margin-top: 20px;
+  padding: 22px;
+  border: 1px solid #dce7df;
+  border-radius: 6px;
+  background: #ffffff;
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #e7ece8;
+
+    p {
+      margin: 0 0 6px;
+      color: #718278;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+    }
+
+    h2 {
+      margin: 0 0 5px;
+      color: #293a31;
+      font-size: 19px;
+      font-weight: 600;
+    }
+
+    > div:first-child > span {
+      color: #89958d;
+      font-size: 11px;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    padding: 22px 0;
+
+    article {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    span {
+      color: #829087;
+      font-size: 11px;
+    }
+
+    strong {
+      overflow-wrap: anywhere;
+      color: #34463c;
+      font-size: 12px;
+      font-weight: 600;
+    }
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: 18px;
+    border-top: 1px solid #e7ece8;
+
+    p {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin: 0;
+      color: #3b4d43;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    span {
+      color: #859188;
+      font-size: 11px;
+      font-weight: 400;
+    }
+  }
+}
+
+// ======================================================
+// RESPONSIVE LAYOUT
+// ======================================================
+
+@media (max-width: 1400px) {
+  .county-mentor-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1100px) {
+  .county-mentor-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .county-mentors {
+    &__filters {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    &__search {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+@media (max-width: 650px) {
+  .county-mentors {
+    &__header,
+    &__section-header {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    &__header {
+      gap: 16px;
+
+      h1 {
+        font-size: 23px;
+      }
+    }
+
+    &__directory {
+      padding: 14px;
+    }
+
+    &__filters {
+      grid-template-columns: 1fr;
+    }
+
+    &__search {
+      grid-column: auto;
+    }
+
+    &__demo-note {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 5px;
+    }
+  }
+
+  .county-mentor-summary {
+    grid-template-columns: 1fr;
+    gap: 10px;
+
+    &__card {
+      min-height: 96px;
+    }
+  }
+
+  .county-mentor-details {
+    padding: 16px;
+
+    &__header,
+    &__footer {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    &__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .county-mentor-summary__card {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}
+}

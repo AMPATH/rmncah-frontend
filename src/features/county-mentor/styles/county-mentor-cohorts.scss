@@ -1,0 +1,618 @@
+.emonc-app {
+.county-cohorts {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 28px 32px 48px;
+  color: #252b29;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+
+    h1 {
+      margin: 7px 0 8px;
+      font-size: 27px;
+      font-weight: 650;
+      letter-spacing: -0.7px;
+    }
+
+    p {
+      max-width: 680px;
+      margin: 0;
+      color: #747d78;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+  }
+
+  &__eyebrow {
+    color: #64736a;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+  }
+
+  &__directory {
+    margin-top: 28px;
+    overflow: hidden;
+    border: 1px solid #e4e8e5;
+    border-radius: 5px;
+    background: #ffffff;
+  }
+
+  &__directory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 22px 18px;
+
+    h2 {
+      margin: 0 0 5px;
+      color: #252b29;
+      font-size: 16px;
+      font-weight: 650;
+    }
+
+    p {
+      margin: 0;
+      color: #747d78;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+  }
+
+  &__result-count {
+    color: #69736d;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+}
+
+/* Summary cards */
+
+.county-cohort-summary {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-height: 125px;
+    padding: 19px 18px;
+    border: 1px solid #e4e8e5;
+    border-radius: 5px;
+    background: #ffffff;
+    transition:
+      border-color 0.18s ease,
+      transform 0.18s ease;
+
+    &:hover {
+      border-color: #c5d5ca;
+      transform: translateY(-2px);
+    }
+
+    span {
+      color: #747d78;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    strong {
+      margin-top: 13px;
+      color: #252b29;
+      font-size: 27px;
+      font-weight: 650;
+      line-height: 1;
+    }
+
+    small {
+      margin-top: 9px;
+      color: #929b95;
+      font-size: 10px;
+    }
+  }
+}
+
+/* Filters */
+
+.county-cohort-filters {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  padding: 0 22px 20px;
+
+  label {
+    display: block;
+    margin-bottom: 7px;
+    color: #59635d;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  input,
+  select {
+    height: 38px;
+    border: 1px solid #dce2dd;
+    border-radius: 4px;
+    outline: none;
+    background: #ffffff;
+    color: #252b29;
+    font: inherit;
+    font-size: 12px;
+
+    &:focus {
+      border-color: #315c43;
+      box-shadow: 0 0 0 1px #315c43;
+    }
+  }
+
+  input {
+    width: 100%;
+    padding: 0 12px;
+  }
+
+  select {
+    width: 100%;
+    padding: 0 10px;
+  }
+
+  &__search {
+    flex: 1;
+    max-width: 420px;
+  }
+
+  &__field {
+    width: 180px;
+    flex-shrink: 0;
+  }
+}
+
+/* Cohort table */
+
+.county-cohort-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-top: 1px solid #e4e8e5;
+}
+
+.county-cohort-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  white-space: nowrap;
+
+  th {
+    padding: 13px 15px;
+    background: #f8faf8;
+    color: #68736c;
+    font-size: 10px;
+    font-weight: 650;
+    letter-spacing: 0.25px;
+    text-transform: uppercase;
+  }
+
+  td {
+    padding: 15px;
+    border-top: 1px solid #edf0ed;
+    color: #4b554e;
+    font-size: 12px;
+  }
+
+  tbody tr {
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: #fafcfb;
+    }
+  }
+
+  &__name {
+    display: block;
+    color: #252b29;
+    font-size: 12px;
+    font-weight: 650;
+  }
+
+  &__id {
+    display: block;
+    margin-top: 4px;
+    color: #929b95;
+    font-size: 10px;
+  }
+
+  &__unassigned {
+    color: #929b95;
+    font-size: 11px;
+    font-style: italic;
+  }
+
+  &__progress {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    span {
+      min-width: 35px;
+      color: #59635d;
+      font-size: 11px;
+    }
+  }
+
+  &__progress-track {
+    width: 75px;
+    height: 5px;
+    overflow: hidden;
+    border-radius: 5px;
+    background: #e9eeea;
+  }
+
+  &__progress-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: #315c43;
+    transition: width 0.2s ease;
+  }
+
+  &__view {
+    padding: 6px 9px;
+    border: 1px solid #dce4de;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #315c43;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+
+    &:hover {
+      border-color: #315c43;
+      background: #f7faf7;
+    }
+
+    &:focus-visible {
+      outline: 2px solid #315c43;
+      outline-offset: 2px;
+    }
+  }
+
+  &__empty {
+    padding: 45px 20px;
+    text-align: center;
+
+    strong {
+      color: #252b29;
+      font-size: 14px;
+    }
+
+    p {
+      margin: 7px 0 0;
+      color: #747d78;
+      font-size: 12px;
+    }
+  }
+}
+
+/* Cohort status */
+
+.county-cohort-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 9px;
+  border-radius: 3px;
+  background: #f0f2f0;
+  color: #59635d;
+  font-size: 10px;
+  font-weight: 650;
+
+  &--active {
+    background: #eaf4ed;
+    color: #315c43;
+  }
+
+  &--completed {
+    background: #edf0ed;
+    color: #59635d;
+  }
+
+  &--paused {
+    background: #faf3e8;
+    color: #8a6a35;
+  }
+}
+
+/* Cohort details */
+
+.county-cohort-details {
+  margin-top: 24px;
+  padding: 25px;
+  border: 1px solid #e4e8e5;
+  border-radius: 5px;
+  background: #ffffff;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+
+    h2 {
+      margin: 7px 0 5px;
+      color: #252b29;
+      font-size: 21px;
+      font-weight: 650;
+    }
+
+    p {
+      margin: 0;
+      color: #747d78;
+      font-size: 12px;
+    }
+  }
+
+  &__close {
+    padding: 7px 11px;
+    border: 1px solid #dce4de;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #59635d;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+
+    &:hover {
+      border-color: #315c43;
+      color: #315c43;
+    }
+
+    &:focus-visible {
+      outline: 2px solid #315c43;
+      outline-offset: 2px;
+    }
+  }
+
+  &__description {
+    max-width: 850px;
+    margin: 20px 0;
+    color: #68736c;
+    font-size: 12px;
+    line-height: 1.7;
+  }
+
+  &__assignment {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    padding: 18px 0;
+    border-top: 1px solid #edf0ed;
+    border-bottom: 1px solid #edf0ed;
+
+    div {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    span {
+      color: #929b95;
+      font-size: 11px;
+    }
+
+    strong {
+      color: #303a33;
+      font-size: 13px;
+      font-weight: 600;
+    }
+  }
+
+  &__section {
+    margin-top: 25px;
+
+    h3 {
+      margin: 0 0 16px;
+      color: #303a33;
+      font-size: 14px;
+      font-weight: 650;
+    }
+  }
+
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+
+    div {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      padding: 16px;
+      border: 1px solid #e8ece9;
+      border-radius: 4px;
+      background: #fafbfa;
+    }
+
+    span {
+      color: #747d78;
+      font-size: 11px;
+    }
+
+    strong {
+      color: #252b29;
+      font-size: 22px;
+      font-weight: 650;
+    }
+  }
+
+  &__overall-progress {
+    margin-top: 20px;
+
+    > div:first-child {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 9px;
+    }
+
+    span {
+      color: #68736c;
+      font-size: 11px;
+    }
+
+    strong {
+      color: #315c43;
+      font-size: 12px;
+    }
+  }
+
+  &__progress-track {
+    width: 100%;
+    height: 7px;
+    overflow: hidden;
+    border-radius: 5px;
+    background: #e9eeea;
+  }
+
+  &__progress-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: #315c43;
+  }
+
+  &__dates {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+
+    div {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    span {
+      color: #929b95;
+      font-size: 11px;
+    }
+
+    strong {
+      color: #303a33;
+      font-size: 12px;
+      font-weight: 600;
+    }
+  }
+
+  &__modules {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin: 0;
+    padding-left: 19px;
+
+    li {
+      padding-left: 3px;
+      color: #59635d;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+  }
+
+  &__empty {
+    margin: 0;
+    color: #929b95;
+    font-size: 12px;
+  }
+}
+
+/* Responsive layout */
+
+@media (max-width: 1250px) {
+  .county-cohort-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .county-cohorts {
+    padding: 24px 20px 40px;
+  }
+
+  .county-cohort-filters {
+    flex-wrap: wrap;
+
+    &__search {
+      max-width: none;
+      flex-basis: 100%;
+    }
+
+    &__field {
+      flex: 1;
+      min-width: 150px;
+    }
+  }
+}
+
+@media (max-width: 650px) {
+  .county-cohorts {
+    padding: 20px 14px 32px;
+
+    &__header h1 {
+      font-size: 23px;
+    }
+
+    &__directory-header {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+
+  .county-cohort-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    &__card {
+      min-height: 110px;
+      padding: 15px;
+
+      strong {
+        font-size: 24px;
+      }
+    }
+  }
+
+  .county-cohort-filters {
+    padding: 0 14px 16px;
+
+    &__field {
+      flex-basis: 100%;
+    }
+  }
+
+  .county-cohort-details {
+    padding: 18px;
+
+    &__assignment,
+    &__dates {
+      grid-template-columns: 1fr;
+    }
+
+    &__stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    &__header {
+      flex-direction: column;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .county-cohort-summary__card,
+  .county-cohort-table tbody tr,
+  .county-cohort-table__progress-fill {
+    transition: none;
+  }
+}
+}

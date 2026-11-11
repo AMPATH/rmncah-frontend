@@ -65,7 +65,7 @@ function LogIssuePage() {
   function handleIssueTypeChange(newIssueType: IssueType | '') {
     setIssueType(newIssueType);
     setGender('');
-    
+
     if (newIssueType === 'perinatal' && dateOfBirth !== '' && dateOfBirth < addDays(today, -MAX_PERINATAL_AGE_DAYS)) {
       setDateOfBirth('');
       setDateOfDeath('');
@@ -79,7 +79,7 @@ function LogIssuePage() {
 
   function handleDateOfBirthChange(newDate: string) {
     setDateOfBirth(newDate);
-    
+
     if (dateOfDeath !== '' && dateOfDeath < newDate) {
       setDateOfDeath('');
     }
@@ -109,7 +109,7 @@ function LogIssuePage() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    
+
     const datesMissing =
       dateOfBirth === '' || dateOfNotification === '' || (isDeath && dateOfDeath === '');
     if (datesMissing) {

@@ -1,12 +1,12 @@
 import { Content, Theme } from '@carbon/react';
 import { Outlet } from 'react-router';
-import Topbar from './topbar/Topbar';
+import MPDSRTopbar from './topbar/MPDSRTopbar';
 
 
 function AppLayout() {
   return (
     <>
-      <Topbar />
+      <MPDSRTopbar />
       <Theme as={Content} theme="g10">
         <Outlet />
       </Theme>
