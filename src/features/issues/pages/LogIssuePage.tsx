@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import type { IssueType, Setting } from '../types/issue.types';
+import { useNavigate } from 'react-router';
+import { Button, InlineNotification, ProgressIndicator, ProgressStep } from '@carbon/react';
+import type { DraftRecommendation, IssueType, Setting, User } from '../types/issue.types';
+import CaseFields from '../components/log-issue/CaseFields';
 import CauseFields from '../components/log-issue/CauseFields';
 import CommentsField from '../components/log-issue/CommentsField';
 import ContributingFactors from '../components/log-issue/ContributingFactors';
@@ -8,19 +11,46 @@ import DateFields from '../components/log-issue/DateFields';
 import LocationFields from '../components/log-issue/LocationFields';
 import PeriodDetailFields from '../components/log-issue/PeriodDetailFields';
 import PersonFields from '../components/log-issue/PersonFields';
+import RecommendationsStep from '../components/log-issue/RecommendationsStep';
+import ReviewStep from '../components/log-issue/ReviewStep';
+import { delayLevels } from '../constants/delayFactors';
 import { addDays, daysBetween, getToday, yearsBetween } from '../utils/dates';
+import { showToast } from '../../../components/shared/toast/toast';
+import './LogIssuePage.scss';
 
-
+// A perinatal death is a child aged 0 to 42 days.
 const MAX_PERINATAL_AGE_DAYS = 42;
 
+const steps = ['Location', 'Case', 'Delay and cause', 'Period and dates', 'Recommendations', 'Review'];
+const lastStep = steps.length - 1;
+
+// Readable names for stored values, used on the Review step.
+const labels: Record<string, string> = {
+  facility: 'Facility',
+  community: 'Community',
+  perinatal: 'Perinatal',
+  maternal: 'Maternal',
+  'near-miss': 'Near miss',
+  antenatal: 'Antenatal',
+  intrapartum: 'Intrapartum',
+  postpartum: 'Postpartum',
+  female: 'Female',
+  male: 'Male',
+};
+
 function LogIssuePage() {
+  const navigate = useNavigate();
+
+  // Which step is showing, and the furthest step reached (earlier steps can be revisited).
+  const [step, setStep] = useState(0);
+  const [furthestStep, setFurthestStep] = useState(0);
+
   const [setting, setSetting] = useState<Setting | ''>('');
   const [loggedAt, setLoggedAt] = useState('');
   const [issueType, setIssueType] = useState<IssueType | ''>('');
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [gender, setGender] = useState('');
   const [causeOfDeath, setCauseOfDeath] = useState('');
-  const [levelOfDelay, setLevelOfDelay] = useState('');
   const [periodOfDeath, setPeriodOfDeath] = useState('');
   const [gestationWeeks, setGestationWeeks] = useState('');
   const [daysPostpartum, setDaysPostpartum] = useState('');
@@ -28,22 +58,21 @@ function LogIssuePage() {
   const [dateOfNotification, setDateOfNotification] = useState('');
   const [selectedFactors, setSelectedFactors] = useState<string[]>([]);
   const [comments, setComments] = useState('');
-  const [showDateErrors, setShowDateErrors] = useState(false);
+  const [recommendations, setRecommendations] = useState<DraftRecommendation[]>([]);
+  const [showErrors, setShowErrors] = useState(false);
 
+  // Reference lists. They stay empty until the backend provides them.
   const loggedAtOptions: string[] = [];
   const causeOptions: string[] = [];
-  const delayFactors: Record<string, string[]> = {
-    '1st': [],
-    '2nd': [],
-    '3rd': [],
-  };
+  const users: User[] = [];
+  const subCounty = '';
+  const county = '';
 
   const today = getToday();
   const isDeath = issueType !== 'near-miss';
   const isPerinatal = issueType === 'perinatal';
 
-  // Perinatal only: the child must be 0 to 42 days old, so the date of birth
-  // can be at most 42 days before today.
+  // Perinatal only: the child must be 0 to 42 days old.
   const earliestDateOfBirth = isPerinatal ? addDays(today, -MAX_PERINATAL_AGE_DAYS) : '';
 
   // Age: in days for a perinatal child, in years for the mother.
@@ -57,7 +86,7 @@ function LogIssuePage() {
   function handleSettingChange(newSetting: Setting | '') {
     setSetting(newSetting);
     setLoggedAt('');
-    if (newSetting === 'community' && issueType === 'near-miss') {
+    if (newSetting !== 'facility' && issueType === 'near-miss') {
       setIssueType('');
     }
   }
@@ -65,8 +94,12 @@ function LogIssuePage() {
   function handleIssueTypeChange(newIssueType: IssueType | '') {
     setIssueType(newIssueType);
     setGender('');
-
-    if (newIssueType === 'perinatal' && dateOfBirth !== '' && dateOfBirth < addDays(today, -MAX_PERINATAL_AGE_DAYS)) {
+    // Switching to perinatal: clear a birth date older than 42 days.
+    if (
+      newIssueType === 'perinatal' &&
+      dateOfBirth !== '' &&
+      dateOfBirth < addDays(today, -MAX_PERINATAL_AGE_DAYS)
+    ) {
       setDateOfBirth('');
       setDateOfDeath('');
     }
@@ -79,7 +112,7 @@ function LogIssuePage() {
 
   function handleDateOfBirthChange(newDate: string) {
     setDateOfBirth(newDate);
-
+    // A death can't be before the birth.
     if (dateOfDeath !== '' && dateOfDeath < newDate) {
       setDateOfDeath('');
     }
@@ -106,14 +139,62 @@ function LogIssuePage() {
     );
   }
 
+  // Checks the browser can't do: Carbon date pickers and the recommendation list.
+  function isStepComplete(index: number) {
+    if (index === 1) {
+      return dateOfBirth !== '';
+    }
+    if (index === 2) {
+      return selectedFactors.length > 0;
+    }
+    if (index === 3) {
+      return dateOfNotification !== '' && (!isDeath || dateOfDeath !== '');
+    }
+    if (index === 4) {
+      return recommendations.length > 0;
+    }
+    return true;
+  }
+
+  function goToStep(index: number) {
+    if (index <= furthestStep) {
+      setStep(index);
+      setShowErrors(false);
+    }
+  }
+
+  function resetForm() {
+    setStep(0);
+    setFurthestStep(0);
+    setSetting('');
+    setLoggedAt('');
+    setIssueType('');
+    setDateOfBirth('');
+    setGender('');
+    setCauseOfDeath('');
+    handlePeriodChange('');
+    setDateOfDeath('');
+    setDateOfNotification('');
+    setSelectedFactors([]);
+    setComments('');
+    setRecommendations([]);
+    setShowErrors(false);
+  }
+
+  // "Continue" submits the form, so the browser first checks the required fields of this step.
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    if (!isStepComplete(step)) {
+      setShowErrors(true);
+      return;
+    }
+    setShowErrors(false);
 
-    const datesMissing =
-      dateOfBirth === '' || dateOfNotification === '' || (isDeath && dateOfDeath === '');
-    if (datesMissing) {
-      setShowDateErrors(true);
+    if (step < lastStep) {
+      const nextStep = step + 1;
+      setStep(nextStep);
+      setFurthestStep(Math.max(furthestStep, nextStep));
       return;
     }
 
@@ -122,9 +203,8 @@ function LogIssuePage() {
       loggedAt,
       issueType,
       dateOfBirth,
-      gender: issueType === 'perinatal' ? gender : 'female',
+      gender: isPerinatal ? gender : 'female',
       causeOfDeath,
-      levelOfDelay,
       periodOfDeath,
       gestationWeeks,
       daysPostpartum,
@@ -133,86 +213,174 @@ function LogIssuePage() {
       dateOfAudit: isDeath ? today : '',
       contributingFactors: selectedFactors,
       comments,
+      recommendations,
     };
-
     console.log('Issue to save:', issue);
+    showToast(`Issue logged with ${recommendations.length} recommendation(s)`);
+    resetForm();
+    navigate('/mpdsr');
   }
+
+  const reviewItems = [
+    { label: 'Setting', value: labels[setting] ?? '—' },
+    { label: 'Logged at', value: loggedAt || '—' },
+    { label: 'Issue type', value: labels[issueType] ?? '—' },
+    { label: 'Person recorded', value: isPerinatal ? 'Child' : 'Mother' },
+    { label: 'Date of birth', value: dateOfBirth || '—' },
+    { label: 'Age', value: age || '—' },
+    { label: 'Gender', value: isPerinatal ? labels[gender] ?? '—' : 'Female' },
+    { label: 'Cause of death', value: isDeath ? causeOfDeath || '—' : 'n/a' },
+    { label: 'Contributing factors', value: selectedFactors.join('; ') || '—' },
+    { label: 'Period of death', value: isDeath ? labels[periodOfDeath] ?? '—' : 'n/a' },
+    { label: 'Date of death', value: isDeath ? dateOfDeath || '—' : 'n/a' },
+    { label: 'Date of notification', value: dateOfNotification || '—' },
+    { label: 'Comments', value: comments || '—' },
+    { label: 'Recommendations', value: recommendations.length },
+  ];
 
   return (
     <div className="page">
       <div className="page-header">
-        <h1>Log issue</h1>
+        <div>
+          <h1>Log issue</h1>
+          <p className="page-subtitle">One form logs the issue and its recommendations.</p>
+        </div>
       </div>
 
-      <form className="form-card" onSubmit={handleSubmit}>
-        <LocationFields
-          setting={setting}
-          loggedAt={loggedAt}
-          issueType={issueType}
-          loggedAtOptions={loggedAtOptions}
-          onSettingChange={handleSettingChange}
-          onLoggedAtChange={setLoggedAt}
-          onIssueTypeChange={handleIssueTypeChange}
-        />
+      <ProgressIndicator
+        className="log-issue__steps"
+        currentIndex={step}
+        onChange={goToStep}
+        spaceEqually
+      >
+        {steps.map((label, index) => (
+          <ProgressStep key={label} label={label} disabled={index > furthestStep} />
+        ))}
+      </ProgressIndicator>
 
-        <PersonFields
-          issueType={issueType}
-          dateOfBirth={dateOfBirth}
-          age={age}
-          gender={gender}
-          today={today}
-          earliestDateOfBirth={earliestDateOfBirth}
-          showErrors={showDateErrors}
-          onDateOfBirthChange={handleDateOfBirthChange}
-          onGenderChange={setGender}
-        />
+      {/* Step 5 checks its own fields, so the browser's required check is switched off there. */}
+      <form onSubmit={handleSubmit} noValidate={step === 4}>
+        <section className="form-card log-issue__card" aria-labelledby="stepTitle">
+          <h2 id="stepTitle" className="form-section-title">
+            {step + 1}. {steps[step]}
+          </h2>
 
-        <CauseFields
-          isDeath={isDeath}
-          causeOfDeath={causeOfDeath}
-          levelOfDelay={levelOfDelay}
-          periodOfDeath={periodOfDeath}
-          causeOptions={causeOptions}
-          onCauseOfDeathChange={setCauseOfDeath}
-          onLevelOfDelayChange={setLevelOfDelay}
-          onPeriodOfDeathChange={handlePeriodChange}
-        />
+          {step === 0 && (
+            <LocationFields
+              setting={setting}
+              loggedAt={loggedAt}
+              loggedAtOptions={loggedAtOptions}
+              subCounty={subCounty}
+              county={county}
+              onSettingChange={handleSettingChange}
+              onLoggedAtChange={setLoggedAt}
+            />
+          )}
 
-        {isDeath && periodOfDeath !== '' && (
-          <PeriodDetailFields
-            periodOfDeath={periodOfDeath}
-            gestationWeeks={gestationWeeks}
-            daysPostpartum={daysPostpartum}
-            onGestationWeeksChange={setGestationWeeks}
-            onDaysPostpartumChange={setDaysPostpartum}
-          />
-        )}
+          {step === 1 && (
+            <>
+              <CaseFields
+                setting={setting}
+                issueType={issueType}
+                onIssueTypeChange={handleIssueTypeChange}
+              />
+              <PersonFields
+                issueType={issueType}
+                dateOfBirth={dateOfBirth}
+                age={age}
+                gender={gender}
+                today={today}
+                earliestDateOfBirth={earliestDateOfBirth}
+                showErrors={showErrors}
+                onDateOfBirthChange={handleDateOfBirthChange}
+                onGenderChange={setGender}
+              />
+            </>
+          )}
 
-        <DateFields
-          isDeath={isDeath}
-          dateOfBirth={dateOfBirth}
-          dateOfDeath={dateOfDeath}
-          dateOfNotification={dateOfNotification}
-          today={today}
-          showErrors={showDateErrors}
-          onDateOfDeathChange={handleDateOfDeathChange}
-          onDateOfNotificationChange={setDateOfNotification}
-        />
+          {step === 2 && (
+            <>
+              <CauseFields
+                isDeath={isDeath}
+                causeOfDeath={causeOfDeath}
+                causeOptions={causeOptions}
+                onCauseOfDeathChange={setCauseOfDeath}
+              />
+              <ContributingFactors
+                delayLevels={delayLevels}
+                showErrors={showErrors}
+                selectedFactors={selectedFactors}
+                onToggleFactor={toggleFactor}
+              />
+              <CommentsField comments={comments} onCommentsChange={setComments} />
+            </>
+          )}
 
-        <ContributingFactors
-          delayFactors={delayFactors}
-          selectedFactors={selectedFactors}
-          onToggleFactor={toggleFactor}
-        />
+          {step === 3 && (
+            <>
+              {isDeath ? (
+                <PeriodDetailFields
+                  periodOfDeath={periodOfDeath}
+                  gestationWeeks={gestationWeeks}
+                  daysPostpartum={daysPostpartum}
+                  onPeriodOfDeathChange={handlePeriodChange}
+                  onGestationWeeksChange={setGestationWeeks}
+                  onDaysPostpartumChange={setDaysPostpartum}
+                />
+              ) : (
+                <div className="form-block">
+                  <InlineNotification
+                    kind="info"
+                    lowContrast
+                    hideCloseButton
+                    title="Near miss"
+                    subtitle="Period of death and date of death are skipped."
+                  />
+                </div>
+              )}
+              <DateFields
+                isDeath={isDeath}
+                dateOfBirth={dateOfBirth}
+                dateOfDeath={dateOfDeath}
+                dateOfNotification={dateOfNotification}
+                today={today}
+                showErrors={showErrors}
+                onDateOfDeathChange={handleDateOfDeathChange}
+                onDateOfNotificationChange={setDateOfNotification}
+              />
+            </>
+          )}
 
-        <CommentsField comments={comments} onCommentsChange={setComments} />
+          {step === 4 && (
+            <RecommendationsStep
+              recommendations={recommendations}
+              gapOptions={selectedFactors}
+              users={users}
+              today={today}
+              showErrors={showErrors}
+              onAdd={(recommendation) => setRecommendations((current) => [...current, recommendation])}
+              onRemove={(index) =>
+                setRecommendations((current) => current.filter((_, i) => i !== index))
+              }
+            />
+          )}
 
-        <p className="form-note">
-          Auto: sub-county, county, linked facility, Issue ID, logged by with cadre. Near miss
-          hides death-only fields.
-        </p>
+          {step === 5 && (
+            <ReviewStep items={reviewItems} recommendationCount={recommendations.length} />
+          )}
+        </section>
 
-        <button type="submit">Save issue and add recommendation</button>
+        <div className="log-issue__actions">
+          <Button kind="secondary" disabled={step === 0} onClick={() => goToStep(step - 1)}>
+            Back
+          </Button>
+          <div className="form-actions">
+            <Button kind="ghost" onClick={resetForm}>
+              Clear form
+            </Button>
+            <Button type="submit">{step === lastStep ? 'Submit issue' : 'Continue'}</Button>
+          </div>
+        </div>
       </form>
     </div>
   );

@@ -9,6 +9,7 @@ import {
   TableRow,
 } from '@carbon/react';
 import type { Recommendation } from '../../issues/types/issue.types';
+import StatusTag from '../../../components/shared/StatusTag';
 
 const headers = [
   { key: 'id', header: 'ID' },
@@ -28,10 +29,10 @@ function RecommendationsTable({ recommendations }: RecommendationsTableProps) {
     <DataTable rows={recommendations} headers={headers} isSortable>
       {({ rows, headers, getHeaderProps, getRowProps, getTableProps, getCellProps }) => (
         <TableContainer
-          title="Recommendations"
+          title="Action plan"
           description="Recommendations assigned to you"
         >
-          <Table {...getTableProps()} aria-label="Recommendations">
+          <Table {...getTableProps()} aria-label="Action plan">
             <TableHead>
               <TableRow>
                 {headers.map((header) => {
@@ -58,7 +59,7 @@ function RecommendationsTable({ recommendations }: RecommendationsTableProps) {
                         const { key: cellKey, ...cellProps } = getCellProps({ cell });
                         return (
                           <TableCell key={cellKey} {...cellProps}>
-                            {cell.value}
+                            {cell.info.header === 'status' ? <StatusTag status={cell.value} /> : cell.value}
                           </TableCell>
                         );
                       })}

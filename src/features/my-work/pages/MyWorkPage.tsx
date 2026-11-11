@@ -10,18 +10,12 @@ function MyWorkPage() {
 
   return (
     <div className="page">
-      <div className="page-header">
-        <h1>My work</h1>
-        <Button
-          kind="tertiary"
-          onClick={() => navigate('/issues/new')}
-        >
-          Log issue
-        </Button>
-      </div>
-
       <SummaryCards />
       <RecommendationsTable recommendations={recommendations} />
+
+      <div className="form-actions page-bottom-actions">
+        <Button onClick={() => navigate('/issues/new')}>Log issue</Button>
+      </div>
     </div>
   );
 }

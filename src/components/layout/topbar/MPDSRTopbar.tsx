@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import {
+  Button,
   Header,
   HeaderContainer,
   HeaderGlobalAction,
@@ -11,12 +12,22 @@ import {
   SwitcherItem,
   Theme,
 } from '@carbon/react';
-import { Notification, Switcher as SwitcherIcon } from '@carbon/icons-react';
+import {
+  ArrowLeft,
+  Logout,
+  Notification,
+  Switcher as SwitcherIcon,
+} from '@carbon/icons-react';
 import './MPDSRTopbar.scss';
 
 const pages = [
   { path: '/mpdsr', label: 'MPDSR' },
   { path: '/issues/new', label: 'Log issue' },
+  { path: '/issues/draft/recommendation', label: 'Recommendation' },
+  { path: '/actions/draft/respond', label: 'Accept or escalate' },
+  { path: '/actions/overdue', label: 'Overdue and reassign' },
+  { path: '/actions/draft/close', label: 'Close out' },
+  { path: '/dashboard', label: 'Dashboard and reports' },
 ];
 
 function HeaderContent() {
@@ -29,8 +40,29 @@ function HeaderContent() {
     setSwitcherOpen(false);
   }
 
+  // Go to the previous page in the browser history.
+  function handleBack() {
+    navigate(-1);
+  }
+
+  // No sign-in yet: for now, go back to the programme choice.
+  function handleLogout() {
+    console.log('Log out');
+    navigate('/');
+  }
+
   return (
     <Header aria-label="MPDSR" className="topbar">
+      <Button
+        className="topbar__button"
+        kind="ghost"
+        size="md"
+        renderIcon={ArrowLeft}
+        onClick={handleBack}
+      >
+        Back
+      </Button>
+
       <HeaderName as={Link} to="/mpdsr" prefix="">
         MPDSR
       </HeaderName>
@@ -47,6 +79,15 @@ function HeaderContent() {
         >
           <SwitcherIcon size={20} />
         </HeaderGlobalAction>
+        <Button
+          className="topbar__button"
+          kind="ghost"
+          size="md"
+          renderIcon={Logout}
+          onClick={handleLogout}
+        >
+          Log out
+        </Button>
       </HeaderGlobalBar>
 
       <HeaderPanel expanded={switcherOpen}>

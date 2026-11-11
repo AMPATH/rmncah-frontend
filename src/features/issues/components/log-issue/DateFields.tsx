@@ -1,4 +1,5 @@
 import { DatePicker, DatePickerInput } from '@carbon/react';
+import AutoLabel from '../../../../components/shared/AutoLabel';
 import { toIsoDate } from '../../utils/dates';
 
 interface DateFieldsProps {
@@ -38,6 +39,7 @@ function DateFields({
             id="dateOfDeath"
             labelText="Date of death"
             placeholder="yyyy-mm-dd"
+          pattern="\d{4}-\d{2}-\d{2}"
             invalid={showErrors && dateOfDeath === ''}
             invalidText="Enter the date of death"
           />
@@ -56,6 +58,7 @@ function DateFields({
           id="dateOfNotification"
           labelText="Date of notification"
           placeholder="yyyy-mm-dd"
+          pattern="\d{4}-\d{2}-\d{2}"
           invalid={showErrors && dateOfNotification === ''}
           invalidText="Enter the date of notification"
         />
@@ -63,7 +66,8 @@ function DateFields({
 
       {isDeath && (
         <DatePicker datePickerType="single" dateFormat="Y-m-d" value={today} readOnly>
-          <DatePickerInput id="dateOfAudit" labelText="Date of audit (auto)" placeholder="yyyy-mm-dd" />
+          <DatePickerInput id="dateOfAudit" labelText={<AutoLabel text="Date of audit" />} placeholder="yyyy-mm-dd"
+          pattern="\d{4}-\d{2}-\d{2}" />
         </DatePicker>
       )}
     </div>

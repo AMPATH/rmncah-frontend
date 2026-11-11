@@ -4,3 +4,9 @@
   background-color: $primary;
   border-block-end: none;
 }
+
+// Back and Log out: centred in the 48px header, white text.
+.topbar__button {
+  align-self: center;
+  color: #ffffff;
+}

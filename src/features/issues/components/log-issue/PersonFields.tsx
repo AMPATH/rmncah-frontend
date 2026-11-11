@@ -1,4 +1,5 @@
 import { DatePicker, DatePickerInput } from '@carbon/react';
+import AutoLabel from '../../../../components/shared/AutoLabel';
 import type { IssueType } from '../../types/issue.types';
 import { toIsoDate } from '../../utils/dates';
 
@@ -40,13 +41,14 @@ function PersonFields({
           id="dateOfBirth"
           labelText="Date of birth"
           placeholder="yyyy-mm-dd"
+          pattern="\d{4}-\d{2}-\d{2}"
           invalid={showErrors && dateOfBirth === ''}
           invalidText="Enter the date of birth"
         />
       </DatePicker>
 
       <div className="field">
-        <label htmlFor="age">Age (auto)</label>
+        <label htmlFor="age"><AutoLabel text="Age" /></label>
         <input id="age" type="text" value={age} readOnly />
       </div>
 
