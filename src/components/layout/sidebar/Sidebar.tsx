@@ -12,6 +12,8 @@ interface SidebarProps {
   navigation: RoleNavigation
   activePath: string
   onNavigate: (path: string) => void
+  mobileOpen: boolean
+  onClose: () => void
 }
 
 const roleShortLabels: Record<string, string> = {
@@ -25,10 +27,12 @@ export default function Sidebar({
   navigation,
   activePath,
   onNavigate,
+  mobileOpen,
+  onClose,
 }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
 
-  const toggleSidebar = () => {
+  function toggleSidebar() {
     setCollapsed((previous) => !previous)
   }
 
@@ -37,12 +41,22 @@ export default function Sidebar({
 
   return (
     <aside
-      className={`sidebar ${collapsed ? 'sidebar--collapsed' : ''}`}
+      id="emonc-sidebar"
+      className={[
+        'sidebar',
+        collapsed ? 'sidebar--collapsed' : '',
+        mobileOpen ? 'sidebar--mobile-open' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
       aria-label={`${roleLabel} navigation`}
+      aria-hidden={!mobileOpen && typeof window !== 'undefined' && window.innerWidth <= 700}
     >
       <SidebarBrand
         collapsed={collapsed}
+        mobileOpen={mobileOpen}
         onToggle={toggleSidebar}
+        onMobileClose={onClose}
       />
 
       <SidebarNavigation
@@ -53,15 +67,16 @@ export default function Sidebar({
       />
 
       <div className="sidebar__footer">
-        <div className="sidebar__avatar" aria-hidden="true">
-          {roleShortLabel}
-        </div>
-
-        {!collapsed && (
-          <div className="sidebar__user">
-            <strong>{roleLabel}</strong>
+        <div className="sidebar__user">
+          <div className="sidebar__user-avatar">
+            {roleShortLabel}
           </div>
-        )}
+
+          <div className="sidebar__user-info">
+            <strong>{roleLabel}</strong>
+            <span>EmONC Workspace</span>
+          </div>
+        </div>
       </div>
     </aside>
   )

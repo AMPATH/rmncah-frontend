@@ -1,34 +1,43 @@
 
 import { useEffect, useRef, useState } from 'react'
+
 import {
   Search,
   Notification,
   ChevronDown,
   Checkmark,
+  Menu,
+  Close,
 } from '@carbon/icons-react'
 
 import { roles, type UserRole } from '../../../../../config/roles'
+
 import './EmONCTopbar.scss'
 
 interface EmONCTopbarProps {
   pageTitle: string
   activeRole: UserRole
   onRoleChange: (role: UserRole) => void
+  onMenuClick: () => void
+  mobileMenuOpen: boolean
 }
 
 export default function EmONCTopbar({
   pageTitle,
   activeRole,
   onRoleChange,
+  onMenuClick,
+  mobileMenuOpen,
 }: EmONCTopbarProps) {
   const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false)
+
   const roleSwitcherRef = useRef<HTMLDivElement>(null)
 
   const selectedRole = roles.find(
     (role) => role.id === activeRole
   )
 
-  // Close the dropdown when clicking outside it.
+  // Close the role dropdown when clicking outside it.
   useEffect(() => {
     function handleOutsideClick(event: MouseEvent) {
       if (
@@ -46,7 +55,7 @@ export default function EmONCTopbar({
     }
   }, [])
 
-  // Close the dropdown when pressing Escape.
+  // Close the role dropdown when pressing Escape.
   useEffect(() => {
     function handleEscape(event: KeyboardEvent) {
       if (event.key === 'Escape') {
@@ -61,6 +70,7 @@ export default function EmONCTopbar({
     }
   }, [])
 
+  // Handle application role selection.
   function handleRoleSelection(role: UserRole) {
     onRoleChange(role)
     setIsRoleMenuOpen(false)
@@ -68,13 +78,41 @@ export default function EmONCTopbar({
 
   return (
     <header className="emonc-topbar">
+
+      {/* Mobile navigation toggle */}
+      <button
+        type="button"
+        className="emonc-topbar__menu-button"
+        onClick={onMenuClick}
+        aria-label={
+          mobileMenuOpen
+            ? 'Close navigation menu'
+            : 'Open navigation menu'
+        }
+        aria-expanded={mobileMenuOpen}
+        aria-controls="emonc-sidebar"
+      >
+        {mobileMenuOpen ? (
+          <Close size={22} />
+        ) : (
+          <Menu size={22} />
+        )}
+      </button>
+
+      {/* Current page breadcrumb */}
       <div className="emonc-topbar__breadcrumb">
         <span>Workspace</span>
-        <span className="emonc-topbar__breadcrumb-separator">/</span>
+
+        <span className="emonc-topbar__breadcrumb-separator">
+          /
+        </span>
+
         <strong>{pageTitle}</strong>
       </div>
 
+      {/* Topbar actions */}
       <div className="emonc-topbar__actions">
+
         <button
           type="button"
           className="emonc-topbar__icon-button"
@@ -91,6 +129,7 @@ export default function EmONCTopbar({
           <Notification size={20} />
         </button>
 
+        {/* Application role switcher */}
         <div
           className="emonc-topbar__role-switcher"
           ref={roleSwitcherRef}
@@ -98,7 +137,9 @@ export default function EmONCTopbar({
           <button
             type="button"
             className={`emonc-topbar__role-trigger ${
-              isRoleMenuOpen ? 'emonc-topbar__role-trigger--open' : ''
+              isRoleMenuOpen
+                ? 'emonc-topbar__role-trigger--open'
+                : ''
             }`}
             aria-label="Select application role"
             aria-expanded={isRoleMenuOpen}
@@ -116,7 +157,9 @@ export default function EmONCTopbar({
             <ChevronDown
               size={16}
               className={`emonc-topbar__chevron ${
-                isRoleMenuOpen ? 'emonc-topbar__chevron--open' : ''
+                isRoleMenuOpen
+                  ? 'emonc-topbar__chevron--open'
+                  : ''
               }`}
             />
           </button>
@@ -141,7 +184,9 @@ export default function EmONCTopbar({
                     role="menuitemradio"
                     aria-checked={isActive}
                     className={`emonc-topbar__role-option ${
-                      isActive ? 'emonc-topbar__role-option--active' : ''
+                      isActive
+                        ? 'emonc-topbar__role-option--active'
+                        : ''
                     }`}
                     onClick={() => handleRoleSelection(role.id)}
                   >

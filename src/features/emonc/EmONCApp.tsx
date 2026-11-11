@@ -34,18 +34,25 @@ import ModuleLibraryPage from '../program-lead/pages/ModuleLibraryPage'
 import './App.scss'
 
 function App() {
+  // Initialize demo data once when the application mounts.
   useEffect(() => {
     const seedResult = initializeDemoData()
 
     console.info('[EmONC] Demo data initialization:', seedResult)
   }, [])
 
+  // Application state.
   const [activeRole, setActiveRole] =
     useState<UserRole>('county-mentor')
 
   const [activePath, setActivePath] =
     useState('/county-mentor/overview')
 
+  // Mobile navigation drawer state.
+  const [isMobileMenuOpen, setIsMobileMenuOpen] =
+    useState(false)
+
+  // Current role navigation configuration.
   const currentNavigation = navigationByRole[activeRole]
 
   const activeItem = currentNavigation.groups
@@ -54,6 +61,7 @@ function App() {
 
   const pageTitle = activeItem?.label ?? 'Overview'
 
+  // Handle role switching.
   function handleRoleChange(role: UserRole) {
     const nextNavigation = navigationByRole[role]
 
@@ -61,19 +69,31 @@ function App() {
       .flatMap((group) => group.items)[0]
 
     setActiveRole(role)
+    setIsMobileMenuOpen(false)
 
     if (firstItem) {
       setActivePath(firstItem.path)
     }
   }
 
+  // Handle navigation between pages.
   function handleNavigate(path: string) {
     setActivePath(path)
+    setIsMobileMenuOpen(false)
   }
 
-  function renderPage() {
-    // COUNTY MENTOR DASHBOARD
+  // Open or close the mobile navigation drawer.
+  function handleMobileMenuToggle() {
+    setIsMobileMenuOpen((previous) => !previous)
+  }
 
+  function handleMobileMenuClose() {
+    setIsMobileMenuOpen(false)
+  }
+
+  // Render the active page.
+  function renderPage() {
+    // COUNTY MENTOR - OVERVIEW
     if (
       activeRole === 'county-mentor' &&
       activePath === '/county-mentor/overview'
@@ -87,7 +107,6 @@ function App() {
     }
 
     // COUNTY MENTOR - MENTORS
-
     if (
       activeRole === 'county-mentor' &&
       activePath === '/county-mentor/mentors'
@@ -96,7 +115,6 @@ function App() {
     }
 
     // COUNTY MENTOR - COHORTS
-
     if (
       activeRole === 'county-mentor' &&
       activePath === '/county-mentor/cohorts'
@@ -105,7 +123,6 @@ function App() {
     }
 
     // COUNTY MENTOR - MENTEES
-
     if (
       activeRole === 'county-mentor' &&
       activePath === '/county-mentor/mentees'
@@ -114,7 +131,6 @@ function App() {
     }
 
     // COUNTY MENTOR - FACILITIES
-
     if (
       activeRole === 'county-mentor' &&
       activePath === '/county-mentor/facilities'
@@ -123,7 +139,6 @@ function App() {
     }
 
     // COUNTY MENTOR - SITE ASSESSMENTS
-
     if (
       activeRole === 'county-mentor' &&
       activePath === '/county-mentor/site-assessments'
@@ -131,8 +146,7 @@ function App() {
       return <CountySiteAssessmentsPage title={pageTitle} />
     }
 
-    // COUNTY MENTOR - FEEDBACK & CHALLENGES
-
+    // COUNTY MENTOR - FEEDBACK
     if (
       activeRole === 'county-mentor' &&
       activePath === '/county-mentor/feedback'
@@ -141,7 +155,6 @@ function App() {
     }
 
     // PROGRAM LEAD - OVERVIEW
-
     if (
       activeRole === 'program-lead' &&
       activePath === '/program-lead/overview'
@@ -155,7 +168,6 @@ function App() {
     }
 
     // PROGRAM LEAD - TRAINING MODULES
-
     if (
       activeRole === 'program-lead' &&
       activePath === '/program-lead/training-modules'
@@ -169,7 +181,6 @@ function App() {
     }
 
     // PROGRAM LEAD - MODULE SECTIONS
-
     if (
       activeRole === 'program-lead' &&
       activePath === '/program-lead/module-sections'
@@ -178,7 +189,6 @@ function App() {
     }
 
     // PROGRAM LEAD - LEARNING MATERIALS
-
     if (
       activeRole === 'program-lead' &&
       activePath === '/program-lead/learning-materials'
@@ -187,7 +197,6 @@ function App() {
     }
 
     // PROGRAM LEAD - MODULE LIBRARY
-
     if (
       activeRole === 'program-lead' &&
       activePath === '/program-lead/module-library'
@@ -201,7 +210,6 @@ function App() {
     }
 
     // MENTOR - OVERVIEW
-
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/overview'
@@ -210,7 +218,6 @@ function App() {
     }
 
     // MENTOR - MY COHORTS
-
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/cohorts'
@@ -219,7 +226,6 @@ function App() {
     }
 
     // MENTOR - MENTEES
-
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/mentees'
@@ -228,7 +234,6 @@ function App() {
     }
 
     // MENTOR - LEARNING PLAN
-
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/learning-plan'
@@ -237,7 +242,6 @@ function App() {
     }
 
     // MENTOR - ASSESSMENTS
-
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/assessments'
@@ -246,7 +250,6 @@ function App() {
     }
 
     // MENTOR - RESOURCES
-
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/resources'
@@ -255,7 +258,6 @@ function App() {
     }
 
     // MENTOR - COHORT SUBMISSIONS
-
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/cohort-submissions'
@@ -264,7 +266,6 @@ function App() {
     }
 
     // MENTOR - FEEDBACK
-
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/feedback'
@@ -273,7 +274,6 @@ function App() {
     }
 
     // OTHER PAGES - TEMPORARY PLACEHOLDER
-
     return (
       <section className="section-placeholder">
         <p>{currentNavigation.title.toUpperCase()}</p>
@@ -290,22 +290,44 @@ function App() {
   return (
     <div className="emonc-app">
       <div className="app-layout">
+
+        {/* Application sidebar */}
         <Sidebar
           navigation={currentNavigation}
           activePath={activePath}
           onNavigate={handleNavigate}
+          mobileOpen={isMobileMenuOpen}
+          onClose={handleMobileMenuClose}
+          
         />
 
+        {/* Mobile navigation backdrop */}
+        {isMobileMenuOpen && (
+          <button
+            type="button"
+            className="sidebar-backdrop"
+            aria-label="Close navigation menu"
+            onClick={handleMobileMenuClose}
+          />
+        )}
+
+        {/* Main application area */}
         <main className="app-main">
+
+          {/* Application topbar */}
           <EmONCTopbar
             pageTitle={pageTitle}
             activeRole={activeRole}
             onRoleChange={handleRoleChange}
+            onMenuClick={handleMobileMenuToggle}
+            mobileMenuOpen={isMobileMenuOpen}
           />
 
+          {/* Active page content */}
           <div className="app-content">
             {renderPage()}
           </div>
+
         </main>
       </div>
     </div>

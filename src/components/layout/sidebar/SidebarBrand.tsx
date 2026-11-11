@@ -1,14 +1,18 @@
 
-import { ChevronLeft, ChevronRight } from '@carbon/icons-react'
+import { ChevronLeft, ChevronRight, Close } from '@carbon/icons-react'
 
 interface SidebarBrandProps {
   collapsed: boolean
+  mobileOpen: boolean
   onToggle: () => void
+  onMobileClose: () => void
 }
 
 export default function SidebarBrand({
   collapsed,
+  mobileOpen,
   onToggle,
+  onMobileClose,
 }: SidebarBrandProps) {
   return (
     <div className={`sidebar__brand ${collapsed ? 'sidebar__brand--collapsed' : ''}`}>
@@ -32,6 +36,17 @@ export default function SidebarBrand({
           <ChevronLeft size={20} />
         )}
       </button>
+
+      {mobileOpen && (
+        <button
+          className="sidebar__mobile-close"
+          type="button"
+          onClick={onMobileClose}
+          aria-label="Close navigation menu"
+        >
+          <Close size={24} />
+        </button>
+      )}
     </div>
   )
 }
