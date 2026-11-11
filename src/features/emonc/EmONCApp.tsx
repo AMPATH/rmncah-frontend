@@ -8,6 +8,7 @@ import type { UserRole } from '../../config/roles'
 import { navigationByRole } from '../../config/navigation'
 import { initializeDemoData } from '../../core/data/seed/seed-initializer'
 
+// County Mentor pages
 import CountyMentorOverviewPage from '../county-mentor/pages/OverviewPage'
 import CountyMentorsPage from '../county-mentor/pages/MentorsPage'
 import CountyCohortsPage from '../county-mentor/pages/CohortsPage'
@@ -16,6 +17,14 @@ import CountyFacilitiesPage from '../county-mentor/pages/FacilitiesPage'
 import CountySiteAssessmentsPage from '../county-mentor/pages/SiteAssessmentsPage'
 import CountyFeedbackPage from '../county-mentor/pages/FeedbackPage'
 
+// Program Lead pages
+import ProgramLeadOverviewPage from '../program-lead/pages/OverviewPage'
+import TrainingModulesPage from '../program-lead/pages/TrainingModulesPage'
+import ModuleSectionsPage from '../program-lead/pages/ModuleSectionsPage'
+import LearningMaterialsPage from '../program-lead/pages/LearningMaterialsPage'
+import ModuleLibraryPage from '../program-lead/pages/ModuleLibraryPage'
+
+// Mentor pages
 import MentorOverviewPage from '../mentor/pages/OverviewPage'
 import MyCohortsPage from '../mentor/pages/MyCohortsPage'
 import MenteesPage from '../mentor/pages/MenteesPage'
@@ -25,11 +34,13 @@ import ResourcesPage from '../mentor/pages/ResourcesPage'
 import CohortSubmissionsPage from '../mentor/pages/CohortSubmissionsPage'
 import FeedbackPage from '../mentor/pages/FeedbackPage'
 
-import ProgramLeadOverviewPage from '../program-lead/pages/OverviewPage'
-import TrainingModulesPage from '../program-lead/pages/TrainingModulesPage'
-import ModuleSectionsPage from '../program-lead/pages/ModuleSectionsPage'
-import LearningMaterialsPage from '../program-lead/pages/LearningMaterialsPage'
-import ModuleLibraryPage from '../program-lead/pages/ModuleLibraryPage'
+// Mentee pages
+import MenteeOverviewPage from '../mentee/pages/OverviewPage'
+import MyLearningPage from '../mentee/pages/MyLearningPage'
+import SchedulePage from '../mentee/pages/SchedulePage'
+import MenteeAssessmentsPage from '../mentee/pages/AssessmentsPage'
+import MenteeResourcesPage from '../mentee/pages/ResourcesPage'
+import MenteeFeedbackPage from '../mentee/pages/FeedbackPage'
 
 import './App.scss'
 
@@ -46,6 +57,9 @@ function App() {
   const [activePath, setActivePath] =
     useState('/county-mentor/overview')
 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] =
+    useState(false)
+
   const currentNavigation = navigationByRole[activeRole]
 
   const activeItem = currentNavigation.groups
@@ -61,6 +75,7 @@ function App() {
       .flatMap((group) => group.items)[0]
 
     setActiveRole(role)
+    setIsMobileMenuOpen(false)
 
     if (firstItem) {
       setActivePath(firstItem.path)
@@ -69,11 +84,19 @@ function App() {
 
   function handleNavigate(path: string) {
     setActivePath(path)
+    setIsMobileMenuOpen(false)
+  }
+
+  function handleMobileMenuToggle() {
+    setIsMobileMenuOpen((previous) => !previous)
+  }
+
+  function handleMobileMenuClose() {
+    setIsMobileMenuOpen(false)
   }
 
   function renderPage() {
-    // COUNTY MENTOR DASHBOARD
-
+    // County Mentor
     if (
       activeRole === 'county-mentor' &&
       activePath === '/county-mentor/overview'
@@ -86,16 +109,12 @@ function App() {
       )
     }
 
-    // COUNTY MENTOR - MENTORS
-
     if (
       activeRole === 'county-mentor' &&
       activePath === '/county-mentor/mentors'
     ) {
       return <CountyMentorsPage title={pageTitle} />
     }
-
-    // COUNTY MENTOR - COHORTS
 
     if (
       activeRole === 'county-mentor' &&
@@ -104,16 +123,12 @@ function App() {
       return <CountyCohortsPage title={pageTitle} />
     }
 
-    // COUNTY MENTOR - MENTEES
-
     if (
       activeRole === 'county-mentor' &&
       activePath === '/county-mentor/mentees'
     ) {
       return <CountyMenteesPage title={pageTitle} />
     }
-
-    // COUNTY MENTOR - FACILITIES
 
     if (
       activeRole === 'county-mentor' &&
@@ -122,16 +137,12 @@ function App() {
       return <CountyFacilitiesPage title={pageTitle} />
     }
 
-    // COUNTY MENTOR - SITE ASSESSMENTS
-
     if (
       activeRole === 'county-mentor' &&
       activePath === '/county-mentor/site-assessments'
     ) {
       return <CountySiteAssessmentsPage title={pageTitle} />
     }
-
-    // COUNTY MENTOR - FEEDBACK & CHALLENGES
 
     if (
       activeRole === 'county-mentor' &&
@@ -140,8 +151,7 @@ function App() {
       return <CountyFeedbackPage title={pageTitle} />
     }
 
-    // PROGRAM LEAD - OVERVIEW
-
+    // Program Lead
     if (
       activeRole === 'program-lead' &&
       activePath === '/program-lead/overview'
@@ -153,8 +163,6 @@ function App() {
         />
       )
     }
-
-    // PROGRAM LEAD - TRAINING MODULES
 
     if (
       activeRole === 'program-lead' &&
@@ -168,8 +176,6 @@ function App() {
       )
     }
 
-    // PROGRAM LEAD - MODULE SECTIONS
-
     if (
       activeRole === 'program-lead' &&
       activePath === '/program-lead/module-sections'
@@ -177,16 +183,12 @@ function App() {
       return <ModuleSectionsPage title={pageTitle} />
     }
 
-    // PROGRAM LEAD - LEARNING MATERIALS
-
     if (
       activeRole === 'program-lead' &&
       activePath === '/program-lead/learning-materials'
     ) {
       return <LearningMaterialsPage title={pageTitle} />
     }
-
-    // PROGRAM LEAD - MODULE LIBRARY
 
     if (
       activeRole === 'program-lead' &&
@@ -200,16 +202,13 @@ function App() {
       )
     }
 
-    // MENTOR - OVERVIEW
-
+    // Mentor
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/overview'
     ) {
       return <MentorOverviewPage title={pageTitle} />
     }
-
-    // MENTOR - MY COHORTS
 
     if (
       activeRole === 'mentor' &&
@@ -218,16 +217,12 @@ function App() {
       return <MyCohortsPage title={pageTitle} />
     }
 
-    // MENTOR - MENTEES
-
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/mentees'
     ) {
       return <MenteesPage title={pageTitle} />
     }
-
-    // MENTOR - LEARNING PLAN
 
     if (
       activeRole === 'mentor' &&
@@ -236,16 +231,12 @@ function App() {
       return <LearningPlanPage title={pageTitle} />
     }
 
-    // MENTOR - ASSESSMENTS
-
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/assessments'
     ) {
       return <AssessmentsPage title={pageTitle} />
     }
-
-    // MENTOR - RESOURCES
 
     if (
       activeRole === 'mentor' &&
@@ -254,16 +245,12 @@ function App() {
       return <ResourcesPage title={pageTitle} />
     }
 
-    // MENTOR - COHORT SUBMISSIONS
-
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/cohort-submissions'
     ) {
       return <CohortSubmissionsPage title={pageTitle} />
     }
-
-    // MENTOR - FEEDBACK
 
     if (
       activeRole === 'mentor' &&
@@ -272,7 +259,48 @@ function App() {
       return <FeedbackPage title={pageTitle} />
     }
 
-    // OTHER PAGES - TEMPORARY PLACEHOLDER
+    // Mentee
+    if (
+      activeRole === 'mentee' &&
+      activePath === '/mentee/overview'
+    ) {
+      return <MenteeOverviewPage title={pageTitle} />
+    }
+
+    if (
+      activeRole === 'mentee' &&
+      activePath === '/mentee/learning'
+    ) {
+      return <MyLearningPage title={pageTitle} />
+    }
+
+    if (
+      activeRole === 'mentee' &&
+      activePath === '/mentee/schedule'
+    ) {
+      return <SchedulePage title={pageTitle} />
+    }
+
+    if (
+      activeRole === 'mentee' &&
+      activePath === '/mentee/assessments'
+    ) {
+      return <MenteeAssessmentsPage title={pageTitle} />
+    }
+
+    if (
+      activeRole === 'mentee' &&
+      activePath === '/mentee/resources'
+    ) {
+      return <MenteeResourcesPage title={pageTitle} />
+    }
+
+    if (
+      activeRole === 'mentee' &&
+      activePath === '/mentee/feedback'
+    ) {
+      return <MenteeFeedbackPage title={pageTitle} />
+    }
 
     return (
       <section className="section-placeholder">
@@ -294,13 +322,26 @@ function App() {
           navigation={currentNavigation}
           activePath={activePath}
           onNavigate={handleNavigate}
+          mobileOpen={isMobileMenuOpen}
+          onClose={handleMobileMenuClose}
         />
+
+        {isMobileMenuOpen && (
+          <button
+            type="button"
+            className="sidebar-backdrop"
+            aria-label="Close navigation menu"
+            onClick={handleMobileMenuClose}
+          />
+        )}
 
         <main className="app-main">
           <EmONCTopbar
             pageTitle={pageTitle}
             activeRole={activeRole}
             onRoleChange={handleRoleChange}
+            onMenuClick={handleMobileMenuToggle}
+            mobileMenuOpen={isMobileMenuOpen}
           />
 
           <div className="app-content">

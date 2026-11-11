@@ -1,186 +1,281 @@
+
 .emonc-app {
+  .emonc-topbar {
+    position: relative;
+    z-index: 100;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 72px;
+    min-height: 72px;
+    padding: 0 32px;
+    background: #ffffff;
+    border-bottom: 1px solid #dfe8f2;
+    box-sizing: border-box;
+  }
 
-.emonc-topbar {
-  position: relative;
-  z-index: 100;
+  .emonc-topbar__breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #8999aa;
+    font-size: 13px;
 
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: space-between;
+    strong {
+      color: #263c50;
+      font-weight: 600;
+    }
+  }
 
-  width: 100%;
-  height: 72px;
-  min-height: 72px;
+  .emonc-topbar__breadcrumb-separator {
+    color: #bdc9d4;
+  }
 
-  padding: 0 32px;
+  .emonc-topbar__actions {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
 
-  background: #ffffff;
-  border-bottom: 1px solid #dfe8f2;
+  .emonc-topbar__icon-button {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #687f94;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
 
-  box-sizing: border-box;
-}
+    &:hover {
+      background: #f1f5f9;
+      color: #1769aa;
+    }
+  }
 
-/* Breadcrumb */
+  .emonc-topbar__menu-button {
+    display: none;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    padding: 0;
+    border: none;
+    outline: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #161616;
+    box-shadow: none;
+    cursor: pointer;
+    transition: background 0.2s ease;
 
-.emonc-topbar__breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+    svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+    }
 
-  color: #8999aa;
-  font-size: 13px;
-}
+    &:hover {
+      background: #f1f5f9;
+    }
 
-.emonc-topbar__breadcrumb strong {
-  color: #263c50;
-  font-weight: 600;
-}
+    &:focus,
+    &:focus-visible,
+    &:active {
+      outline: none;
+      box-shadow: none;
+    }
+  }
 
-.emonc-topbar__breadcrumb-separator {
-  color: #bdc9d4;
-}
+  .emonc-topbar__role-switcher {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
 
-/* Topbar actions */
+  .emonc-topbar__role-trigger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 5px 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: #263c50;
+    cursor: pointer;
+    transition: color 0.2s ease;
 
-.emonc-topbar__actions {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
+    &:hover,
+    &--open {
+      background: transparent;
+      border-color: transparent;
+    }
 
-.emonc-topbar__icon-button {
-  display: grid;
-  place-items: center;
+    &--open {
+      box-shadow: none;
+    }
+  }
 
-  width: 36px;
-  height: 36px;
-  padding: 6px;
+  .emonc-topbar__role-name {
+    color: #263c50;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
 
-  border: none;
-  border-radius: 8px;
+  .emonc-topbar__chevron {
+    flex-shrink: 0;
+    color: #8294a7;
+    transition: transform 0.2s ease;
 
-  background: transparent;
-  color: #687f94;
+    &--open {
+      transform: rotate(180deg);
+    }
+  }
 
-  cursor: pointer;
+  .emonc-topbar__role-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    z-index: 1000;
+    width: 280px;
+    padding: 8px;
+    background: #ffffff;
+    border: 1px solid #e1e9f1;
+    border-radius: 12px;
+    box-shadow:
+      0 12px 32px rgba(20, 42, 64, 0.12),
+      0 2px 8px rgba(20, 42, 64, 0.05);
+    animation: role-menu-enter 0.16s ease-out;
+  }
 
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
-}
+  .emonc-topbar__role-menu-heading {
+    padding: 10px 12px 12px;
+    color: #8999aa;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
 
-.emonc-topbar__icon-button:hover {
-  background: #f1f5f9;
-  color: #1769aa;
-}
+  .emonc-topbar__role-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 46px;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #52677b;
+    text-align: left;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
 
-/* Role switcher */
+    &:hover {
+      background: #f3f7fb;
+      color: #163b63;
+    }
 
-.emonc-topbar__role-switcher {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
+    &--active {
+      background: #edf4fa;
+      color: #163b63;
+      font-weight: 600;
 
-/* Role trigger */
+      &:hover {
+        background: #e6eff8;
+      }
+    }
+  }
 
-.emonc-topbar__role-trigger {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  .emonc-topbar__role-option-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 
-  min-height: 44px;
-  padding: 5px 12px 5px 5px;
+  .emonc-topbar__role-option-avatar {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    border-radius: 7px;
+    background: #eef3f8;
+    color: #52677b;
+    font-size: 10px;
+    font-weight: 700;
+  }
 
-  border: 1px solid #dfe8f2;
-  border-radius: 9px;
+  .emonc-topbar__role-option--active
+    .emonc-topbar__role-option-avatar {
+    background: #163b63;
+    color: #ffffff;
+  }
 
-  background: #ffffff;
-  color: #263c50;
+  .emonc-topbar__role-check {
+    flex-shrink: 0;
+    color: #1769aa;
+  }
 
-  cursor: pointer;
+  @media (max-width: 768px) {
+    .emonc-topbar {
+      padding: 0 18px;
+    }
 
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-}
+    .emonc-topbar__actions {
+      gap: 10px;
+    }
 
-.emonc-topbar__role-trigger:hover,
-.emonc-topbar__role-trigger--open {
-  background: #f8fafc;
-  border-color: #a9bfd2;
-}
+    .emonc-topbar__role-name {
+      max-width: 145px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
 
-.emonc-topbar__role-trigger--open {
-  box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.08);
-}
+  @media (max-width: 700px) {
+    .emonc-topbar__menu-button {
+      display: grid;
+    }
+  }
 
-/* Role avatar */
+  @media (max-width: 480px) {
+    .emonc-topbar {
+      padding: 0 12px;
+    }
 
-.emonc-topbar__profile {
-  display: grid;
-  place-items: center;
+    .emonc-topbar__breadcrumb {
+      gap: 7px;
+      font-size: 11px;
+    }
 
-  width: 34px;
-  height: 34px;
-  flex-shrink: 0;
+    .emonc-topbar__actions {
+      gap: 5px;
+    }
 
-  border-radius: 8px;
+    .emonc-topbar__role-trigger {
+      gap: 7px;
+      padding-right: 8px;
+    }
 
-  background: #163b63;
-  color: #ffffff;
+    .emonc-topbar__role-name {
+      display: none;
+    }
 
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-}
-
-/* Selected role name */
-
-.emonc-topbar__role-name {
-  color: #263c50;
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-/* Chevron */
-
-.emonc-topbar__chevron {
-  flex-shrink: 0;
-  color: #8294a7;
-
-  transition: transform 0.2s ease;
-}
-
-.emonc-topbar__chevron--open {
-  transform: rotate(180deg);
-}
-
-/* Dropdown menu */
-
-.emonc-topbar__role-menu {
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-
-  z-index: 1000;
-
-  width: 280px;
-  padding: 8px;
-
-  background: #ffffff;
-
-  border: 1px solid #e1e9f1;
-  border-radius: 12px;
-
-  box-shadow:
-    0 12px 32px rgba(20, 42, 64, 0.12),
-    0 2px 8px rgba(20, 42, 64, 0.05);
-
-  animation: role-menu-enter 0.16s ease-out;
+    .emonc-topbar__role-menu {
+      width: min(280px, calc(100vw - 24px));
+    }
+  }
 }
 
 @keyframes role-menu-enter {
@@ -193,145 +288,4 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/* Dropdown heading */
-
-.emonc-topbar__role-menu-heading {
-  padding: 10px 12px 12px;
-
-  color: #8999aa;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-
-/* Role option */
-
-.emonc-topbar__role-option {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  width: 100%;
-  min-height: 46px;
-  padding: 8px 10px;
-
-  border: none;
-  border-radius: 8px;
-
-  background: transparent;
-  color: #52677b;
-
-  text-align: left;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 500;
-
-  cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
-}
-
-.emonc-topbar__role-option:hover {
-  background: #f3f7fb;
-  color: #163b63;
-}
-
-.emonc-topbar__role-option--active {
-  background: #edf4fa;
-  color: #163b63;
-  font-weight: 600;
-}
-
-.emonc-topbar__role-option--active:hover {
-  background: #e6eff8;
-}
-
-/* Option label */
-
-.emonc-topbar__role-option-label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* Small avatar inside dropdown */
-
-.emonc-topbar__role-option-avatar {
-  display: grid;
-  place-items: center;
-
-  width: 30px;
-  height: 30px;
-  flex-shrink: 0;
-
-  border-radius: 7px;
-
-  background: #eef3f8;
-  color: #52677b;
-
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.emonc-topbar__role-option--active .emonc-topbar__role-option-avatar {
-  background: #163b63;
-  color: #ffffff;
-}
-
-
-
-.emonc-topbar__role-check {
-  flex-shrink: 0;
-  color: #1769aa;
-}
-
-/* Responsive layout */
-
-@media (max-width: 768px) {
-  .emonc-topbar {
-    padding: 0 18px;
-  }
-
-  .emonc-topbar__actions {
-    gap: 10px;
-  }
-
-  .emonc-topbar__role-name {
-    max-width: 145px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
-@media (max-width: 480px) {
-  .emonc-topbar {
-    padding: 0 12px;
-  }
-
-  .emonc-topbar__breadcrumb {
-    gap: 7px;
-    font-size: 11px;
-  }
-
-  .emonc-topbar__actions {
-    gap: 5px;
-  }
-
-  .emonc-topbar__role-trigger {
-    gap: 7px;
-    padding-right: 8px;
-  }
-
-  .emonc-topbar__role-name {
-    display: none;
-  }
-
-  .emonc-topbar__role-menu {
-    width: min(280px, calc(100vw - 24px));
-  }
-}
 }
