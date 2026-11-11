@@ -1,5 +1,5 @@
 
-import { ChevronLeft, ChevronRight, Close } from '@carbon/icons-react'
+import { ChevronLeft, ChevronRight } from '@carbon/icons-react'
 
 interface SidebarBrandProps {
   collapsed: boolean
@@ -44,7 +44,7 @@ export default function SidebarBrand({
           onClick={onMobileClose}
           aria-label="Close navigation menu"
         >
-          <Close size={24} />
+          <span aria-hidden="true">×</span>
         </button>
       )}
     </div>

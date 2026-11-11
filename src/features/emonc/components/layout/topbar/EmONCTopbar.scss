@@ -65,13 +65,14 @@
     height: 40px;
     min-width: 40px;
     padding: 0;
-    border: 1px solid #e0e0e0;
+    border: none;
+    outline: none;
     border-radius: 8px;
-    background: #ffffff;
+    background: transparent;
     color: #161616;
     box-shadow: none;
     cursor: pointer;
-    transition: background 0.2s ease, border-color 0.2s ease;
+    transition: background 0.2s ease;
 
     svg {
       width: 22px;
@@ -80,16 +81,13 @@
     }
 
     &:hover {
-      background: #f4f4f4;
-      border-color: #c6c6c6;
-      color: #161616;
+      background: #f1f5f9;
     }
 
     &:focus,
-    &:active,
-    &:focus-visible {
-      background: #ffffff;
-      color: #161616;
+    &:focus-visible,
+    &:active {
+      outline: none;
       box-shadow: none;
     }
   }
@@ -105,48 +103,25 @@
     align-items: center;
     gap: 10px;
     min-height: 44px;
-    padding: 5px 12px 5px 5px;
-    border: 1px solid #dfe8f2;
-    border-radius: 9px;
-    background: #ffffff;
+    padding: 5px 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
     color: #263c50;
     cursor: pointer;
-    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: color 0.2s ease;
 
     &:hover,
     &--open {
-      background: #f8fafc;
-      border-color: #a9bfd2;
+      background: transparent;
+      border-color: transparent;
     }
 
     &--open {
-      box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.08);
+      box-shadow: none;
     }
   }
 
-.emonc-topbar__role-trigger {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 44px;
-  padding: 5px 0;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  color: #263c50;
-  cursor: pointer;
-  transition: color 0.2s ease;
-
-  &:hover,
-  &--open {
-    background: transparent;
-    border-color: transparent;
-  }
-
-  &--open {
-    box-shadow: none;
-  }
-}
   .emonc-topbar__role-name {
     color: #263c50;
     font-size: 13px;
@@ -174,7 +149,9 @@
     background: #ffffff;
     border: 1px solid #e1e9f1;
     border-radius: 12px;
-    box-shadow: 0 12px 32px rgba(20, 42, 64, 0.12), 0 2px 8px rgba(20, 42, 64, 0.05);
+    box-shadow:
+      0 12px 32px rgba(20, 42, 64, 0.12),
+      0 2px 8px rgba(20, 42, 64, 0.05);
     animation: role-menu-enter 0.16s ease-out;
   }
 
@@ -212,7 +189,7 @@
     &--active {
       background: #edf4fa;
       color: #163b63;
-      font-weight: 600;topb
+      font-weight: 600;
 
       &:hover {
         background: #e6eff8;
@@ -239,7 +216,8 @@
     font-weight: 700;
   }
 
-  .emonc-topbar__role-option--active .emonc-topbar__role-option-avatar {
+  .emonc-topbar__role-option--active
+    .emonc-topbar__role-option-avatar {
     background: #163b63;
     color: #ffffff;
   }
