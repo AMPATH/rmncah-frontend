@@ -201,6 +201,7 @@ class MentorManagementService {
 
     const normalizedChanges: UpdateMentorInput = {}
 
+
     if (changes.name !== undefined) {
       const name = normalizeText(changes.name)
 

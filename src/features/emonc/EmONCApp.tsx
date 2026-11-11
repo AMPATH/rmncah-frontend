@@ -8,6 +8,7 @@ import type { UserRole } from '../../config/roles'
 import { navigationByRole } from '../../config/navigation'
 import { initializeDemoData } from '../../core/data/seed/seed-initializer'
 
+// County Mentor pages
 import CountyMentorOverviewPage from '../county-mentor/pages/OverviewPage'
 import CountyMentorsPage from '../county-mentor/pages/MentorsPage'
 import CountyCohortsPage from '../county-mentor/pages/CohortsPage'
@@ -16,6 +17,14 @@ import CountyFacilitiesPage from '../county-mentor/pages/FacilitiesPage'
 import CountySiteAssessmentsPage from '../county-mentor/pages/SiteAssessmentsPage'
 import CountyFeedbackPage from '../county-mentor/pages/FeedbackPage'
 
+// Program Lead pages
+import ProgramLeadOverviewPage from '../program-lead/pages/OverviewPage'
+import TrainingModulesPage from '../program-lead/pages/TrainingModulesPage'
+import ModuleSectionsPage from '../program-lead/pages/ModuleSectionsPage'
+import LearningMaterialsPage from '../program-lead/pages/LearningMaterialsPage'
+import ModuleLibraryPage from '../program-lead/pages/ModuleLibraryPage'
+
+// Mentor pages
 import MentorOverviewPage from '../mentor/pages/OverviewPage'
 import MyCohortsPage from '../mentor/pages/MyCohortsPage'
 import MenteesPage from '../mentor/pages/MenteesPage'
@@ -25,34 +34,32 @@ import ResourcesPage from '../mentor/pages/ResourcesPage'
 import CohortSubmissionsPage from '../mentor/pages/CohortSubmissionsPage'
 import FeedbackPage from '../mentor/pages/FeedbackPage'
 
-import ProgramLeadOverviewPage from '../program-lead/pages/OverviewPage'
-import TrainingModulesPage from '../program-lead/pages/TrainingModulesPage'
-import ModuleSectionsPage from '../program-lead/pages/ModuleSectionsPage'
-import LearningMaterialsPage from '../program-lead/pages/LearningMaterialsPage'
-import ModuleLibraryPage from '../program-lead/pages/ModuleLibraryPage'
+// Mentee pages
+import MenteeOverviewPage from '../mentee/pages/OverviewPage'
+import MyLearningPage from '../mentee/pages/MyLearningPage'
+import SchedulePage from '../mentee/pages/SchedulePage'
+import MenteeAssessmentsPage from '../mentee/pages/AssessmentsPage'
+import MenteeResourcesPage from '../mentee/pages/ResourcesPage'
+import MenteeFeedbackPage from '../mentee/pages/FeedbackPage'
 
 import './App.scss'
 
 function App() {
-  // Initialize demo data once when the application mounts.
   useEffect(() => {
     const seedResult = initializeDemoData()
 
     console.info('[EmONC] Demo data initialization:', seedResult)
   }, [])
 
-  // Application state.
   const [activeRole, setActiveRole] =
     useState<UserRole>('county-mentor')
 
   const [activePath, setActivePath] =
     useState('/county-mentor/overview')
 
-  // Mobile navigation drawer state.
   const [isMobileMenuOpen, setIsMobileMenuOpen] =
     useState(false)
 
-  // Current role navigation configuration.
   const currentNavigation = navigationByRole[activeRole]
 
   const activeItem = currentNavigation.groups
@@ -61,7 +68,6 @@ function App() {
 
   const pageTitle = activeItem?.label ?? 'Overview'
 
-  // Handle role switching.
   function handleRoleChange(role: UserRole) {
     const nextNavigation = navigationByRole[role]
 
@@ -76,13 +82,11 @@ function App() {
     }
   }
 
-  // Handle navigation between pages.
   function handleNavigate(path: string) {
     setActivePath(path)
     setIsMobileMenuOpen(false)
   }
 
-  // Open or close the mobile navigation drawer.
   function handleMobileMenuToggle() {
     setIsMobileMenuOpen((previous) => !previous)
   }
@@ -91,9 +95,8 @@ function App() {
     setIsMobileMenuOpen(false)
   }
 
-  // Render the active page.
   function renderPage() {
-    // COUNTY MENTOR - OVERVIEW
+    // County Mentor
     if (
       activeRole === 'county-mentor' &&
       activePath === '/county-mentor/overview'
@@ -106,7 +109,6 @@ function App() {
       )
     }
 
-    // COUNTY MENTOR - MENTORS
     if (
       activeRole === 'county-mentor' &&
       activePath === '/county-mentor/mentors'
@@ -114,7 +116,6 @@ function App() {
       return <CountyMentorsPage title={pageTitle} />
     }
 
-    // COUNTY MENTOR - COHORTS
     if (
       activeRole === 'county-mentor' &&
       activePath === '/county-mentor/cohorts'
@@ -122,7 +123,6 @@ function App() {
       return <CountyCohortsPage title={pageTitle} />
     }
 
-    // COUNTY MENTOR - MENTEES
     if (
       activeRole === 'county-mentor' &&
       activePath === '/county-mentor/mentees'
@@ -130,7 +130,6 @@ function App() {
       return <CountyMenteesPage title={pageTitle} />
     }
 
-    // COUNTY MENTOR - FACILITIES
     if (
       activeRole === 'county-mentor' &&
       activePath === '/county-mentor/facilities'
@@ -138,7 +137,6 @@ function App() {
       return <CountyFacilitiesPage title={pageTitle} />
     }
 
-    // COUNTY MENTOR - SITE ASSESSMENTS
     if (
       activeRole === 'county-mentor' &&
       activePath === '/county-mentor/site-assessments'
@@ -146,7 +144,6 @@ function App() {
       return <CountySiteAssessmentsPage title={pageTitle} />
     }
 
-    // COUNTY MENTOR - FEEDBACK
     if (
       activeRole === 'county-mentor' &&
       activePath === '/county-mentor/feedback'
@@ -154,7 +151,7 @@ function App() {
       return <CountyFeedbackPage title={pageTitle} />
     }
 
-    // PROGRAM LEAD - OVERVIEW
+    // Program Lead
     if (
       activeRole === 'program-lead' &&
       activePath === '/program-lead/overview'
@@ -167,7 +164,6 @@ function App() {
       )
     }
 
-    // PROGRAM LEAD - TRAINING MODULES
     if (
       activeRole === 'program-lead' &&
       activePath === '/program-lead/training-modules'
@@ -180,7 +176,6 @@ function App() {
       )
     }
 
-    // PROGRAM LEAD - MODULE SECTIONS
     if (
       activeRole === 'program-lead' &&
       activePath === '/program-lead/module-sections'
@@ -188,7 +183,6 @@ function App() {
       return <ModuleSectionsPage title={pageTitle} />
     }
 
-    // PROGRAM LEAD - LEARNING MATERIALS
     if (
       activeRole === 'program-lead' &&
       activePath === '/program-lead/learning-materials'
@@ -196,7 +190,6 @@ function App() {
       return <LearningMaterialsPage title={pageTitle} />
     }
 
-    // PROGRAM LEAD - MODULE LIBRARY
     if (
       activeRole === 'program-lead' &&
       activePath === '/program-lead/module-library'
@@ -209,7 +202,7 @@ function App() {
       )
     }
 
-    // MENTOR - OVERVIEW
+    // Mentor
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/overview'
@@ -217,7 +210,6 @@ function App() {
       return <MentorOverviewPage title={pageTitle} />
     }
 
-    // MENTOR - MY COHORTS
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/cohorts'
@@ -225,7 +217,6 @@ function App() {
       return <MyCohortsPage title={pageTitle} />
     }
 
-    // MENTOR - MENTEES
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/mentees'
@@ -233,7 +224,6 @@ function App() {
       return <MenteesPage title={pageTitle} />
     }
 
-    // MENTOR - LEARNING PLAN
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/learning-plan'
@@ -241,7 +231,6 @@ function App() {
       return <LearningPlanPage title={pageTitle} />
     }
 
-    // MENTOR - ASSESSMENTS
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/assessments'
@@ -249,7 +238,6 @@ function App() {
       return <AssessmentsPage title={pageTitle} />
     }
 
-    // MENTOR - RESOURCES
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/resources'
@@ -257,7 +245,6 @@ function App() {
       return <ResourcesPage title={pageTitle} />
     }
 
-    // MENTOR - COHORT SUBMISSIONS
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/cohort-submissions'
@@ -265,7 +252,6 @@ function App() {
       return <CohortSubmissionsPage title={pageTitle} />
     }
 
-    // MENTOR - FEEDBACK
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/feedback'
@@ -273,7 +259,49 @@ function App() {
       return <FeedbackPage title={pageTitle} />
     }
 
-    // OTHER PAGES - TEMPORARY PLACEHOLDER
+    // Mentee
+    if (
+      activeRole === 'mentee' &&
+      activePath === '/mentee/overview'
+    ) {
+      return <MenteeOverviewPage title={pageTitle} />
+    }
+
+    if (
+      activeRole === 'mentee' &&
+      activePath === '/mentee/learning'
+    ) {
+      return <MyLearningPage title={pageTitle} />
+    }
+
+    if (
+      activeRole === 'mentee' &&
+      activePath === '/mentee/schedule'
+    ) {
+      return <SchedulePage title={pageTitle} />
+    }
+
+    if (
+      activeRole === 'mentee' &&
+      activePath === '/mentee/assessments'
+    ) {
+      return <MenteeAssessmentsPage title={pageTitle} />
+    }
+
+    if (
+      activeRole === 'mentee' &&
+      activePath === '/mentee/resources'
+    ) {
+      return <MenteeResourcesPage title={pageTitle} />
+    }
+
+    if (
+      activeRole === 'mentee' &&
+      activePath === '/mentee/feedback'
+    ) {
+      return <MenteeFeedbackPage title={pageTitle} />
+    }
+
     return (
       <section className="section-placeholder">
         <p>{currentNavigation.title.toUpperCase()}</p>
@@ -290,18 +318,14 @@ function App() {
   return (
     <div className="emonc-app">
       <div className="app-layout">
-
-        {/* Application sidebar */}
         <Sidebar
           navigation={currentNavigation}
           activePath={activePath}
           onNavigate={handleNavigate}
           mobileOpen={isMobileMenuOpen}
           onClose={handleMobileMenuClose}
-          
         />
 
-        {/* Mobile navigation backdrop */}
         {isMobileMenuOpen && (
           <button
             type="button"
@@ -311,10 +335,7 @@ function App() {
           />
         )}
 
-        {/* Main application area */}
         <main className="app-main">
-
-          {/* Application topbar */}
           <EmONCTopbar
             pageTitle={pageTitle}
             activeRole={activeRole}
@@ -323,11 +344,9 @@ function App() {
             mobileMenuOpen={isMobileMenuOpen}
           />
 
-          {/* Active page content */}
           <div className="app-content">
             {renderPage()}
           </div>
-
         </main>
       </div>
     </div>
