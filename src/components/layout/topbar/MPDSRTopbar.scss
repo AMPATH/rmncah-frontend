@@ -1,12 +1,76 @@
 @use '../../../styles/tokens' as *;
 
+
 .topbar {
   background-color: $primary;
   border-block-end: none;
+
+  .cds--header__name {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
 }
 
-// Back and Log out: centred in the 48px header, white text.
-.topbar__button {
-  align-self: center;
-  color: #ffffff;
+
+.side-nav {
+  border-inline-end: 1px solid $border;
+
+  
+  .cds--side-nav__item .cds--side-nav__link {
+    margin: 2px 8px;
+    border-radius: 6px;
+    inline-size: auto;
+  }
+
+  
+  .cds--side-nav__link--current,
+  a.cds--side-nav__link[aria-current='page'] {
+    background-color: #e9effd;
+
+    .cds--side-nav__link-text,
+    .cds--side-nav__icon svg {
+      color: $primary;
+      fill: $primary;
+    }
+  }
+
+  
+  .cds--side-nav__link--current::before {
+    display: none;
+  }
+}
+
+
+.profile-panel {
+  padding: 16px 0;
+
+  &__user {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 0 16px 16px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #393939;
+    color: #f4f4f4;
+  }
+
+  &__name {
+    margin: 0;
+    font-weight: 600;
+  }
+
+  &__role {
+    margin: 2px 0 0;
+    font-size: 0.75rem;
+    color: #c6c6c6;
+  }
+
+  &__button {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.profile-panel__acting-as {
+  padding: 0 16px 12px;
 }

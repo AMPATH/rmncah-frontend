@@ -1,4 +1,4 @@
-// The history of submissions and decisions. The backend will provide the entries.
+
 function ApprovalTrail() {
   return (
     <section className="form-card">

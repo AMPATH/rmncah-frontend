@@ -10,7 +10,7 @@ interface ChairDecisionFormProps {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }
 
-// The facility MPDSR chair approves the work, or rejects it with a reason.
+
 function ChairDecisionForm({
   decision,
   rejectionReason,

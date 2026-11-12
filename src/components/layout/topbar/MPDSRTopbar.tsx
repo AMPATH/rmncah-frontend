@@ -6,108 +6,182 @@ import {
   HeaderContainer,
   HeaderGlobalAction,
   HeaderGlobalBar,
+  HeaderMenuButton,
   HeaderName,
   HeaderPanel,
-  Switcher,
-  SwitcherItem,
+  SideNav,
+  SideNavDivider,
+  SideNavItems,
+  SideNavLink,
+  Select,
+  SelectItem,
   Theme,
 } from '@carbon/react';
+import type { CarbonIconType } from '@carbon/icons-react';
 import {
-  ArrowLeft,
+  CheckmarkOutline,
+  DocumentAdd,
+  Edit,
+  Home,
   Logout,
   Notification,
-  Switcher as SwitcherIcon,
+  Report,
+  Time,
+  UserAvatar,
+  UserFollow,
 } from '@carbon/icons-react';
+import { useCurrentUser } from '../../../auth/CurrentUserContext';
+import { canAny, roleLabels } from '../../../auth/permissions';
+import { permissionsForPath } from '../../../auth/pageAccess';
 import './MPDSRTopbar.scss';
 
-const pages = [
-  { path: '/mpdsr', label: 'MPDSR' },
-  { path: '/issues/new', label: 'Log issue' },
-  { path: '/issues/draft/recommendation', label: 'Recommendation' },
-  { path: '/actions/draft/respond', label: 'Accept or escalate' },
-  { path: '/actions/overdue', label: 'Overdue and reassign' },
-  { path: '/actions/draft/close', label: 'Close out' },
-  { path: '/dashboard', label: 'Dashboard and reports' },
+interface NavItem {
+  path: string;
+  label: string;
+  icon: CarbonIconType;
+}
+
+// The side navigation, in groups. A divider is drawn between groups.
+const navGroups: NavItem[][] = [
+  [
+    { path: '/mpdsr', label: 'Overview', icon: Home },
+    { path: '/issues/new', label: 'Log issue', icon: DocumentAdd },
+  ],
+  [
+    { path: '/issues/draft/recommendation', label: 'Recommendation', icon: Edit },
+    { path: '/actions/draft/respond', label: 'Accept or escalate', icon: UserFollow },
+    { path: '/actions/overdue', label: 'Overdue and reassign', icon: Time },
+    { path: '/actions/draft/close', label: 'Close out', icon: CheckmarkOutline },
+  ],
+  [{ path: '/reports', label: 'Reports', icon: Report }],
 ];
 
-function HeaderContent() {
-  const [switcherOpen, setSwitcherOpen] = useState(false);
+interface HeaderContentProps {
+  isSideNavExpanded: boolean;
+  onClickSideNavExpand: () => void;
+}
+
+function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderContentProps) {
+  const [profileOpen, setProfileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { currentUser, users, setCurrentUserId } = useCurrentUser();
 
-  function goTo(path: string) {
-    navigate(path);
-    setSwitcherOpen(false);
-  }
+  // Only the pages the current user's role can open; empty groups are dropped.
+  const visibleGroups = navGroups
+    .map((group) => group.filter((item) => canAny(currentUser, permissionsForPath(item.path))))
+    .filter((group) => group.length > 0);
 
-  // Go to the previous page in the browser history.
-  function handleBack() {
-    navigate(-1);
-  }
-
-  // No sign-in yet: for now, go back to the programme choice.
+  // No sign-in yet: Log out just returns to the start page.
   function handleLogout() {
     console.log('Log out');
+    setProfileOpen(false);
     navigate('/');
   }
 
   return (
     <Header aria-label="MPDSR" className="topbar">
-      <Button
-        className="topbar__button"
-        kind="ghost"
-        size="md"
-        renderIcon={ArrowLeft}
-        onClick={handleBack}
-      >
-        Back
-      </Button>
+      {/* Opens the side navigation on small screens. On large screens it is always shown. */}
+      <HeaderMenuButton
+        aria-label={isSideNavExpanded ? 'Close menu' : 'Open menu'}
+        isActive={isSideNavExpanded}
+        onClick={onClickSideNavExpand}
+      />
 
       <HeaderName as={Link} to="/mpdsr" prefix="">
         MPDSR
       </HeaderName>
 
       <HeaderGlobalBar>
-        <HeaderGlobalAction aria-label="Notifications">
+        <HeaderGlobalAction
+          aria-label="Notifications"
+          isActive={location.pathname === '/notifications'}
+          onClick={() => navigate('/notifications')}
+        >
           <Notification size={20} />
         </HeaderGlobalAction>
         <HeaderGlobalAction
-          aria-label={switcherOpen ? 'Close pages' : 'Open pages'}
-          isActive={switcherOpen}
-          onClick={() => setSwitcherOpen(!switcherOpen)}
+          aria-label={profileOpen ? 'Close profile' : 'Profile'}
+          isActive={profileOpen}
+          onClick={() => setProfileOpen(!profileOpen)}
           tooltipAlignment="end"
         >
-          <SwitcherIcon size={20} />
+          <UserAvatar size={20} />
         </HeaderGlobalAction>
+      </HeaderGlobalBar>
+
+      <HeaderPanel expanded={profileOpen} className="profile-panel">
+        <div className="profile-panel__user">
+          <UserAvatar size={32} />
+          <div>
+            <p className="profile-panel__name">{currentUser?.fullName ?? 'Not signed in'}</p>
+            <p className="profile-panel__role">
+              {currentUser
+                ? `${roleLabels[currentUser.role]} · ${currentUser.assignedLocations.join(', ')}`
+                : 'Choose a user below'}
+            </p>
+          </div>
+        </div>
+
+        {/* Temporary, for testing roles until sign-in exists. */}
+        <div className="profile-panel__acting-as">
+          <Select
+            id="actingAs"
+            labelText="Acting as (testing)"
+            size="sm"
+            value={currentUser?.id ?? ''}
+            onChange={(event) => setCurrentUserId(event.target.value)}
+            helperText={users.length === 0 ? 'No users yet. Add them under "users" in db.json.' : undefined}
+          >
+            <SelectItem value="" text="Choose a user" />
+            {users.map((user) => (
+              <SelectItem
+                key={user.id}
+                value={user.id}
+                text={`${user.fullName} · ${roleLabels[user.role]}`}
+              />
+            ))}
+          </Select>
+        </div>
+
         <Button
-          className="topbar__button"
-          kind="ghost"
-          size="md"
+          className="profile-panel__button"
+          kind="danger--ghost"
           renderIcon={Logout}
           onClick={handleLogout}
         >
           Log out
         </Button>
-      </HeaderGlobalBar>
-
-      <HeaderPanel expanded={switcherOpen}>
-        <Switcher aria-label="Pages" expanded={switcherOpen}>
-          {pages.map((page) => (
-            <SwitcherItem
-              key={page.path}
-              aria-label={page.label}
-              href={page.path}
-              isSelected={location.pathname === page.path}
-              onClick={(event) => {
-                event.preventDefault();
-                goTo(page.path);
-              }}
-            >
-              {page.label}
-            </SwitcherItem>
-          ))}
-        </Switcher>
       </HeaderPanel>
+
+      {/* The side navigation uses the light theme, the header stays dark. */}
+      <Theme theme="white">
+        <SideNav
+          aria-label="MPDSR navigation"
+          expanded={isSideNavExpanded}
+          onSideNavBlur={onClickSideNavExpand}
+          className="side-nav"
+        >
+          <SideNavItems>
+            {visibleGroups.map((group, index) => (
+              <div key={group[0].path}>
+                {index > 0 && <SideNavDivider />}
+                {group.map((item) => (
+                  <SideNavLink
+                    key={item.path}
+                    as={Link}
+                    to={item.path}
+                    renderIcon={item.icon}
+                    isActive={location.pathname === item.path}
+                  >
+                    {item.label}
+                  </SideNavLink>
+                ))}
+              </div>
+            ))}
+          </SideNavItems>
+        </SideNav>
+      </Theme>
     </Header>
   );
 }

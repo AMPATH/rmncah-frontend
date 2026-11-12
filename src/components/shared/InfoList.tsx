@@ -10,7 +10,7 @@ interface InfoListProps {
   items: InfoItem[];
 }
 
-// A list of read-only details the system fills in, shown as "label: value".
+
 function InfoList({ items }: InfoListProps) {
   return (
     <dl className="info-list">
