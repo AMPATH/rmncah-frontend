@@ -1,0 +1,8 @@
+.notifications__tabs {
+  margin-bottom: 16px;
+
+  // The app's global button style adds rounded corners; Carbon tabs should stay square.
+  .cds--tabs__nav-item {
+    border-radius: 0;
+  }
+}
