@@ -20,7 +20,7 @@ const roleShortLabels: Record<string, string> = {
   'county-mentor': 'CM',
   mentor: 'M',
   mentee: 'ME',
-  developer: 'SA',
+  admin: 'SA',
 }
 
 export default function Sidebar({

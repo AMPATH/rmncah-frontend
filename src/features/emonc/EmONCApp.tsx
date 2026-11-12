@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router'
 
 import Sidebar from '../../components/layout/sidebar/Sidebar'
 import EmONCTopbar from './components/layout/topbar/EmONCTopbar'
@@ -42,23 +43,50 @@ import MenteeAssessmentsPage from '../mentee/pages/AssessmentsPage'
 import MenteeResourcesPage from '../mentee/pages/ResourcesPage'
 import MenteeFeedbackPage from '../mentee/pages/FeedbackPage'
 
+
+
+// System Administrator pages
+import AdminOverviewPage from '../admin/pages/OverviewPage'
+import AdminUserManagementPage from '../admin/pages/UserManagementPage'
+import AdminRolePermissionsPage from '../admin/pages/RolePermissionsPage'
+import AdminSystemConfigurationPage from '../admin/pages/SystemConfigurationPage'
+import AdminModuleManagementPage from '../admin/pages/ModuleManagementPage'
+import AdminAuditLogsPage from '../admin/pages/AuditLogsPage'
+import AdminReportsPage from '../admin/pages/ReportsPage'
+
+
 import './App.scss'
 
+const DEFAULT_PATH = '/county-mentor/overview'
+const EMONC_PREFIX = '/emonc'
+
 function App() {
+  const navigate = useNavigate()
+  const location = useLocation()
+
   useEffect(() => {
     const seedResult = initializeDemoData()
 
     console.info('[EmONC] Demo data initialization:', seedResult)
   }, [])
 
-  const [activeRole, setActiveRole] =
-    useState<UserRole>('county-mentor')
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  const [activePath, setActivePath] =
-    useState('/county-mentor/overview')
+  // Resolve the internal navigation path from the browser URL.
+  const requestedPath = location.pathname.startsWith(EMONC_PREFIX)
+    ? location.pathname.slice(EMONC_PREFIX.length) || DEFAULT_PATH
+    : DEFAULT_PATH
 
-  const [isMobileMenuOpen, setIsMobileMenuOpen] =
-    useState(false)
+  // Determine which role owns the current navigation path.
+  const matchedRole = (Object.keys(navigationByRole) as UserRole[]).find(
+    (role) =>
+      navigationByRole[role].groups
+        .flatMap((group) => group.items)
+        .some((item) => item.path === requestedPath),
+  )
+
+  const activeRole: UserRole = matchedRole ?? 'county-mentor'
+  const activePath = matchedRole ? requestedPath : DEFAULT_PATH
 
   const currentNavigation = navigationByRole[activeRole]
 
@@ -68,22 +96,28 @@ function App() {
 
   const pageTitle = activeItem?.label ?? 'Overview'
 
+  // Redirect invalid or unknown EmONC URLs to the default page.
+  useEffect(() => {
+    if (!matchedRole) {
+      navigate(`${EMONC_PREFIX}${DEFAULT_PATH}`, { replace: true })
+    }
+  }, [matchedRole, navigate])
+
   function handleRoleChange(role: UserRole) {
     const nextNavigation = navigationByRole[role]
 
     const firstItem = nextNavigation.groups
       .flatMap((group) => group.items)[0]
 
-    setActiveRole(role)
     setIsMobileMenuOpen(false)
 
     if (firstItem) {
-      setActivePath(firstItem.path)
+      navigate(`${EMONC_PREFIX}${firstItem.path}`)
     }
   }
 
   function handleNavigate(path: string) {
-    setActivePath(path)
+    navigate(`${EMONC_PREFIX}${path}`)
     setIsMobileMenuOpen(false)
   }
 
@@ -301,6 +335,59 @@ function App() {
     ) {
       return <MenteeFeedbackPage title={pageTitle} />
     }
+
+    // System Administrator
+
+    // System Administrator
+    if (
+      activeRole === 'admin' &&
+      activePath === '/admin/overview'
+    ) {
+      return <AdminOverviewPage title={pageTitle} />
+    }
+
+    if (
+      activeRole === 'admin' &&
+      activePath === '/admin/users'
+    ) {
+      return <AdminUserManagementPage title={pageTitle} />
+    }
+
+    if (
+      activeRole === 'admin' &&
+      activePath === '/admin/roles'
+    ) {
+      return <AdminRolePermissionsPage title={pageTitle} />
+    }
+
+    if (
+      activeRole === 'admin' &&
+      activePath === '/admin/configuration'
+    ) {
+      return <AdminSystemConfigurationPage title={pageTitle} />
+    }
+
+    if (
+      activeRole === 'admin' &&
+      activePath === '/admin/modules'
+    ) {
+      return <AdminModuleManagementPage title={pageTitle} />
+    }
+
+    if (
+      activeRole === 'admin' &&
+      activePath === '/admin/audit-logs'
+    ) {
+      return <AdminAuditLogsPage title={pageTitle} />
+    }
+
+    if (
+      activeRole === 'admin' &&
+      activePath === '/admin/reports'
+    ) {
+      return <AdminReportsPage title={pageTitle} />
+    }
+
 
     return (
       <section className="section-placeholder">

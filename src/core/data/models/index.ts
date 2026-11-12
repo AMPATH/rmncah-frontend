@@ -372,7 +372,7 @@ export type FeedbackUserRole =
   | 'County Mentor'
   | 'Mentor'
   | 'Mentee'
-  | 'Developer / System Administrator'
+  | 'System Administrator'
 
 export interface Feedback extends BaseRecord {
   subject: string

@@ -463,8 +463,8 @@ function FeedbackPage({ title }: FeedbackPageProps) {
                 text="County Mentor"
               />
               <SelectItem
-                value="Developer / System Administrator"
-                text="Developer / System Administrator"
+                value="System Administrator"
+                text="System Administrator"
               />
             </Select>
           </div>
