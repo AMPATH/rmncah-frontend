@@ -7,7 +7,6 @@ interface AcceptancePanelProps {
   onAccept: () => void;
 }
 
-// Who assigned the recommendation, the acceptance rules, and the Accept button.
 function AcceptancePanel({ accepted, onAccept }: AcceptancePanelProps) {
   return (
     <section className="form-card">

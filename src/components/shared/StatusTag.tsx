@@ -1,7 +1,7 @@
 import { Tag } from '@carbon/react';
 import type { RecommendationStatus } from '../../features/issues/types/issue.types';
 
-// One colour per status, used everywhere a status is shown.
+
 const statusColours: Record<RecommendationStatus, 'blue' | 'teal' | 'magenta' | 'purple' | 'red' | 'gray'> = {
   Open: 'blue',
   'In progress': 'teal',

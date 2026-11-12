@@ -3,7 +3,7 @@ import { ToastNotification } from '@carbon/react';
 import { dismissToast, getToasts, subscribe } from './toast';
 import './ToastHost.scss';
 
-// Shows every active toast in the bottom-right corner.
+
 function ToastHost() {
   const toasts = useSyncExternalStore(subscribe, getToasts);
 

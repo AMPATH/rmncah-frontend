@@ -6,7 +6,7 @@ interface OverdueRecordProps {
   timesRedone: number;
 }
 
-// What the system records when the due date passes before completion.
+
 function OverdueRecord({ timesRedone }: OverdueRecordProps) {
   return (
     <section className="form-card">

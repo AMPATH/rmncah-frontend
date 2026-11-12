@@ -10,7 +10,7 @@ interface MarkDoneFormProps {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }
 
-// The person holding the recommendation says it's finished.
+
 function MarkDoneForm({
   remarks,
   submitted,
