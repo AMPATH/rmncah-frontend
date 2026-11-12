@@ -1,21 +1,21 @@
 import SummaryCard from './SummaryCard';
 import './SummaryCards.scss';
 
-const cardTitles = [
-  'Pending acceptance',
-  'Pending approval',
-  'Rejected',
-  'Escalated',
-  'Due within 7 days',
-  'Overdue',
-];
+export interface CardFigure {
+  title: string;
+  count: number;
+}
 
+interface SummaryCardsProps {
+  cards: CardFigure[];
+}
 
-function SummaryCards() {
+// The count cards at the top of the Overview. Each role gets its own set.
+function SummaryCards({ cards }: SummaryCardsProps) {
   return (
     <div className="summary-cards">
-      {cardTitles.map((title) => (
-        <SummaryCard key={title} title={title} count={0} />
+      {cards.map((card) => (
+        <SummaryCard key={card.title} title={card.title} count={card.count} />
       ))}
     </div>
   );
