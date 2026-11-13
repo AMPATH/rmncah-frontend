@@ -1,0 +1,37 @@
+
+.app-content {
+  min-height: 100vh;
+}
+
+@media (min-width: 66rem) {
+  .app-content {
+    margin-inline-start: 16rem;
+  }
+}
+
+
+@media print {
+  .cds--header,
+  .cds--side-nav,
+  .toast-host,
+  .no-print {
+    display: none !important;
+  }
+
+  .app-content {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+
+.back-bar {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px 24px;
+}
+
+.back-button {
+  gap: 8px;
+  padding-inline: 8px;
+}

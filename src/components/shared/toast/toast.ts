@@ -1,5 +1,4 @@
-// A tiny shared store for toast messages. Any page can call showToast();
-// <ToastHost /> listens to the store and draws the messages.
+
 
 export type ToastKind = 'success' | 'info' | 'warning' | 'error';
 

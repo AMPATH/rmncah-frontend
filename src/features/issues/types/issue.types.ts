@@ -1,3 +1,5 @@
+import type { Role } from '../../../auth/permissions';
+
 // The four levels a user, or a recommendation, can belong to.
 export type Level = 'community' | 'facility' | 'sub-county' | 'county';
 
@@ -24,6 +26,7 @@ export interface User {
   email: string;
   level: Level;
   assignedLocations: string[];
+  role: Role;
 }
 
 // One recommendation, as shown in the My work table.

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { Button, InlineNotification, ProgressIndicator, ProgressStep } from '@carbon/react';
-import type { DraftRecommendation, IssueType, Setting, User } from '../types/issue.types';
+import type { DraftRecommendation, IssueType, Setting } from '../types/issue.types';
 import CaseFields from '../components/log-issue/CaseFields';
 import CauseFields from '../components/log-issue/CauseFields';
 import CommentsField from '../components/log-issue/CommentsField';
@@ -16,6 +16,11 @@ import ReviewStep from '../components/log-issue/ReviewStep';
 import { delayLevels } from '../constants/delayFactors';
 import { addDays, daysBetween, getToday, yearsBetween } from '../utils/dates';
 import { showToast } from '../../../components/shared/toast/toast';
+import { useCurrentUser } from '../../../auth/CurrentUserContext';
+import { placesAbove } from '../../../auth/locations';
+import { createIssueWithRecommendations } from '../services/issueService';
+import type { NewIssue } from '../services/issueService';
+import BackButton from '../../../components/layout/BackButton';
 import './LogIssuePage.scss';
 
 // A perinatal death is a child aged 0 to 42 days.
@@ -41,9 +46,21 @@ const labels: Record<string, string> = {
 function LogIssuePage() {
   const navigate = useNavigate();
 
-  // Which step is showing, and the furthest step reached (earlier steps can be revisited).
-  const [step, setStep] = useState(0);
   const [furthestStep, setFurthestStep] = useState(0);
+
+  // The step lives in the address (?step=2), so the Back button and the browser's
+  // back arrow both return to the previous step. furthestStep stops anyone jumping
+  // ahead to a step they haven't reached, e.g. by typing ?step=6.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedStep = Number(searchParams.get('step') ?? '1') - 1;
+  const step = Number.isInteger(requestedStep)
+    ? Math.min(Math.max(requestedStep, 0), furthestStep)
+    : 0;
+
+  // Moving to a step adds it to the browser history, like visiting a new page.
+  function setStep(index: number) {
+    setSearchParams({ step: String(index + 1) });
+  }
 
   const [setting, setSetting] = useState<Setting | ''>('');
   const [loggedAt, setLoggedAt] = useState('');
@@ -60,13 +77,29 @@ function LogIssuePage() {
   const [comments, setComments] = useState('');
   const [recommendations, setRecommendations] = useState<DraftRecommendation[]>([]);
   const [showErrors, setShowErrors] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   // Reference lists. They stay empty until the backend provides them.
-  const loggedAtOptions: string[] = [];
   const causeOptions: string[] = [];
-  const users: User[] = [];
-  const subCounty = '';
-  const county = '';
+  // Lists that come from the current user's places (see auth/locations.ts).
+  const { currentUser, users: allUsers, locations, scope } = useCurrentUser();
+
+  // Logged at: the user's facilities, or community units for a community setting.
+  const loggedAtOptions = locations
+    .filter(
+      (location) =>
+        scope.has(location.name) &&
+        location.type === (setting === 'community' ? 'community-unit' : 'facility')
+    )
+    .map((location) => location.name);
+
+  // Sub-county and county are worked out from the place chosen in Logged at.
+  const above = placesAbove(loggedAt, locations);
+  const subCounty = above.find((location) => location.type === 'sub-county')?.name ?? '';
+  const county = above.find((location) => location.type === 'county')?.name ?? '';
+
+  // Anyone who can hold a recommendation (everyone except admins), apart from yourself.
+  const users = allUsers.filter((user) => user.role !== 'admin' && user.id !== currentUser?.id);
 
   const today = getToday();
   const isDeath = issueType !== 'near-miss';
@@ -164,7 +197,7 @@ function LogIssuePage() {
   }
 
   function resetForm() {
-    setStep(0);
+    setSearchParams({ step: '1' }, { replace: true });
     setFurthestStep(0);
     setSetting('');
     setLoggedAt('');
@@ -182,7 +215,7 @@ function LogIssuePage() {
   }
 
   // "Continue" submits the form, so the browser first checks the required fields of this step.
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!isStepComplete(step)) {
@@ -198,7 +231,7 @@ function LogIssuePage() {
       return;
     }
 
-    const issue = {
+    const issue: NewIssue = {
       setting,
       loggedAt,
       issueType,
@@ -213,12 +246,18 @@ function LogIssuePage() {
       dateOfAudit: isDeath ? today : '',
       contributingFactors: selectedFactors,
       comments,
-      recommendations,
     };
-    console.log('Issue to save:', issue);
-    showToast(`Issue logged with ${recommendations.length} recommendation(s)`);
-    resetForm();
-    navigate('/mpdsr');
+    setSaving(true);
+    try {
+      await createIssueWithRecommendations(issue, recommendations, today);
+      showToast(`Issue logged with ${recommendations.length} recommendation(s)`);
+      resetForm();
+      navigate('/mpdsr');
+    } catch {
+      showToast("Couldn't save the issue. Is the server running (npm run api)?", 'error');
+    } finally {
+      setSaving(false);
+    }
   }
 
   const reviewItems = [
@@ -371,14 +410,13 @@ function LogIssuePage() {
         </section>
 
         <div className="log-issue__actions">
-          <Button kind="secondary" disabled={step === 0} onClick={() => goToStep(step - 1)}>
-            Back
-          </Button>
+          {/* Back: the previous step, or the previous page on step 1. */}
+          <BackButton inline />
           <div className="form-actions">
             <Button kind="ghost" onClick={resetForm}>
               Clear form
             </Button>
-            <Button type="submit">{step === lastStep ? 'Submit issue' : 'Continue'}</Button>
+            <Button type="submit" disabled={saving}>{saving ? 'Saving…' : step === lastStep ? 'Submit issue' : 'Continue'}</Button>
           </div>
         </div>
       </form>

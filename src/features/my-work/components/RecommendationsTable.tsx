@@ -21,16 +21,17 @@ const headers = [
 
 interface RecommendationsTableProps {
   recommendations: Recommendation[];
+  description: string;
 }
 
 
-function RecommendationsTable({ recommendations }: RecommendationsTableProps) {
+function RecommendationsTable({ recommendations, description }: RecommendationsTableProps) {
   return (
     <DataTable rows={recommendations} headers={headers} isSortable>
       {({ rows, headers, getHeaderProps, getRowProps, getTableProps, getCellProps }) => (
         <TableContainer
           title="Action plan"
-          description="Recommendations assigned to you"
+          description={description}
         >
           <Table {...getTableProps()} aria-label="Action plan">
             <TableHead>
