@@ -11,6 +11,7 @@ import {
 } from '@carbon/icons-react'
 
 import { roles, type UserRole } from '../../../../../config/roles'
+import ProfileMenu from './profile/ProfileMenu'
 
 import './EmONCTopbar.scss'
 
@@ -34,7 +35,7 @@ export default function EmONCTopbar({
   const roleSwitcherRef = useRef<HTMLDivElement>(null)
 
   const selectedRole = roles.find(
-    (role) => role.id === activeRole
+    (role) => role.id === activeRole,
   )
 
   useEffect(() => {
@@ -96,7 +97,9 @@ export default function EmONCTopbar({
 
       <div className="emonc-topbar__breadcrumb">
         <span>Workspace</span>
-        <span className="emonc-topbar__breadcrumb-separator">/</span>
+        <span className="emonc-topbar__breadcrumb-separator">
+          /
+        </span>
         <strong>{pageTitle}</strong>
       </div>
 
@@ -117,6 +120,7 @@ export default function EmONCTopbar({
           <Notification size={20} />
         </button>
 
+        {/* Development role preview */}
         <div
           className="emonc-topbar__role-switcher"
           ref={roleSwitcherRef}
@@ -189,6 +193,9 @@ export default function EmONCTopbar({
             </div>
           )}
         </div>
+
+        {/* Account profile menu */}
+        <ProfileMenu activeRole={activeRole} />
       </div>
     </header>
   )

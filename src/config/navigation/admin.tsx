@@ -1,3 +1,4 @@
+
 import {
   Dashboard,
   UserMultiple,
@@ -10,46 +11,46 @@ import {
 
 import type { RoleNavigation } from './navigation.types'
 
-export const developerNavigation: RoleNavigation = {
-  role: 'developer',
-  title: 'Developer / System Administrator',
+export const adminNavigation: RoleNavigation = {
+  role: 'admin',
+  title: 'Administration Workspace',
 
   groups: [
     {
       items: [
         {
           label: 'Overview',
-          path: '/developer/overview',
+          path: '/admin/overview',
           icon: <Dashboard size={20} />,
         },
         {
           label: 'User Management',
-          path: '/developer/users',
+          path: '/admin/users',
           icon: <UserMultiple size={20} />,
         },
         {
           label: 'Role & Permissions',
-          path: '/developer/roles',
+          path: '/admin/roles',
           icon: <User size={20} />,
         },
         {
           label: 'System Configuration',
-          path: '/developer/configuration',
+          path: '/admin/configuration',
           icon: <Events size={20} />,
         },
         {
           label: 'Module Management',
-          path: '/developer/modules',
+          path: '/admin/modules',
           icon: <Hospital size={20} />,
         },
         {
           label: 'Audit Logs',
-          path: '/developer/audit-logs',
+          path: '/admin/audit-logs',
           icon: <DocumentTasks size={20} />,
         },
         {
           label: 'Reports',
-          path: '/developer/reports',
+          path: '/admin/reports',
           icon: <ChartLine size={20} />,
         },
       ],

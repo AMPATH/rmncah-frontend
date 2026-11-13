@@ -1,5 +1,6 @@
 
 import { useState } from 'react'
+import { UserAvatar } from '@carbon/icons-react'
 
 import type { RoleNavigation } from '../../../config/navigation/navigation.types'
 
@@ -16,13 +17,6 @@ interface SidebarProps {
   onClose: () => void
 }
 
-const roleShortLabels: Record<string, string> = {
-  'county-mentor': 'CM',
-  mentor: 'M',
-  mentee: 'ME',
-  developer: 'SA',
-}
-
 export default function Sidebar({
   navigation,
   activePath,
@@ -30,14 +24,13 @@ export default function Sidebar({
   mobileOpen,
   onClose,
 }: SidebarProps) {
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState<boolean>(false)
 
   function toggleSidebar() {
     setCollapsed((previous) => !previous)
   }
 
   const roleLabel = navigation.title
-  const roleShortLabel = roleShortLabels[navigation.role] ?? 'U'
 
   return (
     <aside
@@ -50,7 +43,11 @@ export default function Sidebar({
         .filter(Boolean)
         .join(' ')}
       aria-label={`${roleLabel} navigation`}
-      aria-hidden={!mobileOpen && typeof window !== 'undefined' && window.innerWidth <= 700}
+      aria-hidden={
+        !mobileOpen &&
+        typeof window !== 'undefined' &&
+        window.innerWidth <= 700
+      }
     >
       <SidebarBrand
         collapsed={collapsed}
@@ -68,8 +65,8 @@ export default function Sidebar({
 
       <div className="sidebar__footer">
         <div className="sidebar__user">
-          <div className="sidebar__user-avatar">
-            {roleShortLabel}
+          <div className="sidebar__user-avatar" aria-hidden="true">
+            <UserAvatar size={24} />
           </div>
 
           <div className="sidebar__user-info">

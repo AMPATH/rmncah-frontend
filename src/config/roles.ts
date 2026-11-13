@@ -1,9 +1,10 @@
+
 export type UserRole =
   | 'program-lead'
   | 'county-mentor'
   | 'mentor'
   | 'mentee'
-  | 'developer'
+  | 'admin'
 
 export interface RoleOption {
   id: UserRole
@@ -33,8 +34,8 @@ export const roles: RoleOption[] = [
     shortLabel: 'ME',
   },
   {
-    id: 'developer',
-    label: 'Developer / System Administrator',
+    id: 'admin',
+    label: 'System Administrator',
     shortLabel: 'SA',
   },
 ]

@@ -68,12 +68,7 @@ function OverviewPage({ title, onNavigate }: OverviewPageProps) {
         </div>
       </header>
 
-      <div className="county-overview__demo-note">
-        <span className="county-overview__demo-dot" />
 
-        Demonstration dashboard data — replace with approved
-        programme data when backend integration is available.
-      </div>
 
       <section className="county-overview__section">
         <CountyStatistics statistics={statistics} />
