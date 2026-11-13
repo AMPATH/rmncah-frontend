@@ -1,76 +1,103 @@
 @use '../../../styles/tokens' as *;
 
+// Scoped to MPDSR: these rules only apply inside <div class="mpdsr-app"> (AppLayout).
+.mpdsr-app {
+  .topbar {
+    background-color: $primary;
+    border-block-end: none;
 
-.topbar {
-  background-color: $primary;
-  border-block-end: none;
-
-  .cds--header__name {
-    font-weight: 600;
-    letter-spacing: 0.02em;
-  }
-}
-
-
-.side-nav {
-  border-inline-end: 1px solid $border;
-
-  
-  .cds--side-nav__item .cds--side-nav__link {
-    margin: 2px 8px;
-    border-radius: 6px;
-    inline-size: auto;
-  }
-
-  
-  .cds--side-nav__link--current,
-  a.cds--side-nav__link[aria-current='page'] {
-    background-color: #e9effd;
-
-    .cds--side-nav__link-text,
-    .cds--side-nav__icon svg {
-      color: $primary;
-      fill: $primary;
+    .cds--header__name {
+      font-weight: 600;
+      letter-spacing: 0.02em;
     }
   }
 
-  
-  .cds--side-nav__link--current::before {
-    display: none;
+
+  .side-nav {
+    border-inline-end: 1px solid $border;
+
+
+    .cds--side-nav__item .cds--side-nav__link {
+      margin: 2px 8px;
+      border-radius: 6px;
+      inline-size: auto;
+    }
+
+
+    .cds--side-nav__link--current,
+    a.cds--side-nav__link[aria-current='page'] {
+      background-color: #e9effd;
+
+      .cds--side-nav__link-text,
+      .cds--side-nav__icon svg {
+        color: $primary;
+        fill: $primary;
+      }
+    }
+
+
+    .cds--side-nav__link--current::before {
+      display: none;
+    }
+  }
+
+
+  .profile-panel {
+    padding: 16px 0;
+
+    &__user {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 0 16px 16px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #393939;
+      color: #f4f4f4;
+    }
+
+    &__name {
+      margin: 0;
+      font-weight: 600;
+    }
+
+    &__role {
+      margin: 2px 0 0;
+      font-size: 0.75rem;
+      color: #c6c6c6;
+    }
+
+    &__button {
+      width: 100%;
+      max-width: none;
+    }
+  }
+
+  .profile-panel__acting-as {
+    padding: 0 16px 12px;
   }
 }
 
+// Scoped to MPDSR: these rules only apply inside <div class="mpdsr-app"> (AppLayout).
+.mpdsr-app {
+  // The bell icon with a small red count of unread notifications.
+  .bell {
+    position: relative;
+    display: inline-flex;
 
-.profile-panel {
-  padding: 16px 0;
-
-  &__user {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    padding: 0 16px 16px;
-    margin-bottom: 8px;
-    border-bottom: 1px solid #393939;
-    color: #f4f4f4;
+    &__badge {
+      position: absolute;
+      top: -6px;
+      right: -8px;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      border-radius: 8px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      line-height: 16px;
+      text-align: center;
+      color: #ffffff;
+      background-color: #da1e28;
+    }
   }
-
-  &__name {
-    margin: 0;
-    font-weight: 600;
-  }
-
-  &__role {
-    margin: 2px 0 0;
-    font-size: 0.75rem;
-    color: #c6c6c6;
-  }
-
-  &__button {
-    width: 100%;
-    max-width: none;
-  }
-}
-
-.profile-panel__acting-as {
-  padding: 0 16px 12px;
 }

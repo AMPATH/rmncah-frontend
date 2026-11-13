@@ -57,6 +57,7 @@ function DashboardPage() {
   // Everything saved so far. The real backend will send ready-made figures instead.
   const issuesData = useApiData<StoredIssue[]>(getIssues, []);
   const recommendationsData = useApiData<StoredRecommendation[]>(getStoredRecommendations, []);
+  const loading = issuesData.loading || recommendationsData.loading;
 
   const today = getToday();
   const inSevenDays = addDays(today, 7);
@@ -173,11 +174,11 @@ function DashboardPage() {
 
       <div className="dashboard-grid">
         {summaryPanels.map((panel) => (
-          <StatPanel key={panel.title} title={panel.title} rows={panel.rows} note={panel.note} />
+          <StatPanel key={panel.title} title={panel.title} rows={panel.rows} note={panel.note} loading={loading} />
         ))}
       </div>
 
-      <StatPanel title={performancePanel.title} rows={performancePanel.rows} />
+      <StatPanel title={performancePanel.title} rows={performancePanel.rows} loading={loading} />
 
       <p className="form-note">
         Figures are calculated from the records and limited to your access level.

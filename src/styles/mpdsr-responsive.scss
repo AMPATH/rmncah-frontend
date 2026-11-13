@@ -1,0 +1,89 @@
+// How MPDSR pages adapt to tablets and phones.
+// Breakpoints follow Carbon's: md = 42rem (672px, phones below), lg = 66rem (1056px, tablets below).
+// Scoped to MPDSR: these rules only apply inside <div class="mpdsr-app"> (AppLayout).
+.mpdsr-app {
+  // Inside the page area, so these win over each component's own grid settings.
+  .app-content {
+    // Wide tables scroll sideways instead of squashing or overflowing the page.
+    .cds--data-table-container,
+    .recommendations-step table {
+      overflow-x: auto;
+    }
+
+    // Tablets: below 66rem
+    @media (max-width: 65.99rem) {
+      .form-row,
+      .summary-cards,
+      .loading-cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .dashboard-filters {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .dashboard-grid,
+      .form-columns,
+      .contributing-factors__groups {
+        grid-template-columns: 1fr;
+      }
+
+      // The six wizard steps scroll sideways if they don't fit.
+      .log-issue__steps {
+        overflow-x: auto;
+      }
+    }
+
+    // Phones: below 42rem
+    @media (max-width: 41.99rem) {
+      .page,
+      .back-bar {
+        padding-inline: 12px;
+      }
+
+      .form-row,
+      .form-row--two,
+      .dashboard-filters {
+        grid-template-columns: 1fr;
+      }
+
+      // The count cards are small, so two still fit side by side.
+      .summary-cards,
+      .loading-cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      // Title and buttons stack instead of squeezing onto one line.
+      .page-header {
+        flex-wrap: wrap;
+        gap: 12px;
+
+        .form-actions {
+          flex-wrap: wrap;
+        }
+      }
+
+      // Back on its own row; Clear form and Continue full width underneath.
+      .log-issue__actions {
+        flex-wrap: wrap;
+        gap: 12px;
+
+        .form-actions {
+          width: 100%;
+
+          .cds--btn {
+            flex: 1;
+            max-width: none;
+          }
+        }
+      }
+    }
+  }
+
+  // Phones: Carbon's own page padding is dropped so the page uses the full width.
+  @media (max-width: 41.99rem) {
+    .app-content {
+      padding-inline: 0;
+    }
+  }
+}

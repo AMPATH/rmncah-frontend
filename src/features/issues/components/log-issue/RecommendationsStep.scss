@@ -1,28 +1,31 @@
 @use '../../../../styles/tokens' as *;
 
-.recommendations-step {
-  &__add {
-    @include box;
-    margin: 16px 0;
-    padding: 16px;
-    background-color: $background;
-  }
+// Scoped to MPDSR: these rules only apply inside <div class="mpdsr-app"> (AppLayout).
+.mpdsr-app {
+  .recommendations-step {
+    &__add {
+      @include box;
+      margin: 16px 0;
+      padding: 16px;
+      background-color: $background;
+    }
 
-  &__title {
-    margin: 0 0 16px;
-    font-size: 1rem;
-    font-weight: 600;
-  }
+    &__title {
+      margin: 0 0 16px;
+      font-size: 1rem;
+      font-weight: 600;
+    }
 
-  &__gap {
-    margin-top: 2px;
-    font-size: 0.8rem;
-    color: $muted;
-  }
+    &__gap {
+      margin-top: 2px;
+      font-size: 0.8rem;
+      color: $muted;
+    }
 
-  &__error {
-    margin: 0 0 12px;
-    font-size: 0.85rem;
-    color: #da1e28;
+    &__error {
+      margin: 0 0 12px;
+      font-size: 0.85rem;
+      color: #da1e28;
+    }
   }
 }
