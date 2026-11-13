@@ -431,7 +431,7 @@ function App() {
             mobileMenuOpen={isMobileMenuOpen}
           />
 
-          <div className="app-content">
+          <div className="emonc-app-content">
             {renderPage()}
           </div>
         </main>

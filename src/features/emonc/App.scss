@@ -18,7 +18,7 @@
   overflow: hidden;
 }
 
-.app-content {
+.emonc-app-content {
   flex: 1;
   min-width: 0;
   min-height: 0;
@@ -31,20 +31,20 @@
   box-sizing: border-box;
 }
 
-.app-content::-webkit-scrollbar {
+.emonc-app-content::-webkit-scrollbar {
   width: 7px;
 }
 
-.app-content::-webkit-scrollbar-track {
+.emonc-app-content::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.app-content::-webkit-scrollbar-thumb {
+.emonc-app-content::-webkit-scrollbar-thumb {
   border-radius: 10px;
   background: #B8CBE0;
 }
 
-.app-content::-webkit-scrollbar-thumb:hover {
+.emonc-app-content::-webkit-scrollbar-thumb:hover {
   background: #899FB5;
 }
 
@@ -212,7 +212,7 @@
 }
 
 @media (max-width: 1200px) {
-  .app-content {
+  .emonc-app-content {
     padding: 26px;
   }
 
@@ -228,7 +228,7 @@
 }
 
 @media (max-width: 700px) {
-  .app-content {
+  .emonc-app-content {
     padding: 22px 16px;
   }
 
