@@ -1,5 +1,4 @@
 import { Button, Select, SelectItem, TextArea } from '@carbon/react';
-import StatusTag from '../../../../components/shared/StatusTag';
 import type { FormEvent } from 'react';
 import type { Level, User } from '../../../issues/types/issue.types';
 import type { EscalationAction } from '../../types/action.types';
@@ -10,7 +9,8 @@ interface EscalateFormProps {
   targetPersonId: string;
   reason: string;
   users: User[];
-  moved: boolean;
+  blockedBecause: string;
+  busy: boolean;
   onActionChange: (value: EscalationAction | '') => void;
   onTargetLevelChange: (value: Level | '') => void;
   onTargetPersonChange: (value: string) => void;
@@ -18,20 +18,23 @@ interface EscalateFormProps {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }
 
-
+// Move the recommendation up (escalate) or down (de-escalate) to another level and person.
 function EscalateForm({
   action,
   targetLevel,
   targetPersonId,
   reason,
   users,
-  moved,
+  blockedBecause,
+  busy,
   onActionChange,
   onTargetLevelChange,
   onTargetPersonChange,
   onReasonChange,
   onSubmit,
 }: EscalateFormProps) {
+  const disabled = blockedBecause !== '';
+
   return (
     <form className="form-card form-stack" onSubmit={onSubmit}>
       <h2 className="form-section-title">Escalate or de-escalate</h2>
@@ -40,6 +43,7 @@ function EscalateForm({
         id="escalationAction"
         labelText="Action"
         value={action}
+        disabled={disabled}
         onChange={(event) => onActionChange(event.target.value as EscalationAction | '')}
         required
       >
@@ -52,6 +56,7 @@ function EscalateForm({
         id="targetLevel"
         labelText="Target level"
         value={targetLevel}
+        disabled={disabled}
         onChange={(event) => onTargetLevelChange(event.target.value as Level | '')}
         required
       >
@@ -66,8 +71,11 @@ function EscalateForm({
         id="targetPerson"
         labelText="Target person"
         value={targetPersonId}
+        disabled={disabled || targetLevel === ''}
         onChange={(event) => onTargetPersonChange(event.target.value)}
-        helperText={users.length === 0 ? 'No users yet' : undefined}
+        helperText={
+          targetLevel === '' ? 'Choose a level first' : users.length === 0 ? 'No users at this level' : undefined
+        }
         required
       >
         <SelectItem value="" text="Select person" />
@@ -81,14 +89,17 @@ function EscalateForm({
         labelText="Reason"
         rows={3}
         value={reason}
+        disabled={disabled}
         onChange={(event) => onReasonChange(event.target.value)}
         required
       />
 
       <div className="form-actions">
-        <Button type="submit">Move</Button>
-        {moved && <StatusTag status="Pending acceptance" />}
+        <Button type="submit" disabled={disabled || busy}>
+          {busy ? 'Saving…' : 'Move'}
+        </Button>
       </div>
+      {blockedBecause && <p className="field-hint">{blockedBecause}</p>}
     </form>
   );
 }

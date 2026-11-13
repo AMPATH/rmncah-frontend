@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { Button, InlineNotification, ProgressIndicator, ProgressStep } from '@carbon/react';
@@ -16,6 +16,8 @@ import ReviewStep from '../components/log-issue/ReviewStep';
 import { delayLevels } from '../constants/delayFactors';
 import { addDays, daysBetween, getToday, yearsBetween } from '../utils/dates';
 import { showToast } from '../../../components/shared/toast/toast';
+import { clearDraft, draftKeyFor, loadDraft, saveDraft } from '../utils/logIssueDraft';
+import type { LogIssueDraft } from '../utils/logIssueDraft';
 import { useCurrentUser } from '../../../auth/CurrentUserContext';
 import { placesAbove } from '../../../auth/locations';
 import { createIssueWithRecommendations } from '../services/issueService';
@@ -99,7 +101,71 @@ function LogIssuePage() {
   const county = above.find((location) => location.type === 'county')?.name ?? '';
 
   // Anyone who can hold a recommendation (everyone except admins), apart from yourself.
-  const users = allUsers.filter((user) => user.role !== 'admin' && user.id !== currentUser?.id);
+  const users = allUsers.filter((user) => user.role !== 'SYSTEM_ADMIN' && user.id !== currentUser?.id);
+
+  // ---- Draft: the form is saved in this browser as you type ----
+  const draftKey = draftKeyFor(currentUser?.id ?? 'anonymous');
+  // A draft found when the page opens: undefined = not checked yet, null = none (or answered).
+  const [offeredDraft, setOfferedDraft] = useState<LogIssueDraft | null | undefined>(undefined);
+
+  // Look once, as soon as we know who the user is.
+  useEffect(() => {
+    if (currentUser && offeredDraft === undefined) {
+      setOfferedDraft(loadDraft(draftKey));
+    }
+  }, [currentUser, offeredDraft, draftKey]);
+
+  // Save after every change. Not before the check above, not while a found draft is waiting
+  // for an answer (that would overwrite it), and not while the form is still empty.
+  useEffect(() => {
+    if (offeredDraft !== null || setting === '') {
+      return;
+    }
+    saveDraft(draftKey, {
+      savedAt: new Date().toISOString(),
+      step,
+      furthestStep,
+      setting,
+      loggedAt,
+      issueType,
+      dateOfBirth,
+      gender,
+      causeOfDeath,
+      periodOfDeath,
+      gestationWeeks,
+      daysPostpartum,
+      dateOfDeath,
+      dateOfNotification,
+      selectedFactors,
+      comments,
+      recommendations,
+    });
+  });
+
+  function continueDraft(draft: LogIssueDraft) {
+    setSetting(draft.setting);
+    setLoggedAt(draft.loggedAt);
+    setIssueType(draft.issueType);
+    setDateOfBirth(draft.dateOfBirth);
+    setGender(draft.gender);
+    setCauseOfDeath(draft.causeOfDeath);
+    setPeriodOfDeath(draft.periodOfDeath);
+    setGestationWeeks(draft.gestationWeeks);
+    setDaysPostpartum(draft.daysPostpartum);
+    setDateOfDeath(draft.dateOfDeath);
+    setDateOfNotification(draft.dateOfNotification);
+    setSelectedFactors(draft.selectedFactors);
+    setComments(draft.comments);
+    setRecommendations(draft.recommendations);
+    setFurthestStep(draft.furthestStep);
+    setStep(draft.step);
+    setOfferedDraft(null);
+  }
+
+  function discardDraft() {
+    clearDraft(draftKey);
+    setOfferedDraft(null);
+  }
 
   const today = getToday();
   const isDeath = issueType !== 'near-miss';
@@ -197,6 +263,7 @@ function LogIssuePage() {
   }
 
   function resetForm() {
+    clearDraft(draftKey);
     setSearchParams({ step: '1' }, { replace: true });
     setFurthestStep(0);
     setSetting('');
@@ -299,6 +366,25 @@ function LogIssuePage() {
 
       {/* Step 5 checks its own fields, so the browser's required check is switched off there. */}
       <form onSubmit={handleSubmit} noValidate={step === 4}>
+        {offeredDraft && (
+          <div className="form-block">
+            <InlineNotification
+              kind="info"
+              lowContrast
+              hideCloseButton
+              title="You have an unfinished issue"
+              subtitle={`Saved ${new Date(offeredDraft.savedAt).toLocaleString()}. Continue where you left off, or start again.`}
+            />
+            <div className="form-actions">
+              <Button kind="tertiary" size="sm" onClick={() => continueDraft(offeredDraft)}>
+                Continue draft
+              </Button>
+              <Button kind="ghost" size="sm" onClick={discardDraft}>
+                Start again
+              </Button>
+            </div>
+          </div>
+        )}
         <section className="form-card log-issue__card" aria-labelledby="stepTitle">
           <h2 id="stepTitle" className="form-section-title">
             {step + 1}. {steps[step]}

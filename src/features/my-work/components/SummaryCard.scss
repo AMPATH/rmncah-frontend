@@ -1,18 +1,21 @@
 @use '../../../styles/tokens' as *;
 
-.summary-card {
-  @include box;
-  padding: 14px 16px;
+// Scoped to MPDSR: these rules only apply inside <div class="mpdsr-app"> (AppLayout).
+.mpdsr-app {
+  .summary-card {
+    @include box;
+    padding: 14px 16px;
 
-  &__title {
-    margin: 0 0 8px;
-    font-size: 0.85rem;
-    color: $muted;
-  }
+    &__title {
+      margin: 0 0 8px;
+      font-size: 0.85rem;
+      color: $muted;
+    }
 
-  &__count {
-    margin: 0;
-    font-size: 1.6rem;
-    font-weight: 700;
+    &__count {
+      margin: 0;
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
   }
 }

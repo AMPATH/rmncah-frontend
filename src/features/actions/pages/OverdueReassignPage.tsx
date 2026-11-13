@@ -1,40 +1,76 @@
 import { useState } from 'react';
-import { showToast } from '../../../components/shared/toast/toast';
 import type { FormEvent } from 'react';
-import type { User } from '../../issues/types/issue.types';
+import { useNavigate, useParams } from 'react-router';
+import { DataTableSkeleton } from '@carbon/react';
+import { useCurrentUser } from '../../../auth/CurrentUserContext';
+import ApiErrorNotice from '../../../components/shared/ApiErrorNotice';
+import { showToast } from '../../../components/shared/toast/toast';
 import { getToday } from '../../issues/utils/dates';
+import { useRecommendation } from '../../recommendations/hooks/useRecommendation';
+import { whyBlocked } from '../../recommendations/utils/recommendationRules';
+import { reassignRecommendation } from '../../recommendations/services/recommendationService';
+import RecommendationSummary from '../../recommendations/components/RecommendationSummary';
+import RecommendationNotFound from '../../recommendations/components/RecommendationNotFound';
 import OverdueRecord from '../components/overdue/OverdueRecord';
 import ReassignForm from '../components/overdue/ReassignForm';
-import type { Reassignment } from '../types/action.types';
 
-// Page 6: an overdue recommendation goes to the PCN coordinator, who reassigns it.
+// Page 6: the PCN coordinator hands an overdue recommendation to a new person with a new due date.
 function OverdueReassignPage() {
+  const { id: code = '' } = useParams();
+  const navigate = useNavigate();
+  const { currentUser, users, scope } = useCurrentUser();
+  const { recommendation, events, loading, failed } = useRecommendation(code);
+
   const [newResponsiblePersonId, setNewResponsiblePersonId] = useState('');
   const [newCompletionDate, setNewCompletionDate] = useState('');
   const [reason, setReason] = useState('');
-  const [timesRedone, setTimesRedone] = useState(0);
   const [showErrors, setShowErrors] = useState(false);
+  const [busy, setBusy] = useState(false);
 
-  // Users to choose from. Empty until the backend provides them.
-  const users: User[] = [];
-  const today = getToday();
+  // People working in the coordinator's places (the coordinator included, who may take it on).
+  const candidates = users.filter(
+    (user) =>
+      user.role !== 'SYSTEM_ADMIN' && user.assignedLocations.some((place) => scope.has(place))
+  );
 
-  function handleReassign(event: FormEvent<HTMLFormElement>) {
+  if (loading) {
+    return <DataTableSkeleton columnCount={2} rowCount={5} showHeader={false} showToolbar={false} />;
+  }
+
+  if (!recommendation || !currentUser) {
+    return (
+      <div className="page">
+        {failed && <ApiErrorNotice />}
+        <RecommendationNotFound />
+      </div>
+    );
+  }
+
+  const blockedBecause = whyBlocked('reassign', recommendation, currentUser);
+  const holder = users.find((user) => user.id === recommendation.responsiblePersonId);
+  const markedOverdue = [...events].reverse().find((event) => event.action === 'marked-overdue');
+
+  async function handleReassign(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (newCompletionDate === '') {
+    if (newCompletionDate === '' || newResponsiblePersonId === '') {
       setShowErrors(true);
       return;
     }
-    const reassignment: Reassignment = { newResponsiblePersonId, newCompletionDate, reason };
-    console.log('Reassignment to save:', reassignment);
-    showToast('Recommendation reassigned');
-
-    // Each reassignment counts as one more "redo".
-    setTimesRedone((current) => current + 1);
-    setNewResponsiblePersonId('');
-    setNewCompletionDate('');
-    setReason('');
-    setShowErrors(false);
+    setBusy(true);
+    try {
+      await reassignRecommendation(
+        recommendation!,
+        currentUser!.id,
+        newResponsiblePersonId,
+        newCompletionDate,
+        reason
+      );
+      showToast('Recommendation reassigned');
+      navigate(`/recommendations/${code}`);
+    } catch {
+      showToast("Couldn't save. Is the server running?", 'error');
+      setBusy(false);
+    }
   }
 
   return (
@@ -43,21 +79,25 @@ function OverdueReassignPage() {
         <h1>Overdue and reassign</h1>
       </div>
 
-      <p className="form-note">
-        Due date passed before completion. Status becomes Overdue and it is assigned to the PCN
-        coordinator from the facility escalation matrix.
-      </p>
+      <RecommendationSummary recommendation={recommendation} />
 
       <div className="form-columns">
-        <OverdueRecord timesRedone={timesRedone} />
+        <OverdueRecord
+          dueDate={recommendation.dueDate}
+          dateMarkedOverdue={markedOverdue?.at.slice(0, 10) ?? '—'}
+          responsiblePerson={holder ? `${holder.fullName} (${holder.cadre})` : '—'}
+          timesRedone={recommendation.timesRedone}
+        />
 
         <ReassignForm
           newResponsiblePersonId={newResponsiblePersonId}
           newCompletionDate={newCompletionDate}
           reason={reason}
-          users={users}
-          today={today}
+          users={candidates}
+          today={getToday()}
           showErrors={showErrors}
+          blockedBecause={blockedBecause}
+          busy={busy}
           onPersonChange={setNewResponsiblePersonId}
           onCompletionDateChange={setNewCompletionDate}
           onReasonChange={setReason}
@@ -66,8 +106,8 @@ function OverdueReassignPage() {
       </div>
 
       <p className="form-note">
-        Reassignment history (auto): previous and new person, dates, reason, who reassigned. Times
-        redone goes up by 1 each time.
+        The new person must accept it. Every reassignment is kept in the recommendation's history,
+        and Times redone goes up by 1.
       </p>
     </div>
   );

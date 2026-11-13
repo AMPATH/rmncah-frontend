@@ -1,3 +1,5 @@
+import { NumberInput, Select, SelectItem } from '@carbon/react';
+
 interface PeriodDetailFieldsProps {
   periodOfDeath: string;
   gestationWeeks: string;
@@ -18,50 +20,46 @@ function PeriodDetailFields({
 }: PeriodDetailFieldsProps) {
   return (
     <div className="form-row form-row--two">
-      <div className="field">
-        <label htmlFor="periodOfDeath">Period of death</label>
-        <select
-          id="periodOfDeath"
-          value={periodOfDeath}
-          onChange={(event) => onPeriodOfDeathChange(event.target.value)}
-          required
-        >
-          <option value="">Select period</option>
-          <option value="antenatal">Antenatal</option>
-          <option value="intrapartum">Intrapartum</option>
-          <option value="postpartum">Postpartum</option>
-        </select>
-      </div>
+      <Select
+        id="periodOfDeath"
+        labelText="Period of death"
+        value={periodOfDeath}
+        onChange={(event) => onPeriodOfDeathChange(event.target.value)}
+        required
+      >
+        <SelectItem value="" text="Select period" />
+        <SelectItem value="antenatal" text="Antenatal" />
+        <SelectItem value="intrapartum" text="Intrapartum" />
+        <SelectItem value="postpartum" text="Postpartum" />
+      </Select>
 
       {periodOfDeath === 'postpartum' && (
-        <div className="field">
-          <label htmlFor="daysPostpartum">Days postpartum</label>
-          <input
-            id="daysPostpartum"
-            type="number"
-            min={0}
-            max={42}
-            value={daysPostpartum}
-            onChange={(event) => onDaysPostpartumChange(event.target.value)}
-            required
-          />
-          <span className="field-hint">0 to 42</span>
-        </div>
+        <NumberInput
+          id="daysPostpartum"
+          label="Days postpartum"
+          helperText="0 to 42"
+          min={0}
+          max={42}
+          allowEmpty
+          value={daysPostpartum}
+          invalidText="Enter a number from 0 to 42"
+          onChange={(_event, { value }) => onDaysPostpartumChange(String(value))}
+          required
+        />
       )}
 
       {(periodOfDeath === 'antenatal' || periodOfDeath === 'intrapartum') && (
-        <div className="field">
-          <label htmlFor="gestationWeeks">Gestation at death (weeks)</label>
-          <input
-            id="gestationWeeks"
-            type="number"
-            min={1}
-            max={45}
-            value={gestationWeeks}
-            onChange={(event) => onGestationWeeksChange(event.target.value)}
-            required
-          />
-        </div>
+        <NumberInput
+          id="gestationWeeks"
+          label="Gestation at death (weeks)"
+          min={1}
+          max={45}
+          allowEmpty
+          value={gestationWeeks}
+          invalidText="Enter a number from 1 to 45"
+          onChange={(_event, { value }) => onGestationWeeksChange(String(value))}
+          required
+        />
       )}
     </div>
   );

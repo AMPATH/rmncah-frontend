@@ -2,7 +2,12 @@ import { useEffect, useState } from 'react';
 
 // Loads data from the API when the page opens.
 // Returns the data, whether it's still loading, whether it failed, and reload() to fetch again.
-export function useApiData<T>(load: () => Promise<T>, initialData: T) {
+export function useApiData<T>(
+  load: () => Promise<T>,
+  initialData: T,
+  // Load again whenever one of these values changes, e.g. the current user's id.
+  reloadWhen: unknown[] = []
+) {
   const [data, setData] = useState<T>(initialData);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
@@ -35,7 +40,7 @@ export function useApiData<T>(load: () => Promise<T>, initialData: T) {
     };
     // Runs when the page opens and after reload(). `load` is left out on purpose:
     // it is a new function on every render and would cause endless reloading.
-  }, [reloadCount]);
+  }, [reloadCount, ...reloadWhen]);
 
   function reload() {
     setReloadCount((count) => count + 1);

@@ -1,23 +1,24 @@
 import { Tag } from '@carbon/react';
-import StatusTag from '../../../../components/shared/StatusTag';
 import InfoList from '../../../../components/shared/InfoList';
 
 interface OverdueRecordProps {
+  dueDate: string;
+  dateMarkedOverdue: string;
+  responsiblePerson: string;
   timesRedone: number;
 }
 
-
-function OverdueRecord({ timesRedone }: OverdueRecordProps) {
+// What the system recorded when the due date passed before completion.
+function OverdueRecord({ dueDate, dateMarkedOverdue, responsiblePerson, timesRedone }: OverdueRecordProps) {
   return (
     <section className="form-card">
       <h2 className="form-section-title">Recorded by system</h2>
 
       <InfoList
         items={[
-          { label: 'Status', value: <StatusTag status="Overdue" /> },
-          { label: 'Date marked overdue', value: '—' },
-          { label: 'Previous responsible person', value: '—' },
-          { label: 'Assigned to', value: 'PCN coordinator' },
+          { label: 'Due date', value: dueDate },
+          { label: 'Date marked overdue', value: dateMarkedOverdue },
+          { label: 'Current responsible person', value: responsiblePerson },
         ]}
       />
 

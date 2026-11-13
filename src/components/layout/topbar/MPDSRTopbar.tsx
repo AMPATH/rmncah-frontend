@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import {
   Button,
@@ -19,7 +19,6 @@ import {
 } from '@carbon/react';
 import type { CarbonIconType } from '@carbon/icons-react';
 import {
-  CheckmarkOutline,
   DocumentAdd,
   Edit,
   Home,
@@ -28,11 +27,13 @@ import {
   Report,
   Time,
   UserAvatar,
-  UserFollow,
 } from '@carbon/icons-react';
 import { useCurrentUser } from '../../../auth/CurrentUserContext';
 import { canAny, roleLabels } from '../../../auth/permissions';
 import { permissionsForPath } from '../../../auth/pageAccess';
+import { useApiData } from '../../../hooks/useApiData';
+import { NOTIFICATIONS_CHANGED_EVENT, getNotifications } from '../../../features/notifications/services/notificationService';
+import type { AppNotification } from '../../../features/notifications/types/notification.types';
 import './MPDSRTopbar.scss';
 
 interface NavItem {
@@ -49,9 +50,7 @@ const navGroups: NavItem[][] = [
   ],
   [
     { path: '/issues/draft/recommendation', label: 'Recommendation', icon: Edit },
-    { path: '/actions/draft/respond', label: 'Accept or escalate', icon: UserFollow },
     { path: '/actions/overdue', label: 'Overdue and reassign', icon: Time },
-    { path: '/actions/draft/close', label: 'Close out', icon: CheckmarkOutline },
   ],
   [{ path: '/reports', label: 'Reports', icon: Report }],
 ];
@@ -71,6 +70,19 @@ function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderConten
   const visibleGroups = navGroups
     .map((group) => group.filter((item) => canAny(currentUser, permissionsForPath(item.path))))
     .filter((group) => group.length > 0);
+
+  // The bell's unread count. Refreshed on every page change and when notifications change.
+  const { data: myNotifications, reload: reloadNotifications } = useApiData<AppNotification[]>(
+    () => getNotifications(currentUser?.id ?? ''),
+    [],
+    [currentUser?.id, location.pathname]
+  );
+  const unreadCount = myNotifications.filter((notification) => !notification.read).length;
+
+  useEffect(() => {
+    window.addEventListener(NOTIFICATIONS_CHANGED_EVENT, reloadNotifications);
+    return () => window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, reloadNotifications);
+  });
 
   // No sign-in yet: Log out just returns to the start page.
   function handleLogout() {
@@ -94,11 +106,16 @@ function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderConten
 
       <HeaderGlobalBar>
         <HeaderGlobalAction
-          aria-label="Notifications"
+          aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}
           isActive={location.pathname === '/notifications'}
           onClick={() => navigate('/notifications')}
         >
-          <Notification size={20} />
+          <span className="bell">
+            <Notification size={20} />
+            {unreadCount > 0 && (
+              <span className="bell__badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
+            )}
+          </span>
         </HeaderGlobalAction>
         <HeaderGlobalAction
           aria-label={profileOpen ? 'Close profile' : 'Profile'}

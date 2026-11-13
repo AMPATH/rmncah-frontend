@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Button, Tab, TabList, Tabs } from '@carbon/react';
+import { Button, DataTableSkeleton, Tab, TabList, Tabs } from '@carbon/react';
 import { CheckmarkOutline } from '@carbon/icons-react';
 import NotificationsTable from '../components/NotificationsTable';
 import { getNotifications, markAllAsRead } from '../services/notificationService';
 import { useApiData } from '../../../hooks/useApiData';
 import ApiErrorNotice from '../../../components/shared/ApiErrorNotice';
 import { showToast } from '../../../components/shared/toast/toast';
+import { useCurrentUser } from '../../../auth/CurrentUserContext';
 import type { AppNotification, NotificationCategory } from '../types/notification.types';
 import './NotificationsPage.scss';
 
@@ -31,12 +32,15 @@ const tabs: NotificationTab[] = [
 // Opened from the bell in the top bar.
 function NotificationsPage() {
   const [selectedTab, setSelectedTab] = useState(0);
+  const { currentUser } = useCurrentUser();
+  const userId = currentUser?.id ?? '';
 
   const {
     data: notifications,
+    loading,
     failed,
     reload,
-  } = useApiData<AppNotification[]>(getNotifications, []);
+  } = useApiData<AppNotification[]>(() => getNotifications(userId), [], [userId]);
 
   const shown = notifications.filter(tabs[selectedTab].matches);
   const unreadCount = notifications.filter((notification) => !notification.read).length;
@@ -79,7 +83,11 @@ function NotificationsPage() {
         </TabList>
       </Tabs>
 
-      <NotificationsTable notifications={shown} />
+      {loading ? (
+        <DataTableSkeleton columnCount={5} rowCount={4} showHeader={false} showToolbar={false} />
+      ) : (
+        <NotificationsTable notifications={shown} />
+      )}
     </div>
   );
 }

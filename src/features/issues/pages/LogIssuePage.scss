@@ -1,20 +1,23 @@
-.page-subtitle {
-  margin: 4px 0 0;
-  color: #6b7280;
-}
-
-.log-issue {
-  &__steps {
-    margin-bottom: 16px;
+// Scoped to MPDSR: these rules only apply inside <div class="mpdsr-app"> (AppLayout).
+.mpdsr-app {
+  .page-subtitle {
+    margin: 4px 0 0;
+    color: #6b7280;
   }
 
-  &__card {
-    margin-bottom: 16px;
-  }
+  .log-issue {
+    &__steps {
+      margin-bottom: 16px;
+    }
 
-  &__actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    &__card {
+      margin-bottom: 16px;
+    }
+
+    &__actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
   }
 }
