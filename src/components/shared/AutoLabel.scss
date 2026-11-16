@@ -1,12 +1,15 @@
 @use '../../styles/tokens' as *;
 
-.auto-label {
-  margin-left: 6px;
-  padding: 0 4px;
-  border-radius: 4px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: $primary;
-  background-color: #e9effd;
+// Scoped to MPDSR: these rules only apply inside <div class="mpdsr-app"> (AppLayout).
+.mpdsr-app {
+  .auto-label {
+    margin-left: 6px;
+    padding: 0 4px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: $primary;
+    background-color: #e9effd;
+  }
 }

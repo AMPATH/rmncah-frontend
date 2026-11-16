@@ -7,6 +7,7 @@ import { issueRoutes } from '../../features/issues/routes';
 import { actionRoutes } from '../../features/actions/routes';
 import { dashboardRoutes } from '../../features/dashboard/routes';
 import { notificationRoutes } from '../../features/notifications/routes';
+import { recommendationRoutes } from '../../features/recommendations/routes';
 import { myWorkRoutes } from '../../features/my-work/routes';
 import { programmeRoutes } from '../../features/programmes/routes';
 
@@ -23,7 +24,7 @@ export const router = createBrowserRouter([
   
   {
     element: <AppLayout />,
-    children: [...myWorkRoutes, ...issueRoutes, ...actionRoutes, ...dashboardRoutes, ...notificationRoutes],
+    children: [...myWorkRoutes, ...issueRoutes, ...actionRoutes, ...dashboardRoutes, ...notificationRoutes, ...recommendationRoutes],
   },
 
   

@@ -8,6 +8,7 @@ export const pagePermissions: { pathStart: string; anyOf: Permission[] }[] = [
   { pathStart: '/actions/overdue', anyOf: ['recommendation.reassign'] },
   { pathStart: '/actions/', anyOf: ['recommendation.accept', 'recommendation.markDone', 'recommendation.approve'] },
   { pathStart: '/reports', anyOf: ['reports.view'] },
+  { pathStart: '/recommendations/', anyOf: ['recommendation.accept', 'recommendation.add', 'reports.view'] },
 ];
 
 // The rule for a path: the first entry whose pathStart matches.
@@ -15,6 +16,9 @@ export function permissionsForPath(path: string): Permission[] {
   // /actions/draft/close needs the close-out permissions, /actions/draft/respond the accept ones.
   if (path.startsWith('/actions/') && path.endsWith('/close')) {
     return ['recommendation.markDone', 'recommendation.approve'];
+  }
+  if (path.startsWith('/actions/') && path.endsWith('/reassign')) {
+    return ['recommendation.reassign'];
   }
   if (path.startsWith('/actions/') && path.endsWith('/respond')) {
     return ['recommendation.accept', 'recommendation.escalate'];

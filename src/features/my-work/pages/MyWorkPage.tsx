@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router';
-import { Button, InlineNotification } from '@carbon/react';
+import { Button, DataTableSkeleton, InlineNotification } from '@carbon/react';
 import type { Role } from '../../../auth/permissions';
 import { can, roleLabels } from '../../../auth/permissions';
 import { useCurrentUser } from '../../../auth/CurrentUserContext';
@@ -11,6 +11,7 @@ import { useApiData } from '../../../hooks/useApiData';
 import ApiErrorNotice from '../../../components/shared/ApiErrorNotice';
 import RecommendationsTable from '../components/RecommendationsTable';
 import SummaryCards from '../components/SummaryCards';
+import LoadingCards from '../../../components/shared/LoadingCards';
 import type { CardFigure } from '../components/SummaryCards';
 
 // The Overview: each role sees the cards that matter for its work,
@@ -56,13 +57,13 @@ function MyWorkPage() {
 
   // The cards for each role. Escalations are counted once that action is saved to the server.
   const cardsByRole: Record<Role, CardFigure[]> = {
-    'community-user': [
+    CHP: [
       { title: 'Assigned to you', count: mine.length },
       { title: 'Pending acceptance', count: withStatus('Pending acceptance') },
       { title: 'Due within 7 days', count: dueSoon },
       { title: 'Overdue', count: withStatus('Overdue') },
     ],
-    'facility-user': [
+    FACILITY_REPORTER: [
       { title: 'Assigned to you', count: mine.length },
       { title: 'Pending acceptance', count: withStatus('Pending acceptance') },
       { title: 'In progress', count: withStatus('In progress') },
@@ -70,7 +71,7 @@ function MyWorkPage() {
       { title: 'Due within 7 days', count: dueSoon },
       { title: 'Overdue', count: withStatus('Overdue') },
     ],
-    'facility-chair': [
+    FACILITY_CHAIR: [
       { title: 'Awaiting your approval', count: withStatus('Pending approval') },
       { title: 'Open', count: withStatus('Open') },
       { title: 'In progress', count: withStatus('In progress') },
@@ -78,13 +79,13 @@ function MyWorkPage() {
       { title: 'Overdue', count: withStatus('Overdue') },
       { title: 'Closed', count: withStatus('Closed') },
     ],
-    'pcn-coordinator': [
+    PCN_COORDINATOR: [
       { title: 'Overdue, to reassign', count: withStatus('Overdue') },
       { title: 'Pending acceptance', count: withStatus('Pending acceptance') },
       { title: 'Due within 7 days', count: dueSoon },
       { title: 'Assigned to you', count: mine.length },
     ],
-    'sub-county-user': [
+    SUBCOUNTY_COORDINATOR: [
       { title: 'Pending acceptance', count: withStatus('Pending acceptance') },
       { title: 'In progress', count: withStatus('In progress') },
       { title: 'Pending approval', count: withStatus('Pending approval') },
@@ -92,7 +93,7 @@ function MyWorkPage() {
       { title: 'Overdue', count: withStatus('Overdue') },
       { title: 'Closed', count: withStatus('Closed') },
     ],
-    'county-user': [
+    COUNTY_SURVEILLANCE_LEAD: [
       { title: 'Pending acceptance', count: withStatus('Pending acceptance') },
       { title: 'In progress', count: withStatus('In progress') },
       { title: 'Pending approval', count: withStatus('Pending approval') },
@@ -100,14 +101,16 @@ function MyWorkPage() {
       { title: 'Overdue', count: withStatus('Overdue') },
       { title: 'Closed', count: withStatus('Closed') },
     ],
-    admin: [
+    SYSTEM_ADMIN: [
       { title: 'Users', count: users.length },
       { title: 'Locations', count: locations.length },
     ],
   };
 
   const places = currentUser?.assignedLocations.join(', ') ?? '';
-  const isAdmin = currentUser?.role === 'admin';
+  // Show placeholders, not "No recommendations yet", until the first answer arrives.
+  const loading = !ready || issuesData.loading || recommendationsData.loading;
+  const isAdmin = currentUser?.role === 'SYSTEM_ADMIN';
 
   return (
     <div className="page">
@@ -124,7 +127,12 @@ function MyWorkPage() {
 
       {(issuesData.failed || recommendationsData.failed) && <ApiErrorNotice />}
 
-      {currentUser && <SummaryCards cards={cardsByRole[currentUser.role]} />}
+      {currentUser &&
+        (loading ? (
+          <LoadingCards count={cardsByRole[currentUser.role].length} />
+        ) : (
+          <SummaryCards cards={cardsByRole[currentUser.role]} />
+        ))}
 
       {isAdmin ? (
         <InlineNotification
@@ -133,6 +141,13 @@ function MyWorkPage() {
           hideCloseButton
           title="Setup"
           subtitle="Admins manage users, locations and the escalation matrix. Those pages come next."
+        />
+      ) : loading ? (
+        <DataTableSkeleton
+          headers={[{ header: 'ID' }, { header: 'Recommendation' }, { header: 'Level' }, { header: 'Due' }, { header: 'Status' }]}
+          columnCount={5}
+          rowCount={4}
+          showToolbar={false}
         />
       ) : (
         <RecommendationsTable

@@ -1,23 +1,26 @@
 import { Button, FileUploader, TextArea } from '@carbon/react';
-import StatusTag from '../../../../components/shared/StatusTag';
 import type { FormEvent } from 'react';
 
 interface MarkDoneFormProps {
   remarks: string;
-  submitted: boolean;
+  blockedBecause: string;
+  busy: boolean;
   onRemarksChange: (value: string) => void;
   onEvidenceChange: (fileName: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }
 
-
+// The person holding the recommendation says it's finished.
 function MarkDoneForm({
   remarks,
-  submitted,
+  blockedBecause,
+  busy,
   onRemarksChange,
   onEvidenceChange,
   onSubmit,
 }: MarkDoneFormProps) {
+  const disabled = blockedBecause !== '';
+
   return (
     <form className="form-card form-stack" onSubmit={onSubmit}>
       <h2 className="form-section-title">Mark as done</h2>
@@ -28,6 +31,7 @@ function MarkDoneForm({
         labelText="Remarks on what was completed"
         rows={3}
         value={remarks}
+        disabled={disabled}
         onChange={(event) => onRemarksChange(event.target.value)}
         required
       />
@@ -38,15 +42,18 @@ function MarkDoneForm({
         buttonLabel="Add file"
         buttonKind="tertiary"
         filenameStatus="edit"
+        disabled={disabled}
         accept={['.pdf', '.jpg', '.png']}
         onChange={(_event, data) => onEvidenceChange(data?.currentFiles[0]?.name ?? '')}
         onDelete={() => onEvidenceChange('')}
       />
 
       <div className="form-actions">
-        <Button type="submit">Mark as done</Button>
-        {submitted && <StatusTag status="Pending approval" />}
+        <Button type="submit" disabled={disabled || busy}>
+          {busy ? 'Saving…' : 'Mark as done'}
+        </Button>
       </div>
+      {blockedBecause && <p className="field-hint">{blockedBecause}</p>}
     </form>
   );
 }

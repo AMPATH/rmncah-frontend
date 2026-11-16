@@ -29,12 +29,15 @@ function AppLayout() {
 
   return (
     <CurrentUserProvider>
-      <MPDSRTopbar />
-      <Theme as={Content} theme="g10" className="app-content">
-        <GuardedPage />
-        {!pagesWithOwnBackButton.includes(pathname) && <BackButton />}
-      </Theme>
-      <ToastHost />
+      {/* Every MPDSR style is scoped to this wrapper, so none of it reaches EmONC. */}
+      <div className="mpdsr-app">
+        <MPDSRTopbar />
+        <Theme as={Content} theme="g10" className="app-content">
+          <GuardedPage />
+          {!pagesWithOwnBackButton.includes(pathname) && <BackButton />}
+        </Theme>
+        <ToastHost />
+      </div>
     </CurrentUserProvider>
   );
 }

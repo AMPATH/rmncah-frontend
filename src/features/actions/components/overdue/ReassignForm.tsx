@@ -10,13 +10,15 @@ interface ReassignFormProps {
   users: User[];
   today: string;
   showErrors: boolean;
+  blockedBecause: string;
+  busy: boolean;
   onPersonChange: (value: string) => void;
   onCompletionDateChange: (value: string) => void;
   onReasonChange: (value: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }
 
-
+// The PCN coordinator hands the overdue recommendation to a new person.
 function ReassignForm({
   newResponsiblePersonId,
   newCompletionDate,
@@ -24,11 +26,15 @@ function ReassignForm({
   users,
   today,
   showErrors,
+  blockedBecause,
+  busy,
   onPersonChange,
   onCompletionDateChange,
   onReasonChange,
   onSubmit,
 }: ReassignFormProps) {
+  const disabled = blockedBecause !== '';
+
   return (
     <form className="form-card form-stack" onSubmit={onSubmit}>
       <h2 className="form-section-title">PCN coordinator reassigns</h2>
@@ -37,9 +43,11 @@ function ReassignForm({
         id="newResponsiblePerson"
         labelText="New responsible person"
         value={newResponsiblePersonId}
+        disabled={disabled}
         onChange={(event) => onPersonChange(event.target.value)}
-        helperText={users.length === 0 ? 'No users yet' : undefined}
-        required
+        invalid={showErrors && newResponsiblePersonId === ''}
+        invalidText="Choose the new responsible person"
+        helperText={users.length === 0 ? 'No users in your places' : undefined}
       >
         <SelectItem value="" text="Select person" />
         {users.map((user) => (
@@ -59,6 +67,7 @@ function ReassignForm({
           labelText="New completion date"
           placeholder="yyyy-mm-dd"
           pattern="\d{4}-\d{2}-\d{2}"
+          disabled={disabled}
           invalid={showErrors && newCompletionDate === ''}
           invalidText="Enter the new completion date"
         />
@@ -69,13 +78,17 @@ function ReassignForm({
         labelText="Reason or instructions"
         rows={3}
         value={reason}
+        disabled={disabled}
         onChange={(event) => onReasonChange(event.target.value)}
         required
       />
 
       <div>
-        <Button type="submit">Reassign</Button>
+        <Button type="submit" disabled={disabled || busy}>
+          {busy ? 'Saving…' : 'Reassign'}
+        </Button>
       </div>
+      {blockedBecause && <p className="field-hint">{blockedBecause}</p>}
     </form>
   );
 }

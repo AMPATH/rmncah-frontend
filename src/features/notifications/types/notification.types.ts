@@ -11,6 +11,8 @@ export type NotificationCategory =
 
 export interface AppNotification {
   id: string;
+  // The user the notification is for.
+  recipientId: string;
   date: string;
   message: string;
   recommendationId: string;

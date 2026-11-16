@@ -1,0 +1,86 @@
+@use '../../styles/tokens' as *;
+
+// Scoped to MPDSR: these rules only apply inside <div class="mpdsr-app"> (AppLayout).
+.mpdsr-app {
+  .lifecycle-bar {
+    margin-bottom: 16px;
+  }
+
+  .recommendation-detail {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 16px;
+    align-items: start;
+
+    &__text {
+      margin: 0 0 16px;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    &__history-title {
+      margin-top: 24px;
+    }
+
+    @media (max-width: 65.99rem) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .recommendation-history {
+    margin: 0 0 8px;
+    padding: 0;
+    list-style: none;
+
+    li {
+      padding: 8px 0;
+      border-bottom: 1px solid $border;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    &__date {
+      display: block;
+      font-size: 0.75rem;
+      color: $muted;
+    }
+
+    &__note {
+      display: block;
+      margin-top: 2px;
+      font-style: italic;
+    }
+  }
+
+  .recommendation-summary {
+    margin-bottom: 16px;
+
+    &__head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    &__text {
+      margin: 8px 0 0;
+      line-height: 1.5;
+    }
+  }
+
+  .recommendation-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    &__item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    &__why {
+      font-size: 0.75rem;
+      color: $muted;
+    }
+  }
+}

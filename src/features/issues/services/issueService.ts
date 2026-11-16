@@ -1,5 +1,6 @@
 import { apiGet, apiPost } from '../../../services/apiClient';
 import type { AppNotification } from '../../notifications/types/notification.types';
+import { markOverdue } from '../../recommendations/services/recommendationService';
 import type {
   DraftRecommendation,
   IssueType,
@@ -49,8 +50,10 @@ export function getIssues(): Promise<StoredIssue[]> {
   return apiGet<StoredIssue[]>('/issues');
 }
 
-export function getStoredRecommendations(): Promise<StoredRecommendation[]> {
-  return apiGet<StoredRecommendation[]>('/recommendations');
+// Loads every recommendation. markOverdue() stands in for the server's daily overdue check.
+export async function getStoredRecommendations(): Promise<StoredRecommendation[]> {
+  const recommendations = await apiGet<StoredRecommendation[]>('/recommendations');
+  return markOverdue(recommendations);
 }
 
 
@@ -92,7 +95,13 @@ export async function createIssueWithRecommendations(
       dateLogged: today,
     });
 
+    // No responsible person chosen yet: there is no one to notify.
+    if (!draft.responsiblePersonId) {
+      continue;
+    }
+
     await apiPost<AppNotification>('/notifications', {
+      recipientId: draft.responsiblePersonId,
       date: today,
       message: acceptance
         ? 'New recommendation needs your acceptance within 3 days'

@@ -1,4 +1,4 @@
-import { DatePicker, DatePickerInput } from '@carbon/react';
+import { DatePicker, DatePickerInput, Select, SelectItem, TextInput } from '@carbon/react';
 import AutoLabel from '../../../../components/shared/AutoLabel';
 import type { IssueType } from '../../types/issue.types';
 import { toIsoDate } from '../../utils/dates';
@@ -15,7 +15,8 @@ interface PersonFieldsProps {
   onGenderChange: (value: string) => void;
 }
 
-
+// Step 2, second row: Date of birth, Age (auto), Gender.
+// A maternal case is always female; only a perinatal case asks for the gender.
 function PersonFields({
   issueType,
   dateOfBirth,
@@ -47,28 +48,28 @@ function PersonFields({
         />
       </DatePicker>
 
-      <div className="field">
-        <label htmlFor="age"><AutoLabel text="Age" /></label>
-        <input id="age" type="text" value={age} readOnly />
-      </div>
+      <TextInput id="age" labelText={<AutoLabel text="Age" />} value={age} readOnly />
 
-      <div className="field">
-        <label htmlFor="gender">Gender</label>
-        {issueType === 'perinatal' ? (
-          <select
-            id="gender"
-            value={gender}
-            onChange={(event) => onGenderChange(event.target.value)}
-            required
-          >
-            <option value="">Select gender</option>
-            <option value="female">Female</option>
-            <option value="male">Male</option>
-          </select>
-        ) : (
-          <input id="gender" type="text" value={issueType === '' ? '' : 'Female'} readOnly />
-        )}
-      </div>
+      {issueType === 'perinatal' ? (
+        <Select
+          id="gender"
+          labelText="Gender"
+          value={gender}
+          onChange={(event) => onGenderChange(event.target.value)}
+          required
+        >
+          <SelectItem value="" text="Select gender" />
+          <SelectItem value="female" text="Female" />
+          <SelectItem value="male" text="Male" />
+        </Select>
+      ) : (
+        <TextInput
+          id="gender"
+          labelText="Gender"
+          value={issueType === '' ? '' : 'Female'}
+          readOnly
+        />
+      )}
     </div>
   );
 }

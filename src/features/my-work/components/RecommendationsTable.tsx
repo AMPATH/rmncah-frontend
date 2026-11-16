@@ -10,6 +10,7 @@ import {
 } from '@carbon/react';
 import type { Recommendation } from '../../issues/types/issue.types';
 import StatusTag from '../../../components/shared/StatusTag';
+import { Link } from 'react-router';
 
 const headers = [
   { key: 'id', header: 'ID' },
@@ -60,7 +61,15 @@ function RecommendationsTable({ recommendations, description }: RecommendationsT
                         const { key: cellKey, ...cellProps } = getCellProps({ cell });
                         return (
                           <TableCell key={cellKey} {...cellProps}>
-                            {cell.info.header === 'status' ? <StatusTag status={cell.value} /> : cell.value}
+                            {cell.info.header === 'status' ? (
+                              <StatusTag status={cell.value} />
+                            ) : cell.info.header === 'id' ? (
+                              <Link className="cds--link" to={`/recommendations/${cell.value}`}>
+                                {cell.value}
+                              </Link>
+                            ) : (
+                              cell.value
+                            )}
                           </TableCell>
                         );
                       })}

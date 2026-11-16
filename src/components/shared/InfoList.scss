@@ -1,23 +1,26 @@
 @use '../../styles/tokens' as *;
 
-.info-list {
-  margin: 0 0 16px;
+// Scoped to MPDSR: these rules only apply inside <div class="mpdsr-app"> (AppLayout).
+.mpdsr-app {
+  .info-list {
+    margin: 0 0 16px;
 
-  &__row {
-    display: flex;
-    gap: 8px;
-    padding: 6px 0;
-    border-bottom: 1px solid $border;
-  }
+    &__row {
+      display: flex;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid $border;
+    }
 
-  &__label {
-    min-width: 200px;
-    font-size: 0.85rem;
-    color: $muted;
-  }
+    &__label {
+      min-width: 200px;
+      font-size: 0.85rem;
+      color: $muted;
+    }
 
-  &__value {
-    margin: 0;
-    font-size: 0.9rem;
+    &__value {
+      margin: 0;
+      font-size: 0.9rem;
+    }
   }
 }
