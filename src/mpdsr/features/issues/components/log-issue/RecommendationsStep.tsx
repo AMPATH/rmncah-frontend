@@ -142,6 +142,7 @@ function RecommendationsStep({
         <RoutingHint level={level} />
 
         <CompletionFields
+          level={level}
           dateOfCompletion={dateOfCompletion}
           earliestDate={today}
           latestDate={latestCompletion}

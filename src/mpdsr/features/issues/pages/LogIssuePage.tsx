@@ -14,11 +14,11 @@ import PersonFields from '../components/log-issue/PersonFields';
 import RecommendationsStep from '../components/log-issue/RecommendationsStep';
 import ReviewStep from '../components/log-issue/ReviewStep';
 import { delayLevels } from '../constants/delayFactors';
-import { addDays, daysBetween, getToday, yearsBetween } from '../utils/dates';
+import { addDays, daysBetween, getToday, yearsBetween } from '../../../utils/dates';
 import { showToast } from '../../../components/shared/toast/toast';
 import { clearDraft, draftKeyFor, loadDraft, saveDraft } from '../utils/logIssueDraft';
 import type { LogIssueDraft } from '../utils/logIssueDraft';
-import { useCurrentUser } from '../../../auth/CurrentUserContext';
+import { useCurrentUser } from '../../../context/currentUserContext';
 import { placesAbove } from '../../../auth/locations';
 import { createIssueWithRecommendations } from '../services/issueService';
 import type { NewIssue } from '../services/issueService';
@@ -101,7 +101,7 @@ function LogIssuePage() {
   const county = above.find((location) => location.type === 'county')?.name ?? '';
 
   // Anyone who can hold a recommendation (everyone except admins), apart from yourself.
-  const users = allUsers.filter((user) => user.role !== 'SYSTEM_ADMIN' && user.id !== currentUser?.id);
+  const users = allUsers.filter((user) => user.role !== 'SYSTEM_ADMIN' && user.id !== currentUser?.id && user.active !== false);
 
   // ---- Draft: the form is saved in this browser as you type ----
   const draftKey = draftKeyFor(currentUser?.id ?? 'anonymous');
@@ -316,7 +316,7 @@ function LogIssuePage() {
     };
     setSaving(true);
     try {
-      await createIssueWithRecommendations(issue, recommendations, today);
+      await createIssueWithRecommendations({ ...issue, loggedById: currentUser?.id }, recommendations, today);
       showToast(`Issue logged with ${recommendations.length} recommendation(s)`);
       resetForm();
       navigate('/mpdsr');

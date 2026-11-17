@@ -16,7 +16,8 @@ export type RecommendationStatus =
   | 'Pending acceptance'
   | 'Pending approval'
   | 'Overdue'
-  | 'Closed';
+  | 'Closed'
+  | 'Cancelled';
 
 // The person who is signed in.
 export interface User {
@@ -27,6 +28,8 @@ export interface User {
   level: Level;
   assignedLocations: string[];
   role: Role;
+  // false once the admin deactivates the user; missing means active.
+  active?: boolean;
 }
 
 // One recommendation, as shown in the My work table.

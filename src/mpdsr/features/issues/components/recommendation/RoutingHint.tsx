@@ -1,5 +1,7 @@
 import { InlineNotification } from '@carbon/react';
 import type { Level } from '../../types/issue.types';
+import { useApiData } from '../../../../hooks/useApiData';
+import { daysText, defaultEscalationMatrix, getEscalationMatrix } from '../../../recommendations/services/escalationMatrix';
 
 interface RoutingHintProps {
   level: Level | '';
@@ -7,6 +9,9 @@ interface RoutingHintProps {
 
 // Explains what happens after saving, based on the level of implementation.
 function RoutingHint({ level }: RoutingHintProps) {
+  // The acceptance deadline comes from the escalation matrix the admin sets.
+  const { data: matrix } = useApiData(getEscalationMatrix, defaultEscalationMatrix);
+
   if (level === '') {
     return null;
   }
@@ -22,7 +27,7 @@ function RoutingHint({ level }: RoutingHintProps) {
         title={needsAcceptance ? 'Needs acceptance' : 'Auto-assigned'}
         subtitle={
           needsAcceptance
-            ? 'The responsible person must accept within 3 days. Reminders go out daily, then it auto-escalates to the PCN coordinator.'
+            ? `The responsible person must accept within ${daysText(matrix[level])}. Reminders go out daily, then it auto-escalates to the PCN coordinator.`
             : 'No acceptance needed. It goes straight to the responsible person as Open.'
         }
       />

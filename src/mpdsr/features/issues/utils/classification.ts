@@ -1,5 +1,5 @@
 import type { Classification } from '../types/issue.types';
-import { addMonths } from './dates';
+import { addMonths } from '../../../utils/dates';
 
 // The longest time each classification allows (from the workflow document).
 export const monthsAllowed: Record<Classification, number> = {

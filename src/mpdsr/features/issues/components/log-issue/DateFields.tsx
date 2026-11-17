@@ -1,6 +1,6 @@
 import { DatePicker, DatePickerInput } from '@carbon/react';
 import AutoLabel from '../../../../components/shared/AutoLabel';
-import { toIsoDate } from '../../utils/dates';
+import { toIsoDate } from '../../../../utils/dates';
 
 interface DateFieldsProps {
   isDeath: boolean;

@@ -1,12 +1,15 @@
 import { DatePicker, DatePickerInput, TextInput } from '@carbon/react';
 import AutoLabel from '../../../../components/shared/AutoLabel';
-import { toIsoDate } from '../../utils/dates';
+import { toIsoDate } from '../../../../utils/dates';
+import type { Level } from '../../types/issue.types';
 
 interface CompletionFieldsProps {
   dateOfCompletion: string;
   earliestDate: string;
   latestDate: string;
   showErrors: boolean;
+  // The chosen level decides the starting status: sub-county and county need acceptance first.
+  level: Level | '';
   onDateOfCompletionChange: (value: string) => void;
 }
 
@@ -16,8 +19,11 @@ function CompletionFields({
   earliestDate,
   latestDate,
   showErrors,
+  level,
   onDateOfCompletionChange,
 }: CompletionFieldsProps) {
+  const startingStatus = level === 'sub-county' || level === 'county' ? 'Pending acceptance' : 'Open';
+
   return (
     <div className="form-row">
       <DatePicker
@@ -39,7 +45,7 @@ function CompletionFields({
         />
       </DatePicker>
 
-      <TextInput id="status" labelText={<AutoLabel text="Status" />} value="Open" readOnly />
+      <TextInput id="status" labelText={<AutoLabel text="Status" />} value={startingStatus} readOnly />
     </div>
   );
 }

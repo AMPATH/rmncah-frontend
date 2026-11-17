@@ -1,6 +1,7 @@
-import { apiGet, apiPost } from '../../../services/apiClient';
+import { apiGet, apiPost } from '../../../api/apiClient';
 import type { AppNotification } from '../../notifications/types/notification.types';
 import { markOverdue } from '../../recommendations/services/recommendationService';
+import { acceptanceDeadline } from '../../recommendations/services/escalationMatrix';
 import type {
   DraftRecommendation,
   IssueType,
@@ -25,6 +26,8 @@ export interface NewIssue {
   dateOfAudit: string;
   contributingFactors: string[];
   comments: string;
+  // Who logged it (set when saving).
+  loggedById?: string;
 }
 
 // The issue as stored: the server adds the id, the readable code and the date logged.
@@ -32,6 +35,9 @@ export interface StoredIssue extends NewIssue {
   id: string;
   code: string;
   dateLogged: string;
+  // Set when the facility MPDSR chair cancels the issue (e.g. logged twice).
+  cancelled?: boolean;
+  cancelReason?: string;
 }
 
 // A recommendation as stored.
@@ -103,8 +109,9 @@ export async function createIssueWithRecommendations(
     await apiPost<AppNotification>('/notifications', {
       recipientId: draft.responsiblePersonId,
       date: today,
+      at: new Date().toISOString(),
       message: acceptance
-        ? 'New recommendation needs your acceptance within 3 days'
+        ? `New recommendation needs your acceptance within ${await acceptanceDeadline(draft.level)}`
         : 'New recommendation assigned to you',
       recommendationId: code,
       from: 'System',

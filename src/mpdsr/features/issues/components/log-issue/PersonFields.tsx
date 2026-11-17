@@ -1,7 +1,7 @@
 import { DatePicker, DatePickerInput, Select, SelectItem, TextInput } from '@carbon/react';
 import AutoLabel from '../../../../components/shared/AutoLabel';
 import type { IssueType } from '../../types/issue.types';
-import { toIsoDate } from '../../utils/dates';
+import { toIsoDate } from '../../../../utils/dates';
 
 interface PersonFieldsProps {
   issueType: IssueType | '';
