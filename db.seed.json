@@ -4,5 +4,13 @@
   "notifications": [],
   "users": [],
   "locations": [],
-  "recommendationEvents": []
+  "recommendationEvents": [],
+  "escalationMatrix": {
+    "community": 3,
+    "facility": 3,
+    "sub-county": 3,
+    "county": 3
+  },
+  "evidence": [],
+  "issueEvents": []
 }
