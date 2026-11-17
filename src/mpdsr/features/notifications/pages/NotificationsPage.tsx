@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Button, DataTableSkeleton, Tab, TabList, Tabs } from '@carbon/react';
+import { Button, DataTableSkeleton, Tab, TabList, TabPanel, TabPanels, Tabs } from '@carbon/react';
 import { CheckmarkOutline } from '@carbon/icons-react';
 import NotificationsTable from '../components/NotificationsTable';
-import { getNotifications, markAllAsRead } from '../services/notificationService';
+import { getNotifications, markAllAsRead, markAsRead } from '../services/notificationService';
 import { useApiData } from '../../../hooks/useApiData';
 import ApiErrorNotice from '../../../components/shared/ApiErrorNotice';
 import { showToast } from '../../../components/shared/toast/toast';
-import { useCurrentUser } from '../../../auth/CurrentUserContext';
+import { useCurrentUser } from '../../../context/currentUserContext';
 import type { AppNotification, NotificationCategory } from '../types/notification.types';
 import './NotificationsPage.scss';
 
@@ -26,7 +26,7 @@ const tabs: NotificationTab[] = [
   { label: 'Action needed', matches: inCategories('assigned', 'acceptance-needed', 'approval-needed') },
   { label: 'Reminders', matches: inCategories('reminder') },
   { label: 'Escalations', matches: inCategories('escalated', 'overdue') },
-  { label: 'Decisions', matches: inCategories('approved', 'rejected') },
+  { label: 'Decisions', matches: inCategories('approved', 'rejected', 'cancelled') },
 ];
 
 // Opened from the bell in the top bar.
@@ -51,6 +51,13 @@ function NotificationsPage() {
       reload();
     } catch {
       showToast("Couldn't update the notifications.", 'error');
+    }
+  }
+
+  // Opening a notification's recommendation marks it as read (the link itself does the navigation).
+  function handleOpen(notification: AppNotification) {
+    if (!notification.read) {
+      markAsRead(notification.id).catch(() => undefined);
     }
   }
 
@@ -81,13 +88,19 @@ function NotificationsPage() {
             <Tab key={tab.label}>{tab.label}</Tab>
           ))}
         </TabList>
+        {/* One panel per tab, so screen readers know which list each tab controls. */}
+        <TabPanels>
+          {tabs.map((tab, index) => (
+            <TabPanel key={tab.label} className="notifications__panel">
+              {index !== selectedTab ? null : loading ? (
+                <DataTableSkeleton columnCount={5} rowCount={4} showHeader={false} showToolbar={false} />
+              ) : (
+                <NotificationsTable notifications={shown} onOpen={handleOpen} />
+              )}
+            </TabPanel>
+          ))}
+        </TabPanels>
       </Tabs>
-
-      {loading ? (
-        <DataTableSkeleton columnCount={5} rowCount={4} showHeader={false} showToolbar={false} />
-      ) : (
-        <NotificationsTable notifications={shown} />
-      )}
     </div>
   );
 }

@@ -7,13 +7,16 @@ export type NotificationCategory =
   | 'overdue'
   | 'approval-needed'
   | 'approved'
-  | 'rejected';
+  | 'rejected'
+  | 'cancelled';
 
 export interface AppNotification {
   id: string;
   // The user the notification is for.
   recipientId: string;
   date: string;
+  // When it was sent (date and time). Older notifications only have `date`.
+  at?: string;
   message: string;
   recommendationId: string;
   from: string;

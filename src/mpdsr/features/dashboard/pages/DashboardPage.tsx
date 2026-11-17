@@ -5,13 +5,16 @@ import DashboardFilters from '../components/DashboardFilters';
 import StatPanel from '../components/StatPanel';
 import type { DashboardFilterValues, StatRow } from '../types/dashboard.types';
 import { downloadCsv } from '../utils/downloadCsv';
-import { addDays, getToday } from '../../issues/utils/dates';
+import { addDays, getToday } from '../../../utils/dates';
 import { getIssues, getStoredRecommendations } from '../../issues/services/issueService';
 import type { StoredIssue, StoredRecommendation } from '../../issues/services/issueService';
-import { filterRecords } from '../utils/reportFigures';
+import { figuresByPlace, filterRecords, performanceFigures } from '../utils/reportFigures';
+import PlaceTable from '../components/PlaceTable';
+import { getAllRecommendationEvents } from '../../recommendations/services/recommendationService';
+import type { RecommendationEvent } from '../../recommendations/services/recommendationService';
 import { useApiData } from '../../../hooks/useApiData';
 import ApiErrorNotice from '../../../components/shared/ApiErrorNotice';
-import { useCurrentUser } from '../../../auth/CurrentUserContext';
+import { useCurrentUser } from '../../../context/currentUserContext';
 import { issuesInScope, recommendationsInScope } from '../../../auth/scope';
 import './DashboardPage.scss';
 
@@ -39,7 +42,7 @@ interface Panel {
   note?: string;
 }
 
-// Page 8: counts and performance, calculated from the saved records.
+// Page 8: counts and performance, calculated by the backend from the records.
 function DashboardPage() {
   const [filters, setFilters] = useState<DashboardFilterValues>(noFilters);
 
@@ -53,11 +56,11 @@ function DashboardPage() {
   const subCounties = placesOfType('sub-county');
   const facilities = placesOfType('facility');
 
-
   // Everything saved so far. The real backend will send ready-made figures instead.
   const issuesData = useApiData<StoredIssue[]>(getIssues, []);
   const recommendationsData = useApiData<StoredRecommendation[]>(getStoredRecommendations, []);
-  const loading = issuesData.loading || recommendationsData.loading;
+  const eventsData = useApiData<RecommendationEvent[]>(getAllRecommendationEvents, []);
+  const loading = issuesData.loading || recommendationsData.loading || eventsData.loading;
 
   const today = getToday();
   const inSevenDays = addDays(today, 7);
@@ -75,12 +78,16 @@ function DashboardPage() {
     shownRecommendations.filter((recommendation) => recommendation.status === status).length;
   const dueSoon = shownRecommendations.filter(
     (recommendation) =>
-      recommendation.status !== 'Closed' &&
+      recommendation.status !== 'Closed' && recommendation.status !== 'Cancelled' &&
       recommendation.dueDate >= today &&
       recommendation.dueDate <= inSevenDays
   ).length;
 
-  // Rejected and Escalated are counted once those actions are saved to the server.
+  const countField = (field: 'classification' | 'level', value: string) =>
+    shownRecommendations.filter((recommendation) => recommendation[field] === value).length;
+  const performance = performanceFigures(shownRecommendations, eventsData.data);
+  const placeRows = figuresByPlace(shownIssues, shownRecommendations);
+
   const summaryPanels: Panel[] = [
     {
       title: 'Issues by type',
@@ -99,18 +106,35 @@ function DashboardPage() {
         { label: 'Overdue', value: countStatus('Overdue') },
         { label: 'Pending approval', value: countStatus('Pending approval') },
         { label: 'Closed', value: countStatus('Closed') },
+        { label: 'Cancelled', value: countStatus('Cancelled') },
       ],
-      note: 'Also by classification and level.',
     },
     {
       title: 'Needs action',
       rows: [
         { label: 'Pending acceptance', value: countStatus('Pending acceptance') },
         { label: 'Pending approval', value: countStatus('Pending approval') },
-        { label: 'Rejected', value: 0 },
-        { label: 'Escalated', value: 0 },
+        { label: 'Rejected at least once', value: performance.rejected },
+        { label: 'Escalated or de-escalated', value: performance.escalated },
         { label: 'Due within 7 days', value: dueSoon },
         { label: 'Overdue', value: countStatus('Overdue') },
+      ],
+    },
+    {
+      title: 'By classification',
+      rows: [
+        { label: 'Immediate (1 month)', value: countField('classification', 'immediate') },
+        { label: 'Intermediate (3 months)', value: countField('classification', 'intermediate') },
+        { label: 'Long term (6 months)', value: countField('classification', 'long-term') },
+      ],
+    },
+    {
+      title: 'By level of implementation',
+      rows: [
+        { label: 'Community', value: countField('level', 'community') },
+        { label: 'Facility', value: countField('level', 'facility') },
+        { label: 'Sub-county', value: countField('level', 'sub-county') },
+        { label: 'County', value: countField('level', 'county') },
       ],
     },
   ];
@@ -118,10 +142,11 @@ function DashboardPage() {
   const performancePanel: Panel = {
     title: 'Performance',
     rows: [
-      { label: 'Time to acceptance', value: '—' },
-      { label: 'Completed by due date', value: '—' },
-      { label: 'Redone, and how many times', value: '—' },
+      { label: 'Average time to acceptance', value: performance.averageWait },
+      { label: 'Closed by the due date', value: performance.completedOnTime },
+      { label: 'Redone after going overdue', value: performance.redone },
     ],
+    note: 'Worked out from each recommendation\'s history.',
   };
 
   // Changes one filter and keeps the others as they are.
@@ -137,12 +162,20 @@ function DashboardPage() {
     const figureRows = [...summaryPanels, performancePanel].flatMap((panel) =>
       panel.rows.map((row) => [panel.title, row.label, row.value])
     );
+    const placeFigureRows = placeRows.flatMap((row) => [
+      ['By place', `${row.place}: issues`, row.issues],
+      ['By place', `${row.place}: recommendations`, row.recommendations],
+      ['By place', `${row.place}: still running`, row.running],
+      ['By place', `${row.place}: overdue`, row.overdue],
+      ['By place', `${row.place}: closed`, row.closed],
+    ]);
 
     downloadCsv(`mpdsr-report-${today}.csv`, [
       ['MPDSR report', 'Generated', today],
       ...filterRows,
       ['Section', 'Measure', 'Value'],
       ...figureRows,
+      ...placeFigureRows,
     ]);
   }
 
@@ -160,7 +193,7 @@ function DashboardPage() {
         </div>
       </div>
 
-      {(issuesData.failed || recommendationsData.failed) && <ApiErrorNotice />}
+      {(issuesData.failed || recommendationsData.failed || eventsData.failed) && <ApiErrorNotice />}
 
       <div className="no-print">
         <DashboardFilters
@@ -178,7 +211,16 @@ function DashboardPage() {
         ))}
       </div>
 
-      <StatPanel title={performancePanel.title} rows={performancePanel.rows} loading={loading} />
+      <StatPanel
+        title={performancePanel.title}
+        rows={performancePanel.rows}
+        note={performancePanel.note}
+        loading={loading}
+      />
+
+      <div className="dashboard-places">
+        <PlaceTable rows={placeRows} />
+      </div>
 
       <p className="form-note">
         Figures are calculated from the records and limited to your access level.

@@ -1,3 +1,6 @@
+import TablePager from '../../../components/shared/TablePager';
+import { pageOf, usePager } from '../../../components/shared/tablePagerUtils';
+import { Link } from 'react-router';
 import {
   DataTable,
   Table,
@@ -9,10 +12,11 @@ import {
   TableRow,
   Tag,
 } from '@carbon/react';
+import { formatDateTime } from '../../../utils/dates';
 import type { AppNotification } from '../types/notification.types';
 
 const headers = [
-  { key: 'date', header: 'Date' },
+  { key: 'when', header: 'When' },
   { key: 'message', header: 'Message' },
   { key: 'recommendationId', header: 'Recommendation' },
   { key: 'from', header: 'From' },
@@ -21,12 +25,21 @@ const headers = [
 
 interface NotificationsTableProps {
   notifications: AppNotification[];
+  // Called when the user opens a notification's recommendation.
+  onOpen: (notification: AppNotification) => void;
 }
 
-// The notifications in the chosen tab, newest first (the backend sorts them).
-function NotificationsTable({ notifications }: NotificationsTableProps) {
+// The notifications in the chosen tab, newest first. Unread ones are shown in bold, and the
+// recommendation code opens that recommendation (marking the notification as read).
+function NotificationsTable({ notifications, onOpen }: NotificationsTableProps) {
+  const pager = usePager();
+  const rows = notifications.map((notification) => ({
+    ...notification,
+    when: notification.at ? formatDateTime(notification.at) : notification.date,
+  }));
+
   return (
-    <DataTable rows={notifications} headers={headers} isSortable>
+    <DataTable rows={rows} headers={headers}>
       {({ rows, headers, getHeaderProps, getRowProps, getTableProps, getCellProps }) => (
         <TableContainer>
           <Table {...getTableProps()} aria-label="Notifications">
@@ -45,13 +58,18 @@ function NotificationsTable({ notifications }: NotificationsTableProps) {
             <TableBody>
               {rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={headers.length}>No notifications yet.</TableCell>
+                  <TableCell colSpan={headers.length}>No notifications here.</TableCell>
                 </TableRow>
               ) : (
-                rows.map((row) => {
+                pageOf(rows, pager.page, pager.pageSize).map((row) => {
                   const { key, ...rowProps } = getRowProps({ row });
+                  const notification = notifications.find((item) => item.id === row.id)!;
                   return (
-                    <TableRow key={key} {...rowProps}>
+                    <TableRow
+                      key={key}
+                      {...rowProps}
+                      className={notification.read ? undefined : 'notifications__row--unread'}
+                    >
                       {row.cells.map((cell) => {
                         const { key: cellKey, ...cellProps } = getCellProps({ cell });
                         return (
@@ -60,6 +78,14 @@ function NotificationsTable({ notifications }: NotificationsTableProps) {
                               <Tag type={cell.value ? 'gray' : 'blue'}>
                                 {cell.value ? 'Read' : 'Unread'}
                               </Tag>
+                            ) : cell.info.header === 'recommendationId' ? (
+                              <Link
+                                className="cds--link"
+                                to={`/recommendations/${cell.value}`}
+                                onClick={() => onOpen(notification)}
+                              >
+                                {cell.value}
+                              </Link>
                             ) : (
                               cell.value
                             )}
@@ -72,6 +98,7 @@ function NotificationsTable({ notifications }: NotificationsTableProps) {
               )}
             </TableBody>
           </Table>
+          <TablePager total={rows.length} pager={pager} />
         </TableContainer>
       )}
     </DataTable>
