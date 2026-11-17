@@ -1,0 +1,52 @@
+@use '../../../../../styles/tokens' as *;
+
+// Scoped to MPDSR: these rules only apply inside <div class="mpdsr-app"> (AppLayout).
+.mpdsr-app {
+  .issue-detail {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: start;
+    margin-bottom: 16px;
+
+    @media (max-width: 65.99rem) {
+      grid-template-columns: 1fr;
+    }
+
+    &__subtitle {
+      margin-top: 24px;
+    }
+
+    &__factors {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    &__comments {
+      margin: 0;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+  }
+}
+
+// Issue edit page: the field groups sit in one fieldset, so it can be disabled at once.
+.mpdsr-app .issue-edit__fields {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+
+  .form-section-title {
+    margin-top: 16px;
+  }
+}
+
+.mpdsr-app .issue-edit__cancel {
+  margin-top: 16px;
+}
+
+.mpdsr-app .issue-detail__history {
+  margin-bottom: 16px;
+}

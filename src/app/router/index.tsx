@@ -1,6 +1,13 @@
-
 import { createBrowserRouter, Navigate } from 'react-router';
 
+import { programmeSelectionRoutes } from '../programme-selection/routes';
+import { mpdsrRoutes } from '../../programmes/mpdsr/routes';
+import { emoncRoutes } from '../../programmes/emonc/routes';
+
+export const router = createBrowserRouter([
+  ...programmeSelectionRoutes,
+  ...emoncRoutes,
+  ...mpdsrRoutes,
 import AppLayout from '../../mpdsr/components/layout/AppLayout';
 import ErrorPage from '../../mpdsr/components/layout/ErrorPage';
 import EmONCApp from '../../features/emonc/EmONCApp';
