@@ -1,0 +1,57 @@
+@use '../../../styles/tokens' as *;
+
+// Scoped to MPDSR: these rules only apply inside <div class="mpdsr-app"> (AppLayout).
+.mpdsr-app {
+  .admin-form {
+    max-width: 48rem;
+  }
+
+  .admin-places {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 16px;
+    align-items: start;
+
+    @media (max-width: 65.99rem) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .place-tree {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+
+    // Each level down is indented with a guide line.
+    .place-tree {
+      margin-left: 8px;
+      padding-left: 16px;
+      border-left: 1px solid $border;
+    }
+
+    li {
+      padding: 6px 0;
+    }
+
+    &__name {
+      margin-right: 8px;
+      font-weight: 600;
+    }
+
+    &__users {
+      margin-left: 8px;
+      font-size: 0.75rem;
+      color: $muted;
+    }
+  }
+}
+
+// The Account box under the user form (deactivate / reactivate).
+.mpdsr-app .admin-account {
+  margin-top: 16px;
+
+  &__warning {
+    margin-top: 12px;
+    font-weight: 600;
+  }
+}
