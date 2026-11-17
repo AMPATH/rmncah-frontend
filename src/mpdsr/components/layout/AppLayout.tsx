@@ -3,7 +3,7 @@ import { Outlet, useLocation } from 'react-router';
 import MPDSRTopbar from './topbar/MPDSRTopbar';
 import ToastHost from '../shared/toast/ToastHost';
 import BackButton from './BackButton';
-import { CurrentUserProvider } from '../../context/CurrentUserContext';
+import { CurrentUserProvider } from '../../context/CurrentUserProvider';
 import { useCurrentUser } from '../../context/currentUserContext';
 import { canAny } from '../../auth/permissions';
 import { permissionsForPath } from '../../auth/pageAccess';
