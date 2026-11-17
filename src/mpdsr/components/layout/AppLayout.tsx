@@ -3,7 +3,8 @@ import { Outlet, useLocation } from 'react-router';
 import MPDSRTopbar from './topbar/MPDSRTopbar';
 import ToastHost from '../shared/toast/ToastHost';
 import BackButton from './BackButton';
-import { CurrentUserProvider, useCurrentUser } from '../../auth/CurrentUserContext';
+import { CurrentUserProvider } from '../../context/CurrentUserContext';
+import { useCurrentUser } from '../../context/currentUserContext';
 import { canAny } from '../../auth/permissions';
 import { permissionsForPath } from '../../auth/pageAccess';
 import NoAccess from './NoAccess';
@@ -18,6 +19,10 @@ function GuardedPage() {
   const { currentUser, ready } = useCurrentUser();
   const needed = permissionsForPath(pathname);
 
+  // A deactivated account can't use any page.
+  if (ready && currentUser?.active === false) {
+    return <NoAccess signedIn deactivated />;
+  }
   if (ready && needed.length > 0 && !canAny(currentUser, needed)) {
     return <NoAccess signedIn={currentUser !== null} />;
   }

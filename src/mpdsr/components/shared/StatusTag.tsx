@@ -9,6 +9,7 @@ const statusColours: Record<RecommendationStatus, 'blue' | 'teal' | 'magenta' | 
   'Pending approval': 'purple',
   Overdue: 'red',
   Closed: 'gray',
+  Cancelled: 'gray',
 };
 
 interface StatusTagProps {

@@ -1,4 +1,4 @@
-import { apiGet } from '../services/apiClient';
+import { apiGet } from '../api/apiClient';
 
 // The place hierarchy from the setup table: county → sub-county → facility → community unit.
 export type LocationType = 'county' | 'sub-county' | 'facility' | 'community-unit';

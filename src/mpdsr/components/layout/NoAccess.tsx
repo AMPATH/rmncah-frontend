@@ -2,10 +2,26 @@ import { InlineNotification } from '@carbon/react';
 
 interface NoAccessProps {
   signedIn: boolean;
+  // The admin has deactivated this account.
+  deactivated?: boolean;
 }
 
 // Shown instead of a page the current user's role can't open.
-function NoAccess({ signedIn }: NoAccessProps) {
+function NoAccess({ signedIn, deactivated = false }: NoAccessProps) {
+  if (deactivated) {
+    return (
+      <div className="page">
+        <InlineNotification
+          kind="error"
+          lowContrast
+          hideCloseButton
+          title="This account is deactivated"
+          subtitle="Ask the system administrator if you still need access."
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="page">
       <InlineNotification

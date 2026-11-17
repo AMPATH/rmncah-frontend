@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import {
   Button,
@@ -22,16 +22,20 @@ import {
   DocumentAdd,
   Edit,
   Home,
+  Location,
   Logout,
   Notification,
   Report,
   Time,
+  Timer,
   UserAvatar,
+  UserMultiple,
 } from '@carbon/icons-react';
-import { useCurrentUser } from '../../../auth/CurrentUserContext';
+import { useCurrentUser } from '../../../context/currentUserContext';
 import { canAny, roleLabels } from '../../../auth/permissions';
 import { permissionsForPath } from '../../../auth/pageAccess';
 import { useApiData } from '../../../hooks/useApiData';
+import { LARGE_SCREEN_QUERY, useMediaQuery } from '../../../hooks/useMediaQuery';
 import { NOTIFICATIONS_CHANGED_EVENT, getNotifications } from '../../../features/notifications/services/notificationService';
 import type { AppNotification } from '../../../features/notifications/types/notification.types';
 import './MPDSRTopbar.scss';
@@ -49,10 +53,15 @@ const navGroups: NavItem[][] = [
     { path: '/issues/new', label: 'Log issue', icon: DocumentAdd },
   ],
   [
-    { path: '/issues/draft/recommendation', label: 'Recommendation', icon: Edit },
+    { path: '/issues', label: 'Issues', icon: Edit },
     { path: '/actions/overdue', label: 'Overdue and reassign', icon: Time },
   ],
   [{ path: '/reports', label: 'Reports', icon: Report }],
+  [
+    { path: '/admin/users', label: 'Users', icon: UserMultiple },
+    { path: '/admin/places', label: 'Places', icon: Location },
+    { path: '/admin/escalation', label: 'Escalation matrix', icon: Timer },
+  ],
 ];
 
 interface HeaderContentProps {
@@ -62,6 +71,8 @@ interface HeaderContentProps {
 
 function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderContentProps) {
   const [profileOpen, setProfileOpen] = useState(false);
+  // On large screens the menu is always shown, so its links must always be reachable by keyboard.
+  const isLargeScreen = useMediaQuery(LARGE_SCREEN_QUERY);
   const navigate = useNavigate();
   const location = useLocation();
   const { currentUser, users, setCurrentUserId } = useCurrentUser();
@@ -128,6 +139,8 @@ function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderConten
       </HeaderGlobalBar>
 
       <HeaderPanel expanded={profileOpen} className="profile-panel">
+        {/* While the panel is closed, its controls are skipped by the keyboard and screen readers. */}
+        <div inert={profileOpen === false}>
         <div className="profile-panel__user">
           <UserAvatar size={32} />
           <div>
@@ -155,7 +168,7 @@ function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderConten
               <SelectItem
                 key={user.id}
                 value={user.id}
-                text={`${user.fullName} · ${roleLabels[user.role]}`}
+                text={`${user.fullName} · ${roleLabels[user.role]}${user.active === false ? ' (deactivated)' : ''}`}
               />
             ))}
           </Select>
@@ -169,19 +182,20 @@ function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderConten
         >
           Log out
         </Button>
+        </div>
       </HeaderPanel>
 
       {/* The side navigation uses the light theme, the header stays dark. */}
       <Theme theme="white">
         <SideNav
           aria-label="MPDSR navigation"
-          expanded={isSideNavExpanded}
-          onSideNavBlur={onClickSideNavExpand}
+          expanded={isSideNavExpanded || isLargeScreen}
+          onSideNavBlur={isLargeScreen ? undefined : onClickSideNavExpand}
           className="side-nav"
         >
           <SideNavItems>
             {visibleGroups.map((group, index) => (
-              <div key={group[0].path}>
+              <Fragment key={group[0].path}>
                 {index > 0 && <SideNavDivider />}
                 {group.map((item) => (
                   <SideNavLink
@@ -194,7 +208,7 @@ function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderConten
                     {item.label}
                   </SideNavLink>
                 ))}
-              </div>
+              </Fragment>
             ))}
           </SideNavItems>
         </SideNav>

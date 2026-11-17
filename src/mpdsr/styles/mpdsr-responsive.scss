@@ -47,6 +47,16 @@
         grid-template-columns: 1fr;
       }
 
+      // Buttons in a form wrap onto a new line instead of running off the screen.
+      .form-actions {
+        flex-wrap: wrap;
+      }
+
+      // Codes such as ISS-2026-0001-R1 stay on one line; the table scrolls sideways instead.
+      .cds--data-table .cds--link {
+        white-space: nowrap;
+      }
+
       // The count cards are small, so two still fit side by side.
       .summary-cards,
       .loading-cards {

@@ -42,6 +42,17 @@ export interface UserDto {
   role: Role;
   level: Level;
   locationIds: string[];
+  // False once the admin deactivates the user (they keep their history but can't sign in).
+  active: boolean;
+}
+
+// Admin: add or change a user. The server checks the email is unique (409 if not).
+export interface SaveUserRequest {
+  fullName: string;
+  cadre: string;
+  email: string;
+  role: Role;
+  locationIds: string[];
 }
 
 // ---- Places and reference lists ----
@@ -50,6 +61,13 @@ export type LocationType = 'county' | 'sub-county' | 'facility' | 'community-uni
 
 export interface LocationDto {
   id: string;
+  name: string;
+  type: LocationType;
+  parentId: string | null;
+}
+
+// Admin: add a place under another (a county has no parent).
+export interface CreateLocationRequest {
   name: string;
   type: LocationType;
   parentId: string | null;
@@ -104,6 +122,9 @@ export interface IssueDto {
   recommendationIds: string[];
 }
 
+// Adds one recommendation to an issue logged earlier (POST /issues/:id/recommendations).
+export type AddRecommendationRequest = CreateRecommendationRequest;
+
 // ---- Recommendations ----
 
 export interface RecommendationDto {
@@ -123,6 +144,7 @@ export interface RecommendationDto {
   dateLogged: IsoDate;
 }
 
+// One step in a recommendation's history. The frontend shows these names as labels.
 export type RecommendationAction =
   | 'created'
   | 'accepted'
@@ -133,14 +155,20 @@ export type RecommendationAction =
   | 'marked-done'
   | 'approved'
   | 'rejected'
-  | 'overdue';
+  | 'marked-overdue'
+  | 'edited'
+  | 'cancelled';
 
 export interface RecommendationEventDto {
   id: string;
   at: IsoDateTime;
   action: RecommendationAction;
+  // null when the server did it on its own (overdue, auto-escalation).
   byUserId: string | null;
   byUserName: string;
+  fromStatus: RecommendationStatus;
+  toStatus: RecommendationStatus;
+  // Reason, remarks or rejection reason; '' when there is none.
   note: string;
 }
 
@@ -173,6 +201,9 @@ export interface DecisionRequest {
   reason: string;
 }
 
+// Days the responsible person has to accept, per level (whole numbers, 1 to 30).
+export type EscalationMatrixDto = Record<Level, number>;
+
 // ---- Notifications ----
 
 export interface NotificationDto {
@@ -182,9 +213,20 @@ export interface NotificationDto {
   recommendationId: string;
   recommendationCode: string;
   from: string;
-  category: string;
+  category: NotificationCategory;
   read: boolean;
 }
+
+export type NotificationCategory =
+  | 'assigned'
+  | 'acceptance-needed'
+  | 'reminder'
+  | 'escalated'
+  | 'overdue'
+  | 'approval-needed'
+  | 'approved'
+  | 'rejected'
+  | 'cancelled';
 
 // ---- Reports ----
 
@@ -209,9 +251,29 @@ export interface ReportSummaryDto {
     dueWithin7Days: number;
     overdue: number;
   };
+  recommendationsByClassification: Record<Classification, number>;
+  recommendationsByLevel: Record<Level, number>;
   performance: {
+    // Average days from waiting (logged, escalated or reassigned) to accepted; null if none yet.
     averageDaysToAcceptance: number | null;
-    completedByDueDatePercent: number | null;
+    acceptedCount: number;
+    // Closed recommendations approved on or before their due date.
+    closedOnTime: number;
+    closedCount: number;
+    // Recommendations reassigned after going overdue, and the total number of times.
     redoneCount: number;
+    redoneTimes: number;
   };
+  byPlace: PlaceFiguresDto[];
+}
+
+// One row of "By place": where issues were logged, and how their recommendations stand.
+export interface PlaceFiguresDto {
+  locationId: string;
+  locationName: string;
+  issues: number;
+  recommendations: number;
+  stillRunning: number;
+  overdue: number;
+  closed: number;
 }
