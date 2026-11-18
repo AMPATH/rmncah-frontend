@@ -22,12 +22,10 @@ const actionLabels: Record<RecommendationEventAction, string> = {
 interface RecommendationHistoryProps {
   recommendation: StoredRecommendation;
   events: RecommendationEvent[];
-  // Show the "Logged…" first entry (the detail page), or only the actions (close-out trail).
   showLogged?: boolean;
   emptyText?: string;
 }
 
-// Every step a recommendation went through, oldest first.
 function RecommendationHistory({ recommendation, events, showLogged = true, emptyText }: RecommendationHistoryProps) {
   const { users } = useCurrentUser();
   const nameOf = (id: string) =>

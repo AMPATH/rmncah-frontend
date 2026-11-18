@@ -17,7 +17,6 @@ import type { EscalationAction } from '../types/action.types';
 import { useApiData } from '../../../hooks/useApiData';
 import { daysText, defaultEscalationMatrix, getEscalationMatrix } from '../../recommendations/services/escalationMatrix';
 
-// Page 5: the responsible person accepts the recommendation, or moves it to another level.
 function AcceptEscalatePage() {
   const { id: code = '' } = useParams();
   const navigate = useNavigate();
@@ -31,7 +30,6 @@ function AcceptEscalatePage() {
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
 
-  // People at the chosen level who can hold a recommendation (not the admin, not yourself).
   const peopleAtLevel = users.filter(
     (user) =>
       user.level === targetLevel && user.role !== 'SYSTEM_ADMIN' && user.id !== currentUser?.id && user.active !== false
@@ -42,7 +40,6 @@ function AcceptEscalatePage() {
     setTargetPersonId('');
   }
 
-  // Runs one action, then returns to the recommendation so the new status is visible.
   async function run(save: () => Promise<unknown>, message: string) {
     setBusy(true);
     try {

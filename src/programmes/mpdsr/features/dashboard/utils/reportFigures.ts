@@ -5,7 +5,6 @@ import { placesWithin } from '../../../auth/locations';
 import type { Location } from '../../../auth/locations';
 import type { DashboardFilterValues } from '../types/dashboard.types';
 
-// The first day of the chosen period, or '' for all time.
 function periodStart(period: string, today: string): string {
   const [year, month] = today.split('-');
   if (period === 'this-month') return `${year}-${month}-01`;
@@ -15,8 +14,6 @@ function periodStart(period: string, today: string): string {
   return '';
 }
 
-// Keeps the issues that match the filters, and the recommendations of those issues.
-// A chosen county, sub-county or facility keeps only issues logged there or in places under it.
 export function filterRecords(
   issues: StoredIssue[],
   recommendations: StoredRecommendation[],
@@ -45,22 +42,16 @@ export function filterRecords(
   return { shownIssues, shownRecommendations };
 }
 
-// ---- Performance: worked out from each recommendation's history. ----
-// The real backend will send these figures ready-made (GET /reports/summary).
-
-// A step that leaves a recommendation waiting for someone to accept it.
 const startsWaiting: RecommendationEvent['action'][] = ['escalated', 'de-escalated', 'reassigned', 'auto-escalated'];
 
 function dayOf(iso: string): string {
   return iso.slice(0, 10);
 }
 
-// How many recommendations had at least one step of these kinds.
 function countWith(events: RecommendationEvent[], actions: RecommendationEvent['action'][]): number {
   return new Set(events.filter((event) => actions.includes(event.action)).map((event) => event.code)).size;
 }
 
-// "3 of 4 (75%)", or "—" when there is nothing to count yet.
 function share(part: number, whole: number): string {
   return whole === 0 ? '—' : `${part} of ${whole} (${Math.round((part / whole) * 100)}%)`;
 }
@@ -69,8 +60,6 @@ export function performanceFigures(recommendations: StoredRecommendation[], even
   const shownCodes = new Set(recommendations.map((recommendation) => recommendation.code));
   const shownEvents = events.filter((event) => shownCodes.has(event.code));
 
-  // Time to acceptance: from when it started waiting (logged, escalated or reassigned)
-  // to when it was accepted, averaged over every acceptance.
   const waits: number[] = [];
   for (const recommendation of recommendations) {
     const history = shownEvents.filter((event) => event.code === recommendation.code);
@@ -86,7 +75,6 @@ export function performanceFigures(recommendations: StoredRecommendation[], even
   }
   const averageWait = waits.length === 0 ? '—' : `${(waits.reduce((a, b) => a + b, 0) / waits.length).toFixed(1)} days`;
 
-  // Completed by due date: closed recommendations approved on or before their due date.
   const closed = recommendations.filter((recommendation) => recommendation.status === 'Closed');
   const onTime = closed.filter((recommendation) => {
     const approvals = shownEvents.filter((event) => event.code === recommendation.code && event.action === 'approved');
@@ -94,7 +82,6 @@ export function performanceFigures(recommendations: StoredRecommendation[], even
     return approvedOn !== '' && approvedOn <= recommendation.dueDate;
   }).length;
 
-  // Redone: reassigned after going overdue.
   const redone = recommendations.filter((recommendation) => recommendation.timesRedone > 0);
   const timesRedone = redone.reduce((total, recommendation) => total + recommendation.timesRedone, 0);
 
@@ -107,7 +94,6 @@ export function performanceFigures(recommendations: StoredRecommendation[], even
   };
 }
 
-// One row of the "By place" table: where issues were logged, and how their recommendations stand.
 export interface PlaceRow {
   id: string;
   place: string;

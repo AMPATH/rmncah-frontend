@@ -3,7 +3,6 @@ import type { FormEvent } from 'react';
 
 interface MarkDoneFormProps {
   remarks: string;
-  // Why the chosen file can't be used (wrong type or too big), or ''.
   evidenceError: string;
   blockedBecause: string;
   busy: boolean;
@@ -12,7 +11,6 @@ interface MarkDoneFormProps {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }
 
-// The person holding the recommendation says it's finished, optionally with a file as proof.
 function MarkDoneForm({
   remarks,
   evidenceError,

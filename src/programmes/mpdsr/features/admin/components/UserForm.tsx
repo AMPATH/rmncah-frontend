@@ -16,7 +16,6 @@ export interface UserFormValues {
 interface UserFormProps {
   values: UserFormValues;
   locations: Location[];
-  // Field name → message, shown once the user tries to save.
   errors: Partial<Record<keyof UserFormValues, string>>;
   busy: boolean;
   submitLabel: string;
@@ -27,8 +26,6 @@ interface UserFormProps {
 
 const roles = Object.keys(roleLabels) as Role[];
 
-// Name, contact, role and places for one user. The places offered depend on the role:
-// a CHP gets community units, facility roles get facilities, and so on.
 function UserForm({ values, locations, errors, busy, submitLabel, onChange, onSubmit, onCancel }: UserFormProps) {
   const placeType = values.role === '' ? null : placeTypeForLevel[roleLevels[values.role]];
   const placeChoices = locations.filter((location) => location.type === placeType);
@@ -39,7 +36,6 @@ function UserForm({ values, locations, errors, busy, submitLabel, onChange, onSu
   }
 
   function changeRole(role: Role | '') {
-    // Places of the old role's type no longer fit, so they are cleared.
     onChange({ ...values, role, assignedLocations: [] });
   }
 

@@ -3,11 +3,8 @@ import type { StoredIssue, StoredRecommendation } from '../services/issueService
 import { can } from '../../../auth/permissions';
 import { daysBetween } from '../../../utils/dates';
 
-// The person who logged an issue may correct it for this many days; after that only the chair.
 export const LOGGER_EDIT_DAYS = 7;
 
-// Why the user can't edit or cancel this issue, or '' when they can.
-// The backend checks the same rules again.
 export function whyIssueBlocked(
   action: 'edit' | 'cancel',
   issue: StoredIssue,

@@ -5,7 +5,6 @@ interface CommentsFieldProps {
   onCommentsChange: (value: string) => void;
 }
 
-// Step 3: anything else the review team should know.
 function CommentsField({ comments, onCommentsChange }: CommentsFieldProps) {
   return (
     <div className="form-block">

@@ -38,8 +38,6 @@ const emptyChanges: IssueChanges = {
   comments: '',
 };
 
-// Correct a logged issue's case details (with a reason), or cancel it (facility MPDSR chair).
-// Issue type, setting and place can't change here: cancel and log it again instead.
 function IssueEditPage() {
   const { code = '' } = useParams();
   const navigate = useNavigate();
@@ -58,11 +56,8 @@ function IssueEditPage() {
   const [showCancelErrors, setShowCancelErrors] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  // Start from the saved values once the issue has loaded.
   useEffect(() => {
     if (issue) {
-      // Populate the edit form after the issue is loaded.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setValues({
         dateOfBirth: issue.dateOfBirth ?? '',
         gender: issue.gender ?? '',
@@ -105,7 +100,6 @@ function IssueEditPage() {
   const isPerinatal = issue.issueType === 'perinatal';
   const differences = issueDifferences(issue, values);
 
-  // Same date rules as the Log issue form: birth, then death, then notification, then audit.
   const dateProblem =
     values.dateOfDeath !== '' && values.dateOfBirth !== '' && values.dateOfDeath < values.dateOfBirth
       ? 'The date of death is before the date of birth.'
@@ -126,7 +120,6 @@ function IssueEditPage() {
     setValues((current) => ({ ...current, [field]: value }));
   }
 
-  // A factor that a recommendation uses as its gap can't be removed.
   function toggleFactor(factor: string) {
     const ticked = values.contributingFactors.includes(factor);
     if (ticked && recommendations.some((recommendation) => recommendation.gap === factor)) {

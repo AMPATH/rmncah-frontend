@@ -19,7 +19,6 @@ const headers = [
   { key: 'closed', header: 'Closed' },
 ];
 
-// The figures for each place where issues were logged, within the current filters.
 function PlaceTable({ rows }: { rows: PlaceRow[] }) {
   return (
     <DataTable rows={rows} headers={headers} isSortable size="sm">

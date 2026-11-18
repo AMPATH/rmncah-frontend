@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { makeRecommendation, makeUser } from '../../../test/fixtures';
 import { whyBlocked } from './recommendationRules';
 
-// Who can fix or cancel a recommendation after it was saved. '' means "allowed".
 describe('edit and cancel rules', () => {
   const reporter = makeUser({ id: 'u3', role: 'FACILITY_REPORTER' });
   const chair = makeUser({ id: 'u4', role: 'FACILITY_CHAIR' });

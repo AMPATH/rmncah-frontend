@@ -13,14 +13,12 @@ import { cancelRecommendation, editRecommendation } from '../../recommendations/
 import RecommendationSummary from '../../recommendations/components/RecommendationSummary';
 import RecommendationNotFound from '../../recommendations/components/RecommendationNotFound';
 
-// The longest time each classification allows, counted from the date logged.
 const monthsAllowed: Record<Classification, number> = {
   immediate: 1,
   intermediate: 3,
   'long-term': 6,
 };
 
-// Fix a recommendation before work starts (text, gap, due date), or cancel it with a reason.
 function EditCancelPage() {
   const { id: code = '' } = useParams();
   const navigate = useNavigate();
@@ -34,11 +32,8 @@ function EditCancelPage() {
   const [showErrors, setShowErrors] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  // Start from the saved values once they have loaded.
   useEffect(() => {
     if (recommendation) {
-      // Hydrate the edit form after the recommendation loads.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setText(recommendation.text);
       setGap(recommendation.gap);
       setDueDate(recommendation.dueDate);

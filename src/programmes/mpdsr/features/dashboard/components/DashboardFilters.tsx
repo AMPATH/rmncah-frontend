@@ -9,7 +9,6 @@ interface DashboardFiltersProps {
   onFilterChange: (name: keyof DashboardFilterValues, value: string) => void;
 }
 
-// Narrows every figure on the dashboard. Location lists come from the backend.
 function DashboardFilters({
   filters,
   counties,

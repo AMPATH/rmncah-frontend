@@ -14,8 +14,6 @@ import SummaryCards from '../components/SummaryCards';
 import LoadingCards from '../../../components/shared/LoadingCards';
 import type { CardFigure } from '../components/SummaryCards';
 
-// The Overview: each role sees the cards that matter for its work,
-// counted over the places it is responsible for.
 function MyWorkPage() {
   const navigate = useNavigate();
   const { currentUser, users, locations, scope, ready } = useCurrentUser();
@@ -55,7 +53,6 @@ function MyWorkPage() {
       recommendation.dueDate <= inSevenDays
   ).length;
 
-  // The cards for each role. Escalations are counted once that action is saved to the server.
   const cardsByRole: Record<Role, CardFigure[]> = {
     CHP: [
       { title: 'Assigned to you', count: mine.length },
@@ -108,7 +105,6 @@ function MyWorkPage() {
   };
 
   const places = currentUser?.assignedLocations.join(', ') ?? '';
-  // Show placeholders, not "No recommendations yet", until the first answer arrives.
   const loading = !ready || issuesData.loading || recommendationsData.loading;
   const isAdmin = currentUser?.role === 'SYSTEM_ADMIN';
 

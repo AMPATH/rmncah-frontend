@@ -5,7 +5,6 @@ import type { EvidenceFile } from '../services/evidenceService';
 import { fileSizeText } from '../services/evidenceService';
 import '../recommendations.scss';
 
-// The files attached when the work was marked as done. Each one opens or downloads.
 function EvidenceList({ files }: { files: EvidenceFile[] }) {
   const { users } = useCurrentUser();
 

@@ -25,13 +25,11 @@ import type { NewIssue } from '../services/issueService';
 import BackButton from '../../../components/layout/BackButton';
 import './LogIssuePage.scss';
 
-// A perinatal death is a child aged 0 to 42 days.
 const MAX_PERINATAL_AGE_DAYS = 42;
 
 const steps = ['Location', 'Case', 'Delay and cause', 'Period and dates', 'Recommendations', 'Review'];
 const lastStep = steps.length - 1;
 
-// Readable names for stored values, used on the Review step.
 const labels: Record<string, string> = {
   facility: 'Facility',
   community: 'Community',
@@ -50,16 +48,12 @@ function LogIssuePage() {
 
   const [furthestStep, setFurthestStep] = useState(0);
 
-  // The step lives in the address (?step=2), so the Back button and the browser's
-  // back arrow both return to the previous step. furthestStep stops anyone jumping
-  // ahead to a step they haven't reached, e.g. by typing ?step=6.
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedStep = Number(searchParams.get('step') ?? '1') - 1;
   const step = Number.isInteger(requestedStep)
     ? Math.min(Math.max(requestedStep, 0), furthestStep)
     : 0;
 
-  // Moving to a step adds it to the browser history, like visiting a new page.
   function setStep(index: number) {
     setSearchParams({ step: String(index + 1) });
   }
@@ -81,12 +75,9 @@ function LogIssuePage() {
   const [showErrors, setShowErrors] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Reference lists. They stay empty until the backend provides them.
   const causeOptions: string[] = [];
-  // Lists that come from the current user's places (see auth/locations.ts).
   const { currentUser, users: allUsers, locations, scope } = useCurrentUser();
 
-  // Logged at: the user's facilities, or community units for a community setting.
   const loggedAtOptions = locations
     .filter(
       (location) =>
@@ -95,30 +86,21 @@ function LogIssuePage() {
     )
     .map((location) => location.name);
 
-  // Sub-county and county are worked out from the place chosen in Logged at.
   const above = placesAbove(loggedAt, locations);
   const subCounty = above.find((location) => location.type === 'sub-county')?.name ?? '';
   const county = above.find((location) => location.type === 'county')?.name ?? '';
 
-  // Anyone who can hold a recommendation (everyone except admins), apart from yourself.
   const users = allUsers.filter((user) => user.role !== 'SYSTEM_ADMIN' && user.id !== currentUser?.id && user.active !== false);
 
-  // ---- Draft: the form is saved in this browser as you type ----
   const draftKey = draftKeyFor(currentUser?.id ?? 'anonymous');
-  // A draft found when the page opens: undefined = not checked yet, null = none (or answered).
   const [offeredDraft, setOfferedDraft] = useState<LogIssueDraft | null | undefined>(undefined);
 
-  // Look once, as soon as we know who the user is.
   useEffect(() => {
     if (currentUser && offeredDraft === undefined) {
-      // Load the user-specific browser draft once the user is known.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOfferedDraft(loadDraft(draftKey));
     }
   }, [currentUser, offeredDraft, draftKey]);
 
-  // Save after every change. Not before the check above, not while a found draft is waiting
-  // for an answer (that would overwrite it), and not while the form is still empty.
   useEffect(() => {
     if (offeredDraft !== null || setting === '') {
       return;
@@ -173,10 +155,8 @@ function LogIssuePage() {
   const isDeath = issueType !== 'near-miss';
   const isPerinatal = issueType === 'perinatal';
 
-  // Perinatal only: the child must be 0 to 42 days old.
   const earliestDateOfBirth = isPerinatal ? addDays(today, -MAX_PERINATAL_AGE_DAYS) : '';
 
-  // Age: in days for a perinatal child, in years for the mother.
   let age = '';
   if (dateOfBirth !== '' && issueType !== '') {
     age = isPerinatal
@@ -195,7 +175,6 @@ function LogIssuePage() {
   function handleIssueTypeChange(newIssueType: IssueType | '') {
     setIssueType(newIssueType);
     setGender('');
-    // Switching to perinatal: clear a birth date older than 42 days.
     if (
       newIssueType === 'perinatal' &&
       dateOfBirth !== '' &&
@@ -213,7 +192,6 @@ function LogIssuePage() {
 
   function handleDateOfBirthChange(newDate: string) {
     setDateOfBirth(newDate);
-    // A death can't be before the birth.
     if (dateOfDeath !== '' && dateOfDeath < newDate) {
       setDateOfDeath('');
     }
@@ -240,7 +218,6 @@ function LogIssuePage() {
     );
   }
 
-  // Checks the browser can't do: Carbon date pickers and the recommendation list.
   function isStepComplete(index: number) {
     if (index === 1) {
       return dateOfBirth !== '';
@@ -283,7 +260,6 @@ function LogIssuePage() {
     setShowErrors(false);
   }
 
-  // "Continue" submits the form, so the browser first checks the required fields of this step.
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -366,7 +342,6 @@ function LogIssuePage() {
         ))}
       </ProgressIndicator>
 
-      {/* Step 5 checks its own fields, so the browser's required check is switched off there. */}
       <form onSubmit={handleSubmit} noValidate={step === 4}>
         {offeredDraft && (
           <div className="form-block">
@@ -498,7 +473,6 @@ function LogIssuePage() {
         </section>
 
         <div className="log-issue__actions">
-          {/* Back: the previous step, or the previous page on step 1. */}
           <BackButton inline />
           <div className="form-actions">
             <Button kind="ghost" onClick={resetForm}>

@@ -7,7 +7,6 @@ interface ApprovalTrailProps {
   events: RecommendationEvent[];
 }
 
-// The submissions and decisions on this recommendation, oldest first.
 function ApprovalTrail({ recommendation, events }: ApprovalTrailProps) {
   const trail = events.filter((event) =>
     ['marked-done', 'approved', 'rejected'].includes(event.action)

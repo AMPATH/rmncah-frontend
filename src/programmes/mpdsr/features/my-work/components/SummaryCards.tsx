@@ -10,7 +10,6 @@ interface SummaryCardsProps {
   cards: CardFigure[];
 }
 
-// The count cards at the top of the Overview. Each role gets its own set.
 function SummaryCards({ cards }: SummaryCardsProps) {
   return (
     <div className="summary-cards">

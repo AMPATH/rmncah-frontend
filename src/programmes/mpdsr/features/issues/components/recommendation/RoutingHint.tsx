@@ -7,9 +7,7 @@ interface RoutingHintProps {
   level: Level | '';
 }
 
-// Explains what happens after saving, based on the level of implementation.
 function RoutingHint({ level }: RoutingHintProps) {
-  // The acceptance deadline comes from the escalation matrix the admin sets.
   const { data: matrix } = useApiData(getEscalationMatrix, defaultEscalationMatrix);
 
   if (level === '') {

@@ -1,7 +1,6 @@
 import type { RouteObject } from 'react-router';
-
-import AppLayout from '../layout/AppLayout';
-
+import AppLayout from '../components/layout/AppLayout';
+import ErrorPage from '../components/layout/ErrorPage';
 import { issueRoutes } from '../features/issues/routes';
 import { actionRoutes } from '../features/actions/routes';
 import { dashboardRoutes } from '../features/dashboard/routes';
@@ -13,14 +12,20 @@ import { recommendationRoutes } from '../features/recommendations/routes';
 export const mpdsrRoutes: RouteObject[] = [
   {
     element: <AppLayout />,
+    errorElement: <ErrorPage fullPage />,
     children: [
-      ...myWorkRoutes,
-      ...recommendationRoutes,
-      ...issueRoutes,
-      ...actionRoutes,
-      ...dashboardRoutes,
-      ...notificationRoutes,
-      ...adminRoutes,
+      {
+        errorElement: <ErrorPage />,
+        children: [
+          ...myWorkRoutes,
+          ...recommendationRoutes,
+          ...issueRoutes,
+          ...actionRoutes,
+          ...dashboardRoutes,
+          ...notificationRoutes,
+          ...adminRoutes,
+        ],
+      },
     ],
   },
 ];

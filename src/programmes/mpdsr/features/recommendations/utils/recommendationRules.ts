@@ -4,9 +4,6 @@ import { can } from '../../../auth/permissions';
 
 export type RecommendationAction = 'accept' | 'markDone' | 'approve' | 'reassign' | 'edit' | 'cancel';
 
-// Why the user can't take this action now, or '' when they can.
-// The detail page and the action pages share these rules, so they always agree.
-// The backend checks the same rules again; this only keeps the screens honest.
 export function whyBlocked(
   action: RecommendationAction,
   recommendation: StoredRecommendation,

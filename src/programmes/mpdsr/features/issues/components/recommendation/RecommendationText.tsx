@@ -5,7 +5,6 @@ interface RecommendationTextProps {
   onTextChange: (value: string) => void;
 }
 
-// The recommendation itself: what should be done to close the gap.
 function RecommendationText({ text, onTextChange }: RecommendationTextProps) {
   return (
     <div className="form-block">

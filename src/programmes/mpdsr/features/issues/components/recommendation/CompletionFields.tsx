@@ -8,12 +8,10 @@ interface CompletionFieldsProps {
   earliestDate: string;
   latestDate: string;
   showErrors: boolean;
-  // The chosen level decides the starting status: sub-county and county need acceptance first.
   level: Level | '';
   onDateOfCompletionChange: (value: string) => void;
 }
 
-// Date of completion (limited by the classification) and Status (auto).
 function CompletionFields({
   dateOfCompletion,
   earliestDate,

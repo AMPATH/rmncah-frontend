@@ -10,7 +10,6 @@ import '../admin.scss';
 
 const placeTypes = Object.keys(placeTypeLabels) as LocationType[];
 
-// The places under one place, drawn as a nested list (county → sub-county → facility → unit).
 function PlaceBranch({ parent, locations, users }: { parent: string; locations: Location[]; users: Record<string, number> }) {
   const children = locations.filter((location) => location.parent === parent);
   if (children.length === 0) {
@@ -32,7 +31,6 @@ function PlaceBranch({ parent, locations, users }: { parent: string; locations: 
   );
 }
 
-// Admin: the place hierarchy, and a form to add a place under another.
 function PlacesPage() {
   const { locations, users, reloadSetup } = useCurrentUser();
   const [name, setName] = useState('');

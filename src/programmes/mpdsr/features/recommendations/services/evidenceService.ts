@@ -1,6 +1,5 @@
 import { apiGet, apiPost } from '../../../api/apiClient';
 
-// A file attached as proof that the work was done (e.g. an attendance list or a photo).
 export interface EvidenceFile {
   id: string;
   code: string;
@@ -9,16 +8,12 @@ export interface EvidenceFile {
   size: number;
   at: string;
   byUserId: string;
-  // json-server only: the file itself, as a data URL. The real backend stores the file and
-  // returns a download link instead.
   dataUrl: string;
 }
 
 export const EVIDENCE_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
-// Files are kept inside json-server's db.json for now, so they must stay small.
 export const MAX_EVIDENCE_BYTES = 2 * 1024 * 1024;
 
-// Why a file can't be used, or '' when it can.
 export function evidenceProblem(file: File): string {
   if (!EVIDENCE_TYPES.includes(file.type)) {
     return 'Choose a PDF, JPG or PNG file.';
@@ -29,7 +24,6 @@ export function evidenceProblem(file: File): string {
   return '';
 }
 
-// "1.4 MB" / "320 KB"
 export function fileSizeText(bytes: number): string {
   return bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
 }
@@ -43,8 +37,6 @@ function readAsDataUrl(file: File): Promise<string> {
   });
 }
 
-// json-server: saves the file in /evidence. The real API receives it as part of
-// POST /recommendations/:id/mark-done (form data), so this function will go.
 export async function uploadEvidence(code: string, file: File, byUserId: string): Promise<EvidenceFile> {
   return apiPost<EvidenceFile>('/evidence', {
     code,
@@ -57,7 +49,6 @@ export async function uploadEvidence(code: string, file: File, byUserId: string)
   });
 }
 
-// The evidence attached to one recommendation, oldest first.
 export function getEvidence(code: string): Promise<EvidenceFile[]> {
   return apiGet<EvidenceFile[]>('/evidence', { code });
 }

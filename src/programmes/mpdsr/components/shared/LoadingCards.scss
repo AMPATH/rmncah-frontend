@@ -1,0 +1,14 @@
+
+.mpdsr-app {
+  .loading-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+
+    &__card {
+      width: 100%;
+      height: 96px;
+    }
+  }
+}

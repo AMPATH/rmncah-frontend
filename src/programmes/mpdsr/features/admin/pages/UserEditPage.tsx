@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { Button, DataTableSkeleton, InlineNotification, Modal } from '@carbon/react';
+import { Button, DataTableSkeleton, InlineNotification, Modal, TextArea } from '@carbon/react';
 import { useCurrentUser } from '../../../context/currentUserContext';
 import { useApiData } from '../../../hooks/useApiData';
 import { showToast } from '../../../components/shared/toast/toast';
@@ -9,23 +9,26 @@ import { getStoredRecommendations } from '../../issues/services/issueService';
 import type { StoredRecommendation } from '../../issues/services/issueService';
 import UserForm from '../components/UserForm';
 import type { UserFormValues } from '../components/UserForm';
-import { createUser, setUserActive, updateUser } from '../services/adminService';
+import { createUser, deleteUser, restoreUser, setUserActive, updateUser } from '../services/adminService';
+import { whyUserCantBeDeleted } from '../utils/deleteRules';
+import { formatDateTime } from '../../../utils/dates';
 import { roleLevels } from '../utils/roleRules';
 import { validateUser } from '../utils/validateUser';
 import '../admin.scss';
 
 const emptyUser: UserFormValues = { fullName: '', cadre: '', email: '', role: '', assignedLocations: [] };
 
-// Admin: add a user (/admin/users/new) or change one (/admin/users/:id).
 function UserEditPage() {
   const { id = 'new' } = useParams();
   const isNew = id === 'new';
   const navigate = useNavigate();
-  const { users, locations, ready, reloadSetup } = useCurrentUser();
+  const { currentUser, users, locations, ready, reloadSetup } = useCurrentUser();
   const existing = users.find((user) => user.id === id);
   const isActive = existing?.active !== false;
+  const isDeleted = existing?.deleted === true;
+  const deleteBlocked = existing ? whyUserCantBeDeleted(existing, currentUser) : '';
+  const nameOf = (userId?: string) => users.find((user) => user.id === userId)?.fullName ?? 'Unknown user';
 
-  // Recommendations this user still holds, so the admin knows what needs a new owner.
   const recommendationsData = useApiData<StoredRecommendation[]>(getStoredRecommendations, []);
   const stillHolding = recommendationsData.data.filter(
     (recommendation) => recommendation.responsiblePersonId === id && recommendation.status !== 'Closed' && recommendation.status !== 'Cancelled'
@@ -35,12 +38,12 @@ function UserEditPage() {
   const [showErrors, setShowErrors] = useState(false);
   const [busy, setBusy] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteReason, setDeleteReason] = useState('');
+  const [showDeleteError, setShowDeleteError] = useState(false);
 
-  // Fill the form once the user being edited has loaded.
   useEffect(() => {
     if (existing) {
-      // Populate the edit form when the selected user becomes available.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setValues({
         fullName: existing.fullName ?? '',
         cadre: existing.cadre ?? '',
@@ -85,7 +88,6 @@ function UserEditPage() {
     }
   }
 
-  // Deactivate (after confirming) or reactivate the user.
   async function changeActive(active: boolean) {
     setConfirming(false);
     setBusy(true);
@@ -95,6 +97,36 @@ function UserEditPage() {
       showToast(active ? `${existing?.fullName} reactivated` : `${existing?.fullName} deactivated`);
     } catch {
       showToast("Couldn't change the user. Is the server running?", 'error');
+    }
+    setBusy(false);
+  }
+
+  async function handleDelete() {
+    if (deleteReason.trim() === '') {
+      setShowDeleteError(true);
+      return;
+    }
+    setDeleting(false);
+    setBusy(true);
+    try {
+      await deleteUser(id, currentUser?.id ?? '', deleteReason.trim());
+      reloadSetup();
+      showToast(`${existing?.fullName} deleted`);
+      navigate('/admin/users');
+    } catch {
+      showToast("Couldn't delete the user. Is the server running?", 'error');
+      setBusy(false);
+    }
+  }
+
+  async function handleRestore() {
+    setBusy(true);
+    try {
+      await restoreUser(id);
+      reloadSetup();
+      showToast(`${existing?.fullName} restored (deactivated)`);
+    } catch {
+      showToast("Couldn't restore the user. Is the server running?", 'error');
     }
     setBusy(false);
   }
@@ -111,7 +143,27 @@ function UserEditPage() {
         <InlineNotification kind="warning" lowContrast hideCloseButton title="User not found" />
       ) : (
         <>
-          {!isActive && (
+          {isDeleted && existing && (
+            <InlineNotification
+              kind="error"
+              lowContrast
+              hideCloseButton
+              title="This user is deleted"
+              subtitle={`Deleted ${existing.deletedAt ? formatDateTime(existing.deletedAt) : ''} by ${nameOf(existing.deletedById)}: ${existing.deleteReason ?? ''}. Their history is kept.`}
+            />
+          )}
+          {isDeleted && (
+            <div className="form-actions">
+              <Button kind="secondary" onClick={() => navigate('/admin/users')}>
+                Back to users
+              </Button>
+              <Button kind="tertiary" disabled={busy} onClick={handleRestore}>
+                Restore user
+              </Button>
+            </div>
+          )}
+
+          {!isDeleted && !isActive && (
             <InlineNotification
               kind="warning"
               lowContrast
@@ -121,18 +173,20 @@ function UserEditPage() {
             />
           )}
 
-          <UserForm
-            values={values}
-            locations={locations}
-            errors={showErrors ? errors : {}}
-            busy={busy}
-            submitLabel={isNew ? 'Add user' : 'Save changes'}
-            onChange={setValues}
-            onSubmit={handleSubmit}
-            onCancel={() => navigate('/admin/users')}
-          />
+          {!isDeleted && (
+            <UserForm
+              values={values}
+              locations={locations}
+              errors={showErrors ? errors : {}}
+              busy={busy}
+              submitLabel={isNew ? 'Add user' : 'Save changes'}
+              onChange={setValues}
+              onSubmit={handleSubmit}
+              onCancel={() => navigate('/admin/users')}
+            />
+          )}
 
-          {!isNew && (
+          {!isNew && !isDeleted && (
             <section className="form-card form-stack admin-form admin-account">
               <h2 className="form-section-title">Account</h2>
               {isActive ? (
@@ -154,8 +208,57 @@ function UserEditPage() {
                   </Button>
                 </div>
               )}
+
+              <h2 className="form-section-title">Delete</h2>
+              <p className="field-hint">
+                Removes the user from lists and from "Acting as". The record stays in the database, so their
+                name still shows in history. You can restore them later.
+              </p>
+              <div>
+                <Button
+                  kind="danger"
+                  disabled={busy || deleteBlocked !== ''}
+                  onClick={() => {
+                    setDeleteReason('');
+                    setShowDeleteError(false);
+                    setDeleting(true);
+                  }}
+                >
+                  Delete user
+                </Button>
+              </div>
+              {deleteBlocked && <p className="field-hint">{deleteBlocked}</p>}
             </section>
           )}
+
+          <Modal
+            open={deleting}
+            danger
+            modalHeading={`Delete ${existing?.fullName ?? 'this user'}?`}
+            primaryButtonText="Delete"
+            secondaryButtonText="Cancel"
+            onRequestClose={() => setDeleting(false)}
+            onRequestSubmit={handleDelete}
+          >
+            <p>They disappear from lists and can't use the system. The record is kept, and you can restore it.</p>
+            {stillHolding.length > 0 && (
+              <p className="admin-account__warning">
+                They still hold {stillHolding.length} recommendation(s) that aren't closed (
+                {stillHolding.map((recommendation) => recommendation.code).join(', ')}). Once these go overdue,
+                the PCN coordinator can reassign them.
+              </p>
+            )}
+            <TextArea
+              id="deleteReason"
+              labelText="Reason for deleting"
+              placeholder="e.g. Added twice by mistake"
+              rows={2}
+              value={deleteReason}
+              onChange={(event) => setDeleteReason(event.target.value)}
+              invalid={showDeleteError && deleteReason.trim() === ''}
+              invalidText="Give the reason for deleting"
+            />
+          </Modal>
 
           <Modal
             open={confirming}

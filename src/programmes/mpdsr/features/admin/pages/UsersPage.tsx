@@ -1,9 +1,11 @@
 import TablePager from '../../../components/shared/TablePager';
 import { pageOf, usePager } from '../../../components/shared/tablePagerUtils';
+import { useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { Link, useNavigate } from 'react-router';
 import {
   Button,
+  Checkbox,
   DataTable,
   DataTableSkeleton,
   Table,
@@ -32,20 +34,21 @@ const headers = [
   { key: 'status', header: 'Status' },
 ];
 
-// Admin: everyone who can use MPDSR, with their role and places.
 function UsersPage() {
   const pager = usePager();
   const navigate = useNavigate();
   const { users, ready } = useCurrentUser();
+  const [showDeleted, setShowDeleted] = useState(false);
+  const deletedCount = users.filter((user) => user.deleted === true).length;
 
-  const rows = users.map((user) => ({
+  const rows = users.filter((user) => showDeleted || user.deleted !== true).map((user) => ({
     id: user.id,
     fullName: user.fullName,
     role: roleLabels[user.role],
     cadre: user.cadre,
     email: user.email,
     places: user.assignedLocations.join(', ') || '—',
-    status: user.active === false ? 'Deactivated' : 'Active',
+    status: user.deleted === true ? 'Deleted' : user.active === false ? 'Deactivated' : 'Active',
   }));
 
   return (
@@ -73,6 +76,14 @@ function UsersPage() {
                     placeholder="Search users"
                     onChange={(event) => onInputChange(event as ChangeEvent<HTMLInputElement>)}
                   />
+                  <div className="users-page__deleted">
+                    <Checkbox
+                      id="showDeletedUsers"
+                      labelText={`Show deleted users (${deletedCount})`}
+                      checked={showDeleted}
+                      onChange={(_, { checked }) => setShowDeleted(checked)}
+                    />
+                  </div>
                 </TableToolbarContent>
               </TableToolbar>
               <Table {...getTableProps()} aria-label="Users">
@@ -98,7 +109,7 @@ function UsersPage() {
                           return (
                             <TableCell key={cellKey} {...cellProps}>
                               {cell.info.header === 'status' ? (
-                                <Tag type={cell.value === 'Active' ? 'green' : 'gray'}>{cell.value}</Tag>
+                                <Tag type={cell.value === 'Active' ? 'green' : cell.value === 'Deleted' ? 'red' : 'gray'}>{cell.value}</Tag>
                               ) : cell.info.header === 'fullName' ? (
                                 <Link className="cds--link" to={`/admin/users/${row.id}`}>
                                   {cell.value}

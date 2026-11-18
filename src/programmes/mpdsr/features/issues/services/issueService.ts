@@ -10,7 +10,6 @@ import type {
   Setting,
 } from '../types/issue.types';
 
-// The issue as the Log issue form sends it.
 export interface NewIssue {
   setting: Setting | '';
   loggedAt: string;
@@ -26,21 +25,17 @@ export interface NewIssue {
   dateOfAudit: string;
   contributingFactors: string[];
   comments: string;
-  // Who logged it (set when saving).
   loggedById?: string;
 }
 
-// The issue as stored: the server adds the id, the readable code and the date logged.
 export interface StoredIssue extends NewIssue {
   id: string;
   code: string;
   dateLogged: string;
-  // Set when the facility MPDSR chair cancels the issue (e.g. logged twice).
   cancelled?: boolean;
   cancelReason?: string;
 }
 
-// A recommendation as stored.
 export interface StoredRecommendation extends DraftRecommendation {
   id: string;
   code: string;
@@ -56,20 +51,15 @@ export function getIssues(): Promise<StoredIssue[]> {
   return apiGet<StoredIssue[]>('/issues');
 }
 
-// Loads every recommendation. markOverdue() stands in for the server's daily overdue check.
 export async function getStoredRecommendations(): Promise<StoredRecommendation[]> {
   const recommendations = await apiGet<StoredRecommendation[]>('/recommendations');
   return markOverdue(recommendations);
 }
 
-
-// Sub-county and county recommendations wait for acceptance; the others start as Open.
 function needsAcceptance(recommendation: DraftRecommendation) {
   return recommendation.level === 'sub-county' || recommendation.level === 'county';
 }
 
-// Saves the issue, then each recommendation, then a notification for each recommendation.
-// For now the frontend makes the codes; the real backend will do this in one transaction.
 export async function createIssueWithRecommendations(
   issue: NewIssue,
   drafts: DraftRecommendation[],
@@ -101,7 +91,6 @@ export async function createIssueWithRecommendations(
       dateLogged: today,
     });
 
-    // No responsible person chosen yet: there is no one to notify.
     if (!draft.responsiblePersonId) {
       continue;
     }
@@ -123,7 +112,6 @@ export async function createIssueWithRecommendations(
   return savedIssue;
 }
 
-// One row of the Action plan table. The readable code (ISS-2026-0001-R1) is used as the row id.
 export function toTableRow(recommendation: StoredRecommendation): Recommendation {
   return {
     id: recommendation.code,

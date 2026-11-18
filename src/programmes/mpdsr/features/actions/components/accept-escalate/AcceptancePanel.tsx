@@ -3,14 +3,12 @@ import InfoList from '../../../../components/shared/InfoList';
 
 interface AcceptancePanelProps {
   assignedTo: string;
-  // How long they have to accept, from the escalation matrix, e.g. "3 days".
   deadline: string;
   blockedBecause: string;
   busy: boolean;
   onAccept: () => void;
 }
 
-// Who the recommendation is assigned to, the acceptance rules, and the Accept button.
 function AcceptancePanel({ assignedTo, deadline, blockedBecause, busy, onAccept }: AcceptancePanelProps) {
   return (
     <section className="form-card form-stack">

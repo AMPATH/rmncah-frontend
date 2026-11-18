@@ -18,7 +18,6 @@ import ChairDecisionForm from '../components/close-out/ChairDecisionForm';
 import MarkDoneForm from '../components/close-out/MarkDoneForm';
 import type { Decision } from '../types/action.types';
 
-// Page 7: the work is marked done, then the facility MPDSR chair approves or rejects it.
 function CloseOutPage() {
   const { id: code = '' } = useParams();
   const navigate = useNavigate();
@@ -32,7 +31,6 @@ function CloseOutPage() {
   const [rejectionReason, setRejectionReason] = useState('');
   const [busy, setBusy] = useState(false);
 
-  // Checks the chosen file straight away, so a wrong type or size shows before saving.
   function handleEvidenceChange(file: File | null) {
     setEvidenceFile(file);
     setEvidenceError(file ? evidenceProblem(file) : '');
@@ -40,7 +38,6 @@ function CloseOutPage() {
 
   function handleDecisionChange(newDecision: Decision | '') {
     setDecision(newDecision);
-    // A reason only belongs to a rejection.
     if (newDecision !== 'reject') {
       setRejectionReason('');
     }
@@ -71,7 +68,6 @@ function CloseOutPage() {
     );
   }
 
-  // The MPDSR chairs responsible for the facility where the issue was logged.
   const chairIds = users
     .filter(
       (user) =>

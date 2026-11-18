@@ -23,13 +23,10 @@ const issueTypeLabels: Record<string, string> = {
   'near-miss': 'Near miss',
 };
 
-// Shows a value, or a dash when it was left empty.
 function orDash(value: string | undefined): string {
   return value && value.trim() !== '' ? value : '—';
 }
 
-// One issue (/issues/ISS-2026-0001): the case as logged, its contributing factors and comments,
-// and all its recommendations with their current status.
 function IssueDetailPage() {
   const { code = '' } = useParams();
   const navigate = useNavigate();
@@ -40,7 +37,7 @@ function IssueDetailPage() {
   const issue = issuesInScope(issuesData.data, scope).find((item) => item.code === code);
   const ofIssue = recommendationsData.data.filter((recommendation) => recommendation.issueId === issue?.id);
   const recommendations = ofIssue.map(toTableRow);
-  const eventsData = useApiData<IssueEvent[]>(() => getIssueEvents(code), [], code);
+  const eventsData = useApiData<IssueEvent[]>(() => getIssueEvents(code), [], [code]);
   const nameOf = (id: string) => users.find((user) => user.id === id)?.fullName ?? 'Unknown user';
 
   if (issuesData.loading || recommendationsData.loading) {

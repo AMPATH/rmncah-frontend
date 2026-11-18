@@ -28,7 +28,6 @@ interface RecommendationsStepProps {
   onRemove: (index: number) => void;
 }
 
-// Step 5: add one or more recommendations. They are saved together with the issue.
 function RecommendationsStep({
   recommendations,
   gapOptions,
@@ -38,7 +37,6 @@ function RecommendationsStep({
   onAdd,
   onRemove,
 }: RecommendationsStepProps) {
-  // The recommendation being typed. It joins the list when "Add recommendation" is pressed.
   const [gap, setGap] = useState('');
   const [responsiblePersonId, setResponsiblePersonId] = useState('');
   const [text, setText] = useState('');

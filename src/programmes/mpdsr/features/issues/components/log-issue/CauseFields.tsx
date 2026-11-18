@@ -7,9 +7,7 @@ interface CauseFieldsProps {
   onCauseOfDeathChange: (value: string) => void;
 }
 
-// Step 3, first row: Cause of death (ICD-11), full width. Only shown for a death.
 function CauseFields({ isDeath, causeOfDeath, causeOptions, onCauseOfDeathChange }: CauseFieldsProps) {
-  // A near miss has no cause of death.
   if (!isDeath) {
     return null;
   }

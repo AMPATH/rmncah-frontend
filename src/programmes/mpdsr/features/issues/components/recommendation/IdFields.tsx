@@ -5,7 +5,6 @@ interface IdFieldsProps {
   issueId: string;
 }
 
-// Linked issue (auto) and Recommendation ID (auto). The user can't change either.
 function IdFields({ issueId }: IdFieldsProps) {
   return (
     <div className="form-row">

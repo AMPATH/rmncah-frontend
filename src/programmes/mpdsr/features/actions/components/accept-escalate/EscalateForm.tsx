@@ -18,7 +18,6 @@ interface EscalateFormProps {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }
 
-// Move the recommendation up (escalate) or down (de-escalate) to another level and person.
 function EscalateForm({
   action,
   targetLevel,

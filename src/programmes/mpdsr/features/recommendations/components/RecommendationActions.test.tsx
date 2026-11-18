@@ -5,7 +5,6 @@ import { MemoryRouter } from 'react-router';
 import { makeRecommendation, makeUser } from '../../../test/fixtures';
 import RecommendationActions from './RecommendationActions';
 
-// The "What happens next" buttons on a recommendation page: which are enabled for whom.
 function renderActions(...args: Parameters<typeof RecommendationActions>) {
   return render(
     <MemoryRouter>

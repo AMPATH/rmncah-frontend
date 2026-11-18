@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { makeEvent, makeIssue, makeRecommendation, makeUser } from '../../../test/fixtures';
 
-// A small fake json-server: each path returns test data, and every save is recorded.
 const data = {
   users: [
     makeUser({ id: 'u7', role: 'COUNTY_SURVEILLANCE_LEAD', level: 'county', assignedLocations: ['Uasin Gishu County'] }),
@@ -36,7 +35,7 @@ import { checkAcceptanceDeadlines } from './recommendationService';
 describe('checkAcceptanceDeadlines (json-server stand-in)', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date(2026, 10, 16, 10, 0)); // 16 Nov 2026
+    vi.setSystemTime(new Date(2026, 10, 16, 10, 0));
     vi.mocked(apiPatch).mockClear();
     vi.mocked(apiPost).mockClear();
     data.events = [];
@@ -59,7 +58,7 @@ describe('checkAcceptanceDeadlines (json-server stand-in)', () => {
     });
 
   it('sends one reminder a day while it waits within the deadline', async () => {
-    await checkAcceptanceDeadlines([waiting('2026-11-15')]); // 1 day of 3
+    await checkAcceptanceDeadlines([waiting('2026-11-15')]);
 
     expect(apiPost).toHaveBeenCalledWith(
       '/notifications',
@@ -76,7 +75,7 @@ describe('checkAcceptanceDeadlines (json-server stand-in)', () => {
   });
 
   it('hands it to the PCN coordinator once the deadline has passed', async () => {
-    const [result] = await checkAcceptanceDeadlines([waiting('2026-11-10')]); // 6 days, deadline 3
+    const [result] = await checkAcceptanceDeadlines([waiting('2026-11-10')]);
 
     expect(apiPatch).toHaveBeenCalledWith('/recommendations/r2', {
       status: 'Pending acceptance',

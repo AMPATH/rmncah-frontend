@@ -1,21 +1,17 @@
-// Scoped to MPDSR: these rules only apply inside <div class="mpdsr-app"> (AppLayout).
 .mpdsr-app {
   .notifications__tabs {
     margin-bottom: 16px;
 
-    // The app's global button style adds rounded corners; Carbon tabs should stay square.
     .cds--tabs__nav-item {
       border-radius: 0;
     }
   }
 
-  // Unread notifications stand out until they are opened or marked as read.
   .notifications__row--unread td {
     font-weight: 600;
   }
 }
 
-// The tab panels hold the table directly, without Carbon's extra padding.
 .mpdsr-app .notifications__panel {
   padding: 0;
 }

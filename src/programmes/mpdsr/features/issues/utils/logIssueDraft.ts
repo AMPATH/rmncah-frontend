@@ -1,8 +1,5 @@
 import type { DraftRecommendation, IssueType, Setting } from '../types/issue.types';
 
-// Everything typed into Log issue, saved in this browser so a refresh or a dropped
-// connection doesn't lose it. One draft per user; it is removed when the issue is
-// submitted or the form is cleared.
 export interface LogIssueDraft {
   savedAt: string;
   step: number;
@@ -40,7 +37,6 @@ export function saveDraft(key: string, draft: LogIssueDraft) {
   try {
     localStorage.setItem(key, JSON.stringify(draft));
   } catch {
-    // Storage can be full or blocked; the form still works, it just isn't saved.
   }
 }
 
@@ -48,6 +44,5 @@ export function clearDraft(key: string) {
   try {
     localStorage.removeItem(key);
   } catch {
-    // Nothing to clear.
   }
 }

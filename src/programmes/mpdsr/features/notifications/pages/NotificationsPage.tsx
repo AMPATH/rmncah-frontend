@@ -12,7 +12,6 @@ import './NotificationsPage.scss';
 
 interface NotificationTab {
   label: string;
-  // Which notifications the tab shows.
   matches: (notification: AppNotification) => boolean;
 }
 
@@ -29,7 +28,6 @@ const tabs: NotificationTab[] = [
   { label: 'Decisions', matches: inCategories('approved', 'rejected', 'cancelled') },
 ];
 
-// Opened from the bell in the top bar.
 function NotificationsPage() {
   const [selectedTab, setSelectedTab] = useState(0);
   const { currentUser } = useCurrentUser();
@@ -40,7 +38,7 @@ function NotificationsPage() {
     loading,
     failed,
     reload,
-  } = useApiData<AppNotification[]>(() => getNotifications(userId), [], userId);
+  } = useApiData<AppNotification[]>(() => getNotifications(userId), [], [userId]);
 
   const shown = notifications.filter(tabs[selectedTab].matches);
   const unreadCount = notifications.filter((notification) => !notification.read).length;
@@ -54,7 +52,6 @@ function NotificationsPage() {
     }
   }
 
-  // Opening a notification's recommendation marks it as read (the link itself does the navigation).
   function handleOpen(notification: AppNotification) {
     if (!notification.read) {
       markAsRead(notification.id).catch(() => undefined);
@@ -88,7 +85,6 @@ function NotificationsPage() {
             <Tab key={tab.label}>{tab.label}</Tab>
           ))}
         </TabList>
-        {/* One panel per tab, so screen readers know which list each tab controls. */}
         <TabPanels>
           {tabs.map((tab, index) => (
             <TabPanel key={tab.label} className="notifications__panel">

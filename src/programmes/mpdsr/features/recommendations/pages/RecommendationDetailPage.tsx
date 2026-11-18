@@ -18,8 +18,6 @@ const classificationLabels: Record<string, string> = {
   'long-term': 'Long term (6 months)',
 };
 
-// One recommendation: where it is in its lifecycle, its details, its history,
-// and what the current user can do next. Opened from a row in the Action plan.
 function RecommendationDetailPage() {
   const { code = '' } = useParams();
   const { currentUser, users } = useCurrentUser();

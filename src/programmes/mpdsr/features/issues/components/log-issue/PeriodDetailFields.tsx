@@ -9,7 +9,6 @@ interface PeriodDetailFieldsProps {
   onDaysPostpartumChange: (value: string) => void;
 }
 
-// Step 4, first row: Period of death, then gestation or days postpartum.
 function PeriodDetailFields({
   periodOfDeath,
   gestationWeeks,
