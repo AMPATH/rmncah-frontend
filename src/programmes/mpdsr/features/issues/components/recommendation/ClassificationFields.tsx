@@ -10,7 +10,6 @@ interface ClassificationFieldsProps {
   onLevelChange: (value: Level | '') => void;
 }
 
-// Classification, Level of implementation, Date logged (auto).
 function ClassificationFields({
   classification,
   level,

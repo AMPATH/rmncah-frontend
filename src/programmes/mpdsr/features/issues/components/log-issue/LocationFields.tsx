@@ -11,7 +11,6 @@ interface LocationFieldsProps {
   onLoggedAtChange: (value: string) => void;
 }
 
-// Step 1: where the issue happened. Sub-county and county come from the location.
 function LocationFields({
   setting,
   loggedAt,

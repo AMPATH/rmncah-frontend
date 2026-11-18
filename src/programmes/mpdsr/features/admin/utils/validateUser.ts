@@ -2,8 +2,6 @@ import type { User } from '../../issues/types/issue.types';
 import type { UserFormValues } from '../components/UserForm';
 import { roleNeedsPlaces } from './roleRules';
 
-// The problems with the form, by field. Empty when it can be saved.
-// The backend checks the same rules (and email uniqueness) again.
 export function validateUser(
   values: UserFormValues,
   users: User[],

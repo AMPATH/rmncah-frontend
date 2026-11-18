@@ -1,4 +1,3 @@
-// The three levels of delay and their contributing factors (from the MPDSR workflow).
 export interface DelayLevel {
   id: string;
   title: string;

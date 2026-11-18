@@ -40,8 +40,6 @@ const headers = [
   { key: 'action', header: 'Actions' },
 ];
 
-// Every issue logged at the user's places, newest first, with a way to add a recommendation
-// to one of them after the review meeting.
 function IssuesPage() {
   const pager = usePager();
   const { currentUser, scope } = useCurrentUser();

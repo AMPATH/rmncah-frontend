@@ -10,7 +10,6 @@ interface AssignmentFieldsProps {
   onResponsiblePersonChange: (value: string) => void;
 }
 
-// Gap identified and Responsible person.
 function AssignmentFields({
   gap,
   responsiblePersonId,

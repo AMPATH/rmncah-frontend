@@ -14,7 +14,6 @@ import RecommendationNotFound from '../../recommendations/components/Recommendat
 import OverdueRecord from '../components/overdue/OverdueRecord';
 import ReassignForm from '../components/overdue/ReassignForm';
 
-// Page 6: the PCN coordinator hands an overdue recommendation to a new person with a new due date.
 function OverdueReassignPage() {
   const { id: code = '' } = useParams();
   const navigate = useNavigate();
@@ -27,7 +26,6 @@ function OverdueReassignPage() {
   const [showErrors, setShowErrors] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  // People working in the coordinator's places (the coordinator included, who may take it on).
   const candidates = users.filter(
     (user) =>
       user.role !== 'SYSTEM_ADMIN' && user.active !== false && user.assignedLocations.some((place) => scope.has(place))

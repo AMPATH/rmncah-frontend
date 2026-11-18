@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Button } from '@carbon/react';
-import { Download, Printer } from '@carbon/icons-react';
+import { Document, Printer } from '@carbon/icons-react';
 import DashboardFilters from '../components/DashboardFilters';
 import StatPanel from '../components/StatPanel';
 import type { DashboardFilterValues, StatRow } from '../types/dashboard.types';
-import { downloadCsv } from '../utils/downloadCsv';
+import { downloadPdf } from '../utils/downloadPdf';
+import { showToast } from '../../../components/shared/toast/toast';
 import { addDays, getToday } from '../../../utils/dates';
 import { getIssues, getStoredRecommendations } from '../../issues/services/issueService';
 import type { StoredIssue, StoredRecommendation } from '../../issues/services/issueService';
@@ -42,11 +43,10 @@ interface Panel {
   note?: string;
 }
 
-// Page 8: counts and performance, calculated by the backend from the records.
 function DashboardPage() {
   const [filters, setFilters] = useState<DashboardFilterValues>(noFilters);
+  const [pdfBusy, setPdfBusy] = useState(false);
 
-  // Reports only cover the places the current user is responsible for.
   const { currentUser, locations, scope } = useCurrentUser();
   const placesOfType = (type: string) =>
     locations
@@ -56,7 +56,6 @@ function DashboardPage() {
   const subCounties = placesOfType('sub-county');
   const facilities = placesOfType('facility');
 
-  // Everything saved so far. The real backend will send ready-made figures instead.
   const issuesData = useApiData<StoredIssue[]>(getIssues, []);
   const recommendationsData = useApiData<StoredRecommendation[]>(getStoredRecommendations, []);
   const eventsData = useApiData<RecommendationEvent[]>(getAllRecommendationEvents, []);
@@ -149,34 +148,39 @@ function DashboardPage() {
     note: 'Worked out from each recommendation\'s history.',
   };
 
-  // Changes one filter and keeps the others as they are.
   function handleFilterChange(name: keyof DashboardFilterValues, value: string) {
     setFilters((current) => ({ ...current, [name]: value }));
   }
 
-  // One CSV: the filters used, then every figure as "section, measure, value".
-  function handleDownloadCsv() {
-    const filterRows = (Object.keys(filterLabels) as (keyof DashboardFilterValues)[]).map(
-      (key) => ['Filter', filterLabels[key], filters[key] || 'All']
-    );
-    const figureRows = [...summaryPanels, performancePanel].flatMap((panel) =>
-      panel.rows.map((row) => [panel.title, row.label, row.value])
-    );
-    const placeFigureRows = placeRows.flatMap((row) => [
-      ['By place', `${row.place}: issues`, row.issues],
-      ['By place', `${row.place}: recommendations`, row.recommendations],
-      ['By place', `${row.place}: still running`, row.running],
-      ['By place', `${row.place}: overdue`, row.overdue],
-      ['By place', `${row.place}: closed`, row.closed],
-    ]);
-
-    downloadCsv(`mpdsr-report-${today}.csv`, [
-      ['MPDSR report', 'Generated', today],
-      ...filterRows,
-      ['Section', 'Measure', 'Value'],
-      ...figureRows,
-      ...placeFigureRows,
-    ]);
+  async function handleDownloadPdf() {
+    setPdfBusy(true);
+    try {
+      const filterText = (Object.keys(filterLabels) as (keyof DashboardFilterValues)[])
+        .map((key) => `${filterLabels[key]}: ${filters[key] || 'All'}`)
+        .join(' · ');
+      await downloadPdf({
+        fileName: `mpdsr-report-${today}.pdf`,
+        title: 'MPDSR report',
+        details: [`Generated ${today}${currentUser ? ` by ${currentUser.fullName}` : ''}`, filterText],
+        sections: [
+          ...[...summaryPanels, performancePanel].map((panel) => ({
+            title: panel.title,
+            head: ['Measure', 'Value'],
+            rows: panel.rows.map((row) => [row.label, row.value]),
+            note: panel.note,
+          })),
+          {
+            title: 'By place',
+            head: ['Place', 'Issues', 'Recommendations', 'Still running', 'Overdue', 'Closed'],
+            rows: placeRows.map((row) => [row.place, row.issues, row.recommendations, row.running, row.overdue, row.closed]),
+          },
+        ],
+      });
+    } catch {
+      showToast("Couldn't make the PDF. Try again.", 'error');
+    } finally {
+      setPdfBusy(false);
+    }
   }
 
   return (
@@ -184,11 +188,11 @@ function DashboardPage() {
       <div className="page-header">
         <h1>Reports</h1>
         <div className="form-actions no-print">
-          <Button kind="tertiary" renderIcon={Download} onClick={handleDownloadCsv}>
-            Download CSV
+          <Button kind="tertiary" renderIcon={Document} onClick={handleDownloadPdf} disabled={pdfBusy}>
+            {pdfBusy ? 'Making PDF…' : 'Download PDF'}
           </Button>
           <Button kind="ghost" renderIcon={Printer} onClick={() => window.print()}>
-            Print or save as PDF
+            Print
           </Button>
         </div>
       </div>

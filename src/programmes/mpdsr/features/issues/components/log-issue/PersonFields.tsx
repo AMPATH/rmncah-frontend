@@ -15,8 +15,6 @@ interface PersonFieldsProps {
   onGenderChange: (value: string) => void;
 }
 
-// Step 2, second row: Date of birth, Age (auto), Gender.
-// A maternal case is always female; only a perinatal case asks for the gender.
 function PersonFields({
   issueType,
   dateOfBirth,

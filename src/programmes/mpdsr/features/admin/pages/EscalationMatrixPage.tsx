@@ -22,17 +22,12 @@ const levels: { level: Level; label: string }[] = [
 const MIN_DAYS = 1;
 const MAX_DAYS = 30;
 
-// Admin: how many days each level has to accept a recommendation before it goes to the
-// PCN coordinator. Notifications and the Accept page use these numbers.
 function EscalationMatrixPage() {
   const { data: saved, loading, reload } = useApiData<EscalationMatrix>(getEscalationMatrix, defaultEscalationMatrix);
   const [matrix, setMatrix] = useState<EscalationMatrix>(defaultEscalationMatrix);
   const [busy, setBusy] = useState(false);
 
-  // Show the saved numbers once they have loaded.
   useEffect(() => {
-    // Hydrate the editable matrix after the server value loads.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMatrix(saved);
   }, [saved]);
 

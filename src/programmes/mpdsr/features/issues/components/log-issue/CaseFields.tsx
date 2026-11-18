@@ -6,7 +6,6 @@ interface CaseFieldsProps {
   onIssueTypeChange: (value: IssueType | '') => void;
 }
 
-// Step 2, first row: the issue type.
 function CaseFields({ setting, issueType, onIssueTypeChange }: CaseFieldsProps) {
   return (
     <div className="form-row form-row--two">

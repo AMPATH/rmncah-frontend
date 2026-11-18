@@ -19,15 +19,12 @@ import { addRecommendationToIssue } from '../../recommendations/services/recomme
 import type { Classification, Level } from '../types/issue.types';
 import { addMonths, getToday } from '../../../utils/dates';
 
-// The longest time each classification allows (from the workflow document).
 const monthsAllowed: Record<Classification, number> = {
   immediate: 1,
   intermediate: 3,
   'long-term': 6,
 };
 
-// Adds a recommendation to an issue logged earlier (/issues/ISS-2026-0001/recommendation),
-// e.g. after the review meeting. Opened from the Issues list.
 function RecommendationPage() {
   const { id: issueCode = '' } = useParams();
   const navigate = useNavigate();
@@ -49,19 +46,15 @@ function RecommendationPage() {
     .filter((recommendation) => recommendation.issueId === issue?.id)
     .map((recommendation) => recommendation.code);
 
-  // The gaps are the contributing factors chosen when the issue was logged.
   const gapOptions = issue?.contributingFactors ?? [];
-  // Anyone who can hold a recommendation, except the admin and yourself.
   const users = allUsers.filter((user) => user.role !== 'SYSTEM_ADMIN' && user.id !== currentUser?.id && user.active !== false);
 
   const today = getToday();
   const missingDetails =
     text.trim() === '' || responsiblePersonId === '' || classification === '' || level === '' || dateOfCompletion === '';
 
-  // The latest allowed completion date: 1, 3 or 6 months from today.
   const latestCompletion = classification ? addMonths(today, monthsAllowed[classification]) : '';
 
-  // A new classification prefills the latest allowed date. The user may then pick earlier.
   function handleClassificationChange(newClassification: Classification | '') {
     setClassification(newClassification);
     setDateOfCompletion(newClassification ? addMonths(today, monthsAllowed[newClassification]) : '');
@@ -80,7 +73,6 @@ function RecommendationPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    // Which button was pressed: "Save recommendation" or "Add another".
     const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
     const addAnother = submitter?.name === 'add-another';
 

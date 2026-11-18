@@ -1,6 +1,5 @@
 @use '../../../../styles/tokens' as *;
 
-// Scoped to MPDSR: these rules only apply inside <div class="mpdsr-app"> (AppLayout).
 .mpdsr-app {
   .lifecycle-bar {
     margin-bottom: 16px;
@@ -85,7 +84,6 @@
   }
 }
 
-// Evidence files attached to a recommendation.
 .mpdsr-app .evidence-list {
   margin: 0;
   padding: 0;

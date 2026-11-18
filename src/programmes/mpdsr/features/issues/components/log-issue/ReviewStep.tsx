@@ -7,7 +7,6 @@ interface ReviewStepProps {
   recommendationCount: number;
 }
 
-// Step 6: everything entered, shown once more before submitting.
 function ReviewStep({ items, recommendationCount }: ReviewStepProps) {
   return (
     <>

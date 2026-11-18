@@ -21,10 +21,8 @@ export type RecommendationEventAction =
   | 'edited'
   | 'cancelled';
 
-// Who did a step the server did on its own (e.g. marking a recommendation overdue).
 export const SYSTEM_USER_ID = 'system';
 
-// One step in a recommendation's history.
 export interface RecommendationEvent {
   id: string;
   code: string;
@@ -36,15 +34,12 @@ export interface RecommendationEvent {
   note: string;
 }
 
-// One recommendation, found by its readable code (ISS-2026-0001-R1).
-// json-server: GET /recommendations?code=…  The real API: GET /recommendations/:id.
 export async function getRecommendationByCode(code: string): Promise<StoredRecommendation | null> {
   const matches = await apiGet<StoredRecommendation[]>('/recommendations', { code });
   const [checked] = await markOverdue(matches);
   return checked ?? null;
 }
 
-// Its history, oldest first. The real API returns this as `history[]` on the detail.
 export function getRecommendationEvents(code: string): Promise<RecommendationEvent[]> {
   return apiGet<RecommendationEvent[]>('/recommendationEvents', { code });
 }
@@ -55,9 +50,6 @@ interface Notify {
   category: NotificationCategory;
 }
 
-// For json-server only: change the recommendation, add a history entry and send notifications.
-// The real backend does all three in one call per action (see docs/api-contract.md),
-// so only the bodies of the functions below will change.
 async function applyChange(
   recommendation: StoredRecommendation,
   changes: Partial<StoredRecommendation> & { status: RecommendationStatus },
@@ -94,12 +86,10 @@ async function applyChange(
   return updated;
 }
 
-// POST /recommendations/:id/accept
 export function acceptRecommendation(recommendation: StoredRecommendation, byUserId: string) {
   return applyChange(recommendation, { status: 'In progress' }, byUserId, 'accepted', '');
 }
 
-// POST /recommendations/:id/escalate
 export async function escalateRecommendation(
   recommendation: StoredRecommendation,
   byUserId: string,
@@ -122,7 +112,6 @@ export async function escalateRecommendation(
   );
 }
 
-// POST /recommendations/:id/mark-done (form data: remarks, optional evidence file)
 export async function markRecommendationDone(
   recommendation: StoredRecommendation,
   byUserId: string,
@@ -141,7 +130,6 @@ export async function markRecommendationDone(
   });
 }
 
-// POST /recommendations/:id/decision
 export function decideRecommendation(
   recommendation: StoredRecommendation,
   byUserId: string,
@@ -163,7 +151,6 @@ export function decideRecommendation(
   );
 }
 
-// POST /recommendations/:id/reassign
 export async function reassignRecommendation(
   recommendation: StoredRecommendation,
   byUserId: string,
@@ -190,14 +177,10 @@ export async function reassignRecommendation(
   );
 }
 
-// Still running and past its due date: these become Overdue.
 const canGoOverdue: RecommendationStatus[] = ['Open', 'Pending acceptance', 'In progress'];
 
-// Codes being marked right now, so two pages loading at once don't mark the same one twice.
 const marking = new Set<string>();
 
-// For json-server only. The real backend marks recommendations overdue on its own every day,
-// so this function (and its two calls) will be removed.
 export async function markOverdue(recommendations: StoredRecommendation[]): Promise<StoredRecommendation[]> {
   const today = getToday();
 
@@ -234,20 +217,15 @@ export async function markOverdue(recommendations: StoredRecommendation[]): Prom
   return checkAcceptanceDeadlines(checked);
 }
 
-// Every history entry, for the Reports page. The real API sends ready-made report figures
-// instead (GET /reports/summary), so this is only used with json-server.
 export function getAllRecommendationEvents(): Promise<RecommendationEvent[]> {
   return apiGet<RecommendationEvent[]>('/recommendationEvents');
 }
 
-// POST /issues/:id/recommendations  — adds a recommendation to an issue that was logged earlier.
-// json-server: saves it, then notifies the responsible person (the real backend does both).
 export async function addRecommendationToIssue(
   issue: { id: string; code: string },
   draft: DraftRecommendation,
   existingCodes: string[]
 ): Promise<StoredRecommendation> {
-  // The next free number after the issue's existing recommendations (R1, R2, …).
   const numbers = existingCodes.map((code) => Number(code.split('-R').pop()) || 0);
   const code = `${issue.code}-R${Math.max(0, ...numbers) + 1}`;
   const needsAcceptance = draft.level === 'sub-county' || draft.level === 'county';
@@ -282,24 +260,15 @@ export async function addRecommendationToIssue(
   return saved;
 }
 
-// ---- json-server stand-in for the server's daily acceptance job ----
-// While a recommendation waits for acceptance, its holder gets one reminder a day. When the
-// escalation matrix's days have passed, it goes to the PCN coordinator for its place.
-// The real backend runs this on a schedule, so this block (and its call in markOverdue) will go.
-
 const AUTO_ESCALATION_NOTE = 'Auto-escalated to PCN to reassign or action';
-// A step that starts (or restarts) the wait for acceptance.
 const restartsWait: RecommendationEventAction[] = ['escalated', 'de-escalated', 'reassigned', 'auto-escalated'];
-// Codes being checked right now, so two pages loading at once don't act twice.
 const checkingAcceptance = new Set<string>();
 
-// The day the current wait started: the last escalation or reassignment, or the day it was logged.
 function waitingSince(recommendation: StoredRecommendation, events: RecommendationEvent[]): string {
   const restarts = events.filter((event) => restartsWait.includes(event.action));
   return restarts.length > 0 ? restarts[restarts.length - 1].at.slice(0, 10) : recommendation.dateLogged;
 }
 
-// The active PCN coordinator responsible for the place where the issue was logged, if any.
 async function pcnCoordinatorFor(recommendation: StoredRecommendation): Promise<User | undefined> {
   const [users, issue, locations] = await Promise.all([
     apiGet<User[]>('/users'),
@@ -338,7 +307,6 @@ export async function checkAcceptanceDeadlines(
       const holder = (await apiGet<User[]>('/users', { id: recommendation.responsiblePersonId }))[0];
 
       if (today > deadline && holder?.role !== 'PCN_COORDINATOR') {
-        // Past the deadline: hand it to the PCN coordinator (once; never from a PCN to a PCN).
         const pcn = await pcnCoordinatorFor(recommendation);
         if (pcn) {
           updated.set(
@@ -358,7 +326,6 @@ export async function checkAcceptanceDeadlines(
           );
         }
       } else if (today > since && today <= deadline) {
-        // Still within the deadline: one reminder a day, not on the day it was assigned.
         const sentToday = await apiGet<AppNotification[]>('/notifications', {
           recipientId: recommendation.responsiblePersonId,
           recommendationId: recommendation.code,
@@ -386,13 +353,11 @@ export async function checkAcceptanceDeadlines(
   return recommendations.map((recommendation) => updated.get(recommendation.code) ?? recommendation);
 }
 
-// PATCH /recommendations/:id (text, gap, due date) — only before the work has started.
 export function editRecommendation(
   recommendation: StoredRecommendation,
   byUserId: string,
   changes: { text: string; gap: string; dueDate: string }
 ) {
-  // A short note of what changed, kept in the history.
   const changed = [
     changes.text !== recommendation.text && 'recommendation text',
     changes.gap !== recommendation.gap && 'gap',
@@ -416,7 +381,6 @@ export function editRecommendation(
   );
 }
 
-// POST /recommendations/:id/cancel — e.g. logged twice by mistake, or no longer needed.
 export function cancelRecommendation(recommendation: StoredRecommendation, byUserId: string, reason: string) {
   return applyChange(recommendation, { status: 'Cancelled' }, byUserId, 'cancelled', reason, {
     recipientIds:

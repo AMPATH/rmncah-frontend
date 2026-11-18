@@ -1,6 +1,4 @@
-// Small builders for tests: each returns a complete record, and a test only states
-// the fields it cares about, e.g. makeRecommendation({ status: 'Overdue' }).
-import type { User } from '../types/user.types';
+import type { User } from '../features/issues/types/issue.types';
 import type { StoredIssue, StoredRecommendation } from '../features/issues/services/issueService';
 import type { RecommendationEvent } from '../features/recommendations/services/recommendationService';
 

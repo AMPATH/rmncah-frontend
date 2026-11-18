@@ -11,8 +11,6 @@ interface RecommendationActionsProps {
   user: User | null;
 }
 
-// The next steps for this recommendation. Every button is shown, so users can see the
-// whole process, but only the ones that fit their role and the current status are enabled.
 function RecommendationActions({ recommendation, user }: RecommendationActionsProps) {
   const navigate = useNavigate();
   const { code } = recommendation;

@@ -25,12 +25,9 @@ const headers = [
 
 interface NotificationsTableProps {
   notifications: AppNotification[];
-  // Called when the user opens a notification's recommendation.
   onOpen: (notification: AppNotification) => void;
 }
 
-// The notifications in the chosen tab, newest first. Unread ones are shown in bold, and the
-// recommendation code opens that recommendation (marking the notification as read).
 function NotificationsTable({ notifications, onOpen }: NotificationsTableProps) {
   const pager = usePager();
   const rows = notifications.map((notification) => ({

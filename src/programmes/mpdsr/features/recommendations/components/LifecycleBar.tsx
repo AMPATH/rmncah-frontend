@@ -2,8 +2,6 @@ import { ProgressIndicator, ProgressStep } from '@carbon/react';
 import type { RecommendationStatus } from '../../issues/types/issue.types';
 import { PHONE_QUERY, useMediaQuery } from '../../../hooks/useMediaQuery';
 
-// The usual path of a recommendation. "Pending acceptance" only applies to sub-county and
-// county recommendations, and "Overdue" is shown as a warning on the step it was at.
 const stages: RecommendationStatus[] = [
   'Open',
   'Pending acceptance',
@@ -18,10 +16,8 @@ interface LifecycleBarProps {
 }
 
 function LifecycleBar({ status, needsAcceptance }: LifecycleBarProps) {
-  // On phones the steps don't fit side by side, so they are listed top to bottom.
   const isPhone = useMediaQuery(PHONE_QUERY);
   const shown = needsAcceptance ? stages : stages.filter((stage) => stage !== 'Pending acceptance');
-  // An overdue recommendation is still in progress, just late.
   const current = status === 'Overdue' ? 'In progress' : status;
   const index = shown.indexOf(current);
 

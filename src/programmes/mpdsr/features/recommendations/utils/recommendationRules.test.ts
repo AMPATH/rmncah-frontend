@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { makeRecommendation, makeUser } from '../../../test/fixtures';
 import { whyBlocked } from './recommendationRules';
 
-// Who can act on a recommendation, and when. '' means "allowed".
 describe('whyBlocked', () => {
   const holder = makeUser({ id: 'u1', role: 'FACILITY_REPORTER' });
   const someoneElse = makeUser({ id: 'u2', role: 'FACILITY_REPORTER' });

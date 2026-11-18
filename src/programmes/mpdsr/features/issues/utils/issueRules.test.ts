@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { makeIssue, makeRecommendation, makeUser } from '../../../test/fixtures';
 import { whyIssueBlocked } from './issueRules';
 
-// Who may correct or cancel an issue after it was logged. '' means "allowed".
 describe('whyIssueBlocked', () => {
   const logger = makeUser({ id: 'u3', role: 'FACILITY_REPORTER' });
   const otherReporter = makeUser({ id: 'u2', role: 'FACILITY_REPORTER' });

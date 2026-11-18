@@ -1,4 +1,3 @@
-// What a notification is about. Each tab on the Notifications page shows one or more of these.
 export type NotificationCategory =
   | 'assigned'
   | 'acceptance-needed'
@@ -12,10 +11,8 @@ export type NotificationCategory =
 
 export interface AppNotification {
   id: string;
-  // The user the notification is for.
   recipientId: string;
   date: string;
-  // When it was sent (date and time). Older notifications only have `date`.
   at?: string;
   message: string;
   recommendationId: string;

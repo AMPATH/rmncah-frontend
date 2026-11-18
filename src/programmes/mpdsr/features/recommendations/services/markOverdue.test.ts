@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { makeRecommendation } from '../../../test/fixtures';
 
-// The API is replaced with stand-ins, so the test checks what would be sent without a server.
 vi.mock('../../../api/apiClient', () => ({
   apiGet: vi.fn(),
   apiPost: vi.fn(async () => ({})),
@@ -14,7 +13,7 @@ import { markOverdue } from './recommendationService';
 describe('markOverdue', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date(2026, 10, 16, 10, 0)); // 16 Nov 2026, local time
+    vi.setSystemTime(new Date(2026, 10, 16, 10, 0));
     vi.mocked(apiPatch).mockClear();
     vi.mocked(apiPost).mockClear();
   });

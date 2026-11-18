@@ -7,8 +7,6 @@ import { getIssues, getStoredRecommendations, toTableRow } from '../../issues/se
 import type { StoredIssue, StoredRecommendation } from '../../issues/services/issueService';
 import RecommendationsTable from '../../my-work/components/RecommendationsTable';
 
-// Page 6: the PCN coordinator's list of overdue recommendations in their places.
-// Clicking a code opens the recommendation, where "Reassign" is enabled.
 function OverdueListPage() {
   const { currentUser, scope } = useCurrentUser();
   const issuesData = useApiData<StoredIssue[]>(getIssues, []);

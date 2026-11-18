@@ -9,9 +9,6 @@ interface ContributingFactorsProps {
   onToggleFactor: (factor: string) => void;
 }
 
-// Step 3: contributing factors, grouped by level of delay. A case can have factors at
-// more than one level. Each factor is stored as "1st delay: Poverty", so "Any other
-// factor" at two levels stays two different choices.
 function ContributingFactors({
   delayLevels,
   selectedFactors,

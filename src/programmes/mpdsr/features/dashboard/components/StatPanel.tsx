@@ -6,11 +6,9 @@ interface StatPanelProps {
   title: string;
   rows: StatRow[];
   note?: string;
-  // While the figures load, grey placeholder lines show instead of numbers.
   loading?: boolean;
 }
 
-// One dashboard panel: a title and a list of figures.
 function StatPanel({ title, rows, note, loading = false }: StatPanelProps) {
   return (
     <Tile className="stat-panel">

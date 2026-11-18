@@ -18,7 +18,6 @@ interface ReassignFormProps {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }
 
-// The PCN coordinator hands the overdue recommendation to a new person.
 function ReassignForm({
   newResponsiblePersonId,
   newCompletionDate,

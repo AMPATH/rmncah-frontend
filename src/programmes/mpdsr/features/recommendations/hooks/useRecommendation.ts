@@ -8,20 +8,17 @@ import type { RecommendationEvent } from '../services/recommendationService';
 import { getEvidence } from '../services/evidenceService';
 import type { EvidenceFile } from '../services/evidenceService';
 
-// Everything a page needs about one recommendation: the recommendation itself (null when it
-// doesn't exist or is outside the user's places), its issue, its history and its evidence files.
-// Call reload() after an action to show the new status.
 export function useRecommendation(code: string) {
   const { currentUser, scope } = useCurrentUser();
 
   const recommendationData = useApiData<StoredRecommendation | null>(
     () => getRecommendationByCode(code),
     null,
-    code
+    [code]
   );
   const issuesData = useApiData<StoredIssue[]>(getIssues, []);
-  const eventsData = useApiData<RecommendationEvent[]>(() => getRecommendationEvents(code), [], code);
-  const evidenceData = useApiData<EvidenceFile[]>(() => getEvidence(code), [], code);
+  const eventsData = useApiData<RecommendationEvent[]>(() => getRecommendationEvents(code), [], [code]);
+  const evidenceData = useApiData<EvidenceFile[]>(() => getEvidence(code), [], [code]);
 
   const found = recommendationData.data;
   const visible =
@@ -39,7 +36,6 @@ export function useRecommendation(code: string) {
     events: eventsData.data,
     evidence: visible ? evidenceData.data : [],
     loading: recommendationData.loading || issuesData.loading || eventsData.loading,
-    // Evidence is optional: if it can't be loaded, the page still works.
     failed: recommendationData.failed || issuesData.failed || eventsData.failed,
     reload,
   };

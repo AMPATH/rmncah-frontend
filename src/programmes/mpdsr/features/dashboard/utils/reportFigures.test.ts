@@ -42,8 +42,8 @@ describe('performanceFigures', () => {
       makeRecommendation({ code: 'B', dateLogged: '2026-11-01' }),
     ];
     const events = [
-      makeEvent({ code: 'A', action: 'accepted', at: '2026-11-02T08:00:00.000Z' }), // 1 day
-      makeEvent({ code: 'B', action: 'accepted', at: '2026-11-04T08:00:00.000Z' }), // 3 days
+      makeEvent({ code: 'A', action: 'accepted', at: '2026-11-02T08:00:00.000Z' }),
+      makeEvent({ code: 'B', action: 'accepted', at: '2026-11-04T08:00:00.000Z' }),
     ];
 
     expect(performanceFigures(recommendations, events).averageWait).toBe('2.0 days (2 accepted)');
@@ -66,8 +66,8 @@ describe('performanceFigures', () => {
       makeRecommendation({ code: 'C', status: 'In progress', dueDate: '2026-11-10' }),
     ];
     const events = [
-      makeEvent({ code: 'A', action: 'approved', at: '2026-11-09T08:00:00.000Z' }), // on time
-      makeEvent({ code: 'B', action: 'approved', at: '2026-11-12T08:00:00.000Z' }), // late
+      makeEvent({ code: 'A', action: 'approved', at: '2026-11-09T08:00:00.000Z' }),
+      makeEvent({ code: 'B', action: 'approved', at: '2026-11-12T08:00:00.000Z' }),
     ];
 
     expect(performanceFigures(recommendations, events).completedOnTime).toBe('1 of 2 (50%)');

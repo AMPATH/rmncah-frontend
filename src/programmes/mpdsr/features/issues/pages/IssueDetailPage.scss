@@ -1,6 +1,5 @@
 @use '../../../../../styles/tokens' as *;
 
-// Scoped to MPDSR: these rules only apply inside <div class="mpdsr-app"> (AppLayout).
 .mpdsr-app {
   .issue-detail {
     display: grid;
@@ -31,7 +30,6 @@
   }
 }
 
-// Issue edit page: the field groups sit in one fieldset, so it can be disabled at once.
 .mpdsr-app .issue-edit__fields {
   margin: 0;
   padding: 0;

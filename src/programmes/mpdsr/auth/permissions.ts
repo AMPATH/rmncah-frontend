@@ -1,9 +1,13 @@
-import type { Role, SystemModule } from '../types/role.types.ts';
+export type Role =
+  | 'SYSTEM_ADMIN'
+  | 'CHP'
+  | 'FACILITY_REPORTER'
+  | 'FACILITY_CHAIR'
+  | 'PCN_COORDINATOR'
+  | 'SUBCOUNTY_COORDINATOR'
+  | 'COUNTY_SURVEILLANCE_LEAD';
 
-// Role codes, names and descriptions match the backend's predefined roles.
-// These checks shape the frontend screens; the backend remains responsible
-// for enforcing authorization.
-export type { Role, SystemModule } from '../types/role.types.ts';
+export type SystemModule = 'PLATFORM' | 'MPDSR';
 
 export const roleModules: Record<Role, SystemModule> = {
   SYSTEM_ADMIN: 'PLATFORM',
@@ -59,6 +63,7 @@ const holder: Permission[] = [
 ];
 
 export const rolePermissions: Record<Role, Permission[]> = {
+  
   SYSTEM_ADMIN: ['admin.setup'],
   CHP: ['issue.log', 'recommendation.add', ...holder, 'reports.view'],
   FACILITY_REPORTER: [
@@ -89,7 +94,6 @@ export function can(user: HasRole | null, permission: Permission): boolean {
   if (!user) {
     return false;
   }
-
   return rolePermissions[user.role].includes(permission);
 }
 

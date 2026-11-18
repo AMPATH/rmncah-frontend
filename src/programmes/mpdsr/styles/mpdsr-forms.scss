@@ -1,0 +1,45 @@
+@use '../../../styles/tokens' as *;
+
+.mpdsr-app {
+  .form-actions {
+    display: flex;
+    gap: 16px;
+  }
+
+  .form-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+    margin-bottom: 16px;
+  }
+
+  .form-section-title {
+    margin: 0 0 16px;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .form-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .form-block {
+    margin-bottom: 16px;
+  }
+
+  .page-bottom-actions {
+    margin-top: 16px;
+  }
+
+  .form-row--two {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .field-hint {
+    font-size: 0.8rem;
+    color: $muted;
+  }
+}

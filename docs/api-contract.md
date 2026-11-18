@@ -42,8 +42,12 @@ Error body:
 | POST | `/users` | `SaveUserRequest` (admin) | `UserDto` |
 | PATCH | `/users/:id` | changed fields of `SaveUserRequest` (admin) | `UserDto` |
 | POST | `/users/:id/deactivate` | (admin) | `UserDto` with `active: false` |
+| DELETE | `/users/:id` | `{ reason }` (admin) | `UserDto` with `deleted: true` |
+| POST | `/users/:id/restore` | (admin) | `UserDto` with `deleted: false`, still `active: false` |
 
-`UserDto`: `{ id, fullName, cadre, email, role, level, locationIds, active }`
+**Deleting a user is a soft delete.** The server never removes the row: it sets `deleted: true`, `active: false`, `deletedAt`, `deletedById` and `deleteReason`, so history, events and reports still show the name. `GET /users` still returns deleted users (with `deleted: true`) so names in history resolve; the frontend hides them from lists and pickers. A deleted user can't sign in or be chosen for work. The admin can't delete their own account. Restoring brings the user back deactivated; the admin reactivates them separately.
+
+`UserDto`: `{ id, fullName, cadre, email, role, level, locationIds, active, deleted, deletedAt?, deletedById?, deleteReason? }`
 `SaveUserRequest`: `{ fullName, cadre, email, role, locationIds }`. The server sets `level` from the role, and rejects a duplicate email with 409.
 
 Which places a role is assigned to: `CHP` → community units; `FACILITY_REPORTER`, `FACILITY_CHAIR` → facilities; `PCN_COORDINATOR`, `SUBCOUNTY_COORDINATOR` → sub-counties; `COUNTY_SURVEILLANCE_LEAD` → counties; `SYSTEM_ADMIN` → none.
@@ -137,9 +141,8 @@ Each action returns the updated recommendation and adds an entry to its `history
 | Method | Path | Query | Returns |
 |---|---|---|---|
 | GET | `/reports/summary` | `countyId, subCountyId, facilityId, issueType, setting, from, to` | `ReportSummaryDto` |
-| GET | `/reports/export.csv` | same as above | CSV file |
 
-`ReportSummaryDto` holds the counts by issue type, recommendation status, classification and level; the "needs action" counts; `performance`; and `byPlace` rows. How the figures are worked out (the frontend's own stand-in does the same, see `src/features/dashboard/utils/reportFigures.ts` and its tests):
+`ReportSummaryDto` holds the counts by issue type, recommendation status, classification and level; the "needs action" counts; `performance`; and `byPlace` rows. How the figures are worked out (the frontend's own stand-in does the same, see `src/programmes/mpdsr/features/dashboard/utils/reportFigures.ts` and its tests):
 
 - **Rejected / escalated:** recommendations rejected (or escalated/de-escalated) **at least once**, each counted once.
 - **Average days to acceptance:** from when it started waiting (logged, or the last escalation or reassignment) to when it was accepted, over every acceptance.
