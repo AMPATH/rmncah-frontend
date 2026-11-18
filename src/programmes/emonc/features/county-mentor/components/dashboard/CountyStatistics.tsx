@@ -1,8 +1,17 @@
+import {
+  Hospital,
+  UserMultiple,
+  User,
+  Group,
+} from '@carbon/icons-react'
+
 import type { CountyStatistic } from '../../types/county-mentor.types.ts'
 
 interface CountyStatisticsProps {
   statistics: CountyStatistic[]
 }
+
+const statisticIcons = [User, UserMultiple, Hospital, Group]
 
 function CountyStatistics({ statistics }: CountyStatisticsProps) {
   return (
@@ -10,19 +19,29 @@ function CountyStatistics({ statistics }: CountyStatisticsProps) {
       className="county-overview__statistics"
       aria-label="County mentorship statistics"
     >
-      {statistics.map((statistic) => (
-        <article className="county-stat-card" key={statistic.id}>
-          <div className="county-stat-card__top">
-            <span>{statistic.label}</span>
-          </div>
+      {statistics.map((statistic, index) => {
+        const Icon = statisticIcons[index] ?? ChartFallback
 
-          <strong>{statistic.value}</strong>
+        return (
+          <article className="county-stat-card" key={statistic.id}>
+            <div className="county-stat-card__top">
+              <span>{statistic.label}</span>
+              <span className="county-stat-card__icon">
+                <Icon size={20} />
+              </span>
+            </div>
 
-          <p>{statistic.description}</p>
-        </article>
-      ))}
+            <strong>{statistic.value}</strong>
+            <p>{statistic.description}</p>
+          </article>
+        )
+      })}
     </section>
   )
+}
+
+function ChartFallback() {
+  return <Hospital size={20} />
 }
 
 export default CountyStatistics
