@@ -1,19 +1,23 @@
+import { ChartLine } from '@carbon/icons-react'
+
 import type { ProgrammePerformanceItem } from '../../types/county-mentor.types.ts'
 
 interface ProgrammePerformanceProps {
   performance: ProgrammePerformanceItem[]
 }
 
-function ProgrammePerformance({
-  performance,
-}: ProgrammePerformanceProps) {
+function ProgrammePerformance({ performance }: ProgrammePerformanceProps) {
   return (
     <section className="county-panel county-performance">
       <div className="county-panel__heading">
         <div>
+          <span className="county-panel__eyebrow">PROGRAMME INDICATORS</span>
           <h2>Programme performance</h2>
-          <p>Current county-level progress indicators.</p>
+          <p>Progress across key county mentorship indicators.</p>
         </div>
+        <span className="county-panel__heading-icon">
+          <ChartLine size={20} />
+        </span>
       </div>
 
       <div className="county-performance__items">
