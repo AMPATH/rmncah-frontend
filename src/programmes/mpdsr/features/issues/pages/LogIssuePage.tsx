@@ -86,6 +86,22 @@ function LogIssuePage() {
     )
     .map((location) => location.name);
 
+  const roleSetting: Setting | '' =
+    currentUser?.role === 'CHP' ? 'community' : currentUser?.role === 'FACILITY_REPORTER' ? 'facility' : '';
+  const onlyPlace = loggedAtOptions.length === 1 ? loggedAtOptions[0] : '';
+
+  useEffect(() => {
+    if (roleSetting !== '' && setting === '') {
+      setSetting(roleSetting);
+    }
+  }, [roleSetting, setting]);
+
+  useEffect(() => {
+    if (setting !== '' && loggedAt === '' && onlyPlace !== '') {
+      setLoggedAt(onlyPlace);
+    }
+  }, [setting, loggedAt, onlyPlace]);
+
   const above = placesAbove(loggedAt, locations);
   const subCounty = above.find((location) => location.type === 'sub-county')?.name ?? '';
   const county = above.find((location) => location.type === 'county')?.name ?? '';
@@ -102,7 +118,7 @@ function LogIssuePage() {
   }, [currentUser, offeredDraft, draftKey]);
 
   useEffect(() => {
-    if (offeredDraft !== null || setting === '') {
+    if (offeredDraft !== null || setting === '' || (step === 0 && issueType === '')) {
       return;
     }
     saveDraft(draftKey, {
@@ -376,6 +392,8 @@ function LogIssuePage() {
               county={county}
               onSettingChange={handleSettingChange}
               onLoggedAtChange={setLoggedAt}
+              settingLocked={roleSetting !== ''}
+              loggedAtLocked={onlyPlace !== ''}
             />
           )}
 
