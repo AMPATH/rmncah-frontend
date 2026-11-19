@@ -67,7 +67,7 @@ function AcceptEscalatePage() {
 
   const blockedBecause = whyBlocked('accept', recommendation, currentUser);
   const holder = users.find((user) => user.id === recommendation.responsiblePersonId);
-  const deadline = daysText(matrix[recommendation.level]);
+  const deadline = daysText(matrix[recommendation.level === '' ? 'facility' : recommendation.level]);
 
   function handleAccept() {
     run(() => acceptRecommendation(recommendation!, currentUser!.id), 'Recommendation accepted');

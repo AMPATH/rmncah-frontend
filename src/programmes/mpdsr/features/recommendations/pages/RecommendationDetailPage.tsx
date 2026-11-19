@@ -69,8 +69,8 @@ function RecommendationDetailPage() {
                   },
                   { label: 'Logged at', value: issue?.loggedAt || '—' },
                   { label: 'Gap identified', value: recommendation.gap || '—' },
-                  { label: 'Responsible person', value: holder ? `${holder.fullName} (${holder.cadre})` : '—' },
-                  { label: 'Level of implementation', value: recommendation.level },
+                  { label: 'Responsible person', value: holder ? `${holder.fullName} (${holder.cadre})` : recommendation.status === 'Pending review' ? 'Set by the chair at the case review' : '—' },
+                  { label: 'Level of implementation', value: recommendation.level || 'Set by the chair at the case review' },
                   {
                     label: 'Classification',
                     value: classificationLabels[recommendation.classification] ?? recommendation.classification,
@@ -84,7 +84,7 @@ function RecommendationDetailPage() {
 
             <section className="form-card">
               <h2 className="form-section-title">What happens next</h2>
-              <RecommendationActions recommendation={recommendation} user={currentUser} />
+              <RecommendationActions recommendation={recommendation} user={currentUser} holderName={holder?.fullName} />
 
               <h2 className="form-section-title recommendation-detail__history-title">History</h2>
               <RecommendationHistory recommendation={recommendation} events={events} />

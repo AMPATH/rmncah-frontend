@@ -7,6 +7,8 @@ import { acceptanceDeadline, getEscalationMatrix } from './escalationMatrix';
 import { placesWithin } from '../../../auth/locations';
 import type { Location } from '../../../auth/locations';
 import { uploadEvidence } from './evidenceService';
+import { isReviewed } from '../../issues/utils/caseReview';
+import type { IssueReview } from '../../issues/utils/caseReview';
 
 export type RecommendationEventAction =
   | 'accepted'
@@ -19,7 +21,8 @@ export type RecommendationEventAction =
   | 'reassigned'
   | 'auto-escalated'
   | 'edited'
-  | 'cancelled';
+  | 'cancelled'
+  | 'released';
 
 export const SYSTEM_USER_ID = 'system';
 
@@ -222,9 +225,10 @@ export function getAllRecommendationEvents(): Promise<RecommendationEvent[]> {
 }
 
 export async function addRecommendationToIssue(
-  issue: { id: string; code: string },
+  issue: { id: string; code: string; review?: IssueReview },
   draft: DraftRecommendation,
-  existingCodes: string[]
+  existingCodes: string[],
+  held = !isReviewed(issue)
 ): Promise<StoredRecommendation> {
   const numbers = existingCodes.map((code) => Number(code.split('-R').pop()) || 0);
   const code = `${issue.code}-R${Math.max(0, ...numbers) + 1}`;
@@ -237,12 +241,12 @@ export async function addRecommendationToIssue(
     issueId: issue.id,
     issueCode: issue.code,
     dueDate: draft.dateOfCompletion,
-    status: needsAcceptance ? 'Pending acceptance' : 'Open',
+    status: held ? 'Pending review' : needsAcceptance ? 'Pending acceptance' : 'Open',
     timesRedone: 0,
     dateLogged: today,
   });
 
-  if (draft.responsiblePersonId) {
+  if (draft.responsiblePersonId && !held) {
     await apiPost<AppNotification>('/notifications', {
       recipientId: draft.responsiblePersonId,
       date: today,
@@ -303,7 +307,7 @@ export async function checkAcceptanceDeadlines(
     try {
       const events = await getRecommendationEvents(recommendation.code);
       const since = waitingSince(recommendation, events);
-      const deadline = addDays(since, matrix[recommendation.level]);
+      const deadline = addDays(since, matrix[recommendation.level === '' ? 'facility' : recommendation.level]);
       const holder = (await apiGet<User[]>('/users', { id: recommendation.responsiblePersonId }))[0];
 
       if (today > deadline && holder?.role !== 'PCN_COORDINATOR') {
@@ -379,6 +383,69 @@ export function editRecommendation(
       category: 'assigned',
     }
   );
+}
+
+export interface ReviewChanges {
+  text: string;
+  gap: string;
+  classification: StoredRecommendation['classification'];
+  dueDate: string;
+  responsiblePersonId: string;
+  level: StoredRecommendation['level'];
+}
+
+export function reviewRecommendation(recommendation: StoredRecommendation, byUserId: string, changes: ReviewChanges) {
+  const moved = changes.responsiblePersonId !== recommendation.responsiblePersonId;
+  const changed = [
+    changes.text !== recommendation.text && 'recommendation text',
+    changes.gap !== recommendation.gap && 'gap',
+    changes.classification !== recommendation.classification && 'classification',
+    changes.dueDate !== recommendation.dueDate && `due date (${recommendation.dueDate} → ${changes.dueDate})`,
+    moved && 'responsible person',
+  ].filter(Boolean);
+  const recipient = moved ? changes.responsiblePersonId : recommendation.responsiblePersonId;
+
+  return applyChange(
+    recommendation,
+    { status: recommendation.status, ...changes },
+    byUserId,
+    'edited',
+    `Changed in the case review: ${changed.join(', ')}`,
+    {
+      recipientIds: recipient && recipient !== byUserId ? [recipient] : [],
+      message: moved
+        ? `${recommendation.code} was assigned to you in the case review`
+        : `${recommendation.code} assigned to you was changed in the case review`,
+      category: 'assigned',
+    }
+  );
+}
+
+export async function releaseRecommendation(
+  recommendation: StoredRecommendation,
+  byUserId: string,
+  changes: ReviewChanges,
+  changedNote: string
+) {
+  const acceptance = changes.level === 'sub-county' || changes.level === 'county';
+  return applyChange(
+    recommendation,
+    { ...changes, status: acceptance ? 'Pending acceptance' : 'Open' },
+    byUserId,
+    'released',
+    changedNote ? `Changed in the review: ${changedNote}` : '',
+    {
+      recipientIds: changes.responsiblePersonId ? [changes.responsiblePersonId] : [],
+      message: acceptance
+        ? `New recommendation needs your acceptance within ${await acceptanceDeadline(changes.level)}`
+        : 'New recommendation assigned to you',
+      category: acceptance ? 'acceptance-needed' : 'assigned',
+    }
+  );
+}
+
+export function withdrawHeldRecommendation(recommendation: StoredRecommendation, byUserId: string, reason: string) {
+  return applyChange(recommendation, { status: 'Cancelled' }, byUserId, 'cancelled', reason);
 }
 
 export function cancelRecommendation(recommendation: StoredRecommendation, byUserId: string, reason: string) {

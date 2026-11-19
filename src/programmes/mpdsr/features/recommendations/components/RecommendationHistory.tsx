@@ -17,6 +17,7 @@ const actionLabels: Record<RecommendationEventAction, string> = {
   'auto-escalated': 'Auto-escalated to the PCN coordinator',
   edited: 'Edited',
   cancelled: 'Cancelled',
+  released: 'Sent out after the case review',
 };
 
 interface RecommendationHistoryProps {

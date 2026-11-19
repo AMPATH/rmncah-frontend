@@ -100,6 +100,7 @@ function DashboardPage() {
     {
       title: 'Recommendations by status',
       rows: [
+        { label: 'Pending review', value: countStatus('Pending review') },
         { label: 'Open', value: countStatus('Open') },
         { label: 'In progress', value: countStatus('In progress') },
         { label: 'Overdue', value: countStatus('Overdue') },
