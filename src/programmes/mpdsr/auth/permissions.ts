@@ -74,8 +74,6 @@ export const rolePermissions: Record<Role, Permission[]> = {
     'reports.view',
   ],
   FACILITY_CHAIR: [
-    'issue.log',
-    'issue.logNearMiss',
     'recommendation.add',
     ...holder,
     'recommendation.approve',
