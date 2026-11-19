@@ -9,6 +9,8 @@ interface LocationFieldsProps {
   county: string;
   onSettingChange: (value: Setting | '') => void;
   onLoggedAtChange: (value: string) => void;
+  settingLocked?: boolean;
+  loggedAtLocked?: boolean;
 }
 
 function LocationFields({
@@ -19,6 +21,8 @@ function LocationFields({
   county,
   onSettingChange,
   onLoggedAtChange,
+  settingLocked = false,
+  loggedAtLocked = false,
 }: LocationFieldsProps) {
   return (
     <>
@@ -29,6 +33,7 @@ function LocationFields({
             id="setting"
             value={setting}
             onChange={(event) => onSettingChange(event.target.value as Setting | '')}
+            disabled={settingLocked}
             required
           >
             <option value="">Select setting</option>
@@ -36,7 +41,9 @@ function LocationFields({
             <option value="community">Community</option>
           </select>
           <span className="field-hint">
-            Where it happened. Facility issues must be logged from that facility.
+            {settingLocked
+              ? 'Set from your role: a CHP logs community issues, a facility reporter logs facility issues.'
+              : 'Where it happened. Facility issues must be logged from that facility.'}
           </span>
         </div>
 
@@ -46,7 +53,7 @@ function LocationFields({
             id="loggedAt"
             value={loggedAt}
             onChange={(event) => onLoggedAtChange(event.target.value)}
-            disabled={setting === ''}
+            disabled={setting === '' || loggedAtLocked}
             required={loggedAtOptions.length > 0}
           >
             <option value="">
@@ -59,7 +66,11 @@ function LocationFields({
             ))}
           </select>
           <span className="field-hint">
-            {setting === '' ? 'Choose a setting first.' : 'Only your assigned locations are listed.'}
+            {setting === ''
+              ? 'Choose a setting first.'
+              : loggedAtLocked
+                ? 'Your assigned place.'
+                : 'Only your assigned locations are listed.'}
           </span>
         </div>
       </div>

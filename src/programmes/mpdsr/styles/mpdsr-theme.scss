@@ -1,0 +1,61 @@
+@use '../../../styles/tokens' as *;
+
+.mpdsr-app,
+.mpdsr-app .cds--g10 {
+  --cds-button-primary: #{$primary};
+  --cds-button-primary-hover: #1e40af;
+  --cds-button-primary-active: #1e3a8a;
+  --cds-button-tertiary: #{$primary};
+  --cds-button-tertiary-hover: #1e40af;
+  --cds-button-tertiary-active: #1e3a8a;
+  --cds-interactive: #{$primary};
+  --cds-border-interactive: #{$primary};
+  --cds-focus: #{$primary};
+  --cds-link-primary: #{$primary};
+  --cds-link-primary-hover: #1e40af;
+  --cds-icon-interactive: #{$primary};
+}
+
+.mpdsr-app {
+  .page h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: $text;
+  }
+
+  .page-subtitle {
+    margin: 4px 0 0;
+    color: $muted;
+  }
+
+  .page-header {
+    margin-bottom: 24px;
+  }
+
+  .cds--data-table-container {
+    background: $card;
+    border: 1px solid $border;
+    border-radius: 8px;
+    overflow: hidden;
+    padding-top: 0;
+  }
+
+  .cds--data-table-header {
+    padding: 16px 16px 12px;
+    background: $card;
+  }
+
+  .cds--data-table-header__title {
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .table-empty {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    color: $muted;
+  }
+}
