@@ -8,6 +8,8 @@ import { useCurrentUser } from '../../../context/currentUserContext';
 import { issuesInScope } from '../../../auth/scope';
 import { useApiData } from '../../../hooks/useApiData';
 import AssignmentFields from '../components/recommendation/AssignmentFields';
+import GapField from '../components/recommendation/GapField';
+import { isReviewed } from '../utils/caseReview';
 import ClassificationFields from '../components/recommendation/ClassificationFields';
 import CompletionFields from '../components/recommendation/CompletionFields';
 import IdFields from '../components/recommendation/IdFields';
@@ -50,8 +52,12 @@ function RecommendationPage() {
   const users = allUsers.filter((user) => user.role !== 'SYSTEM_ADMIN' && user.id !== currentUser?.id && user.active !== false);
 
   const today = getToday();
+  const held = issue !== undefined && !isReviewed(issue);
   const missingDetails =
-    text.trim() === '' || responsiblePersonId === '' || classification === '' || level === '' || dateOfCompletion === '';
+    text.trim() === '' ||
+    (!held && (responsiblePersonId === '' || level === '')) ||
+    classification === '' ||
+    dateOfCompletion === '';
 
   const latestCompletion = classification ? addMonths(today, monthsAllowed[classification]) : '';
 
@@ -85,7 +91,14 @@ function RecommendationPage() {
     try {
       const saved = await addRecommendationToIssue(
         issue,
-        { gap, responsiblePersonId, text: text.trim(), classification, level, dateOfCompletion },
+        {
+          gap,
+          responsiblePersonId: held ? '' : responsiblePersonId,
+          text: text.trim(),
+          classification,
+          level: held ? '' : level,
+          dateOfCompletion,
+        },
         existingCodes
       );
       if (addAnother) {
@@ -126,14 +139,7 @@ function RecommendationPage() {
         <form className="form-card" onSubmit={handleSubmit} noValidate>
           <IdFields issueId={issue.code} />
 
-          <AssignmentFields
-            gap={gap}
-            responsiblePersonId={responsiblePersonId}
-            gapOptions={gapOptions}
-            users={users}
-            onGapChange={setGap}
-            onResponsiblePersonChange={setResponsiblePersonId}
-          />
+          <GapField gap={gap} gapOptions={gapOptions} onGapChange={setGap} />
 
           <RecommendationText text={text} onTextChange={setText} />
 
@@ -142,13 +148,34 @@ function RecommendationPage() {
             level={level}
             dateLogged={today}
             onClassificationChange={handleClassificationChange}
-            onLevelChange={setLevel}
+            onLevelChange={(value) => {
+              setLevel(value);
+              setResponsiblePersonId('');
+            }}
+            showLevel={!held}
           />
 
-          <RoutingHint level={level} />
+          {held ? (
+            <p className="form-note">
+              The facility MPDSR chair chooses the level of implementation and the responsible person during the case
+              review.
+            </p>
+          ) : (
+            <>
+              <AssignmentFields
+                responsiblePersonId={responsiblePersonId}
+                level={level}
+                users={users}
+                onResponsiblePersonChange={setResponsiblePersonId}
+              />
+
+              <RoutingHint level={level} />
+            </>
+          )}
 
           <CompletionFields
             level={level}
+            held={held}
             dateOfCompletion={dateOfCompletion}
             earliestDate={today}
             latestDate={latestCompletion}
@@ -162,7 +189,11 @@ function RecommendationPage() {
               lowContrast
               hideCloseButton
               title="Some details are missing"
-              subtitle="Fill in the responsible person, the recommendation, the classification, the level and the completion date."
+              subtitle={
+                held
+                  ? 'Fill in the recommendation, the classification and the completion date.'
+                  : 'Fill in the responsible person, the recommendation, the classification, the level and the completion date.'
+              }
             />
           )}
 

@@ -2,6 +2,7 @@ import TablePager from '../../../components/shared/TablePager';
 import { pageOf, usePager } from '../../../components/shared/tablePagerUtils';
 import type { ChangeEvent } from 'react';
 import { Link } from 'react-router';
+import { isReviewed } from '../utils/caseReview';
 import {
   DataTable,
   DataTableSkeleton,
@@ -15,6 +16,7 @@ import {
   TableToolbar,
   TableToolbarContent,
   TableToolbarSearch,
+  Tag,
 } from '@carbon/react';
 import { useCurrentUser } from '../../../context/currentUserContext';
 import { can } from '../../../auth/permissions';
@@ -35,6 +37,7 @@ const headers = [
   { key: 'issueType', header: 'Type' },
   { key: 'loggedAt', header: 'Logged at' },
   { key: 'dateLogged', header: 'Date logged' },
+  { key: 'review', header: 'Review' },
   { key: 'recommendations', header: 'Recommendations' },
   { key: 'stillOpen', header: 'Not closed' },
   { key: 'action', header: 'Actions' },
@@ -46,6 +49,7 @@ function IssuesPage() {
   const issuesData = useApiData<StoredIssue[]>(getIssues, []);
   const recommendationsData = useApiData<StoredRecommendation[]>(getStoredRecommendations, []);
   const canAdd = can(currentUser, 'recommendation.add');
+  const canReview = can(currentUser, 'issue.review');
 
   const rows = issuesInScope(issuesData.data, scope)
     .sort((a, b) => b.code.localeCompare(a.code))
@@ -57,6 +61,7 @@ function IssuesPage() {
         issueType: (issueTypeLabels[issue.issueType] ?? issue.issueType) + (issue.cancelled ? ' · Cancelled' : ''),
         loggedAt: issue.loggedAt,
         dateLogged: issue.dateLogged,
+        review: issue.cancelled ? '—' : isReviewed(issue) ? 'Reviewed' : 'Pending review',
         recommendations: ofIssue.length,
         stillOpen: ofIssue.filter((recommendation) => recommendation.status !== 'Closed' && recommendation.status !== 'Cancelled').length,
         action: '',
@@ -120,6 +125,18 @@ function IssuesPage() {
                                   <Link className="cds--link" to={`/issues/${row.id}`}>
                                     {cell.value}
                                   </Link>
+                                ) : cell.info.header === 'review' ? (
+                                  cell.value === '—' ? (
+                                    '—'
+                                  ) : cell.value === 'Pending review' && canReview ? (
+                                    <Link className="cds--link" to={`/issues/${row.id}/review`}>
+                                      Review case
+                                    </Link>
+                                  ) : (
+                                    <Tag type={cell.value === 'Reviewed' ? 'green' : 'purple'} size="sm">
+                                      {cell.value}
+                                    </Tag>
+                                  )
                                 ) : cell.info.header === 'action' ? (
                                   canAdd && (
                                     <Link className="cds--link" to={`/issues/${row.id}/recommendation`}>

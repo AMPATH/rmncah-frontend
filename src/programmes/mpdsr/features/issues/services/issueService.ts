@@ -1,10 +1,13 @@
 import { apiGet, apiPost } from '../../../api/apiClient';
+import { placesWithin } from '../../../auth/locations';
+import type { Location } from '../../../auth/locations';
+import type { IssueReview } from '../utils/caseReview';
 import type { AppNotification } from '../../notifications/types/notification.types';
 import { markOverdue } from '../../recommendations/services/recommendationService';
-import { acceptanceDeadline } from '../../recommendations/services/escalationMatrix';
 import type {
   DraftRecommendation,
   IssueType,
+  User,
   Recommendation,
   RecommendationStatus,
   Setting,
@@ -34,6 +37,7 @@ export interface StoredIssue extends NewIssue {
   dateLogged: string;
   cancelled?: boolean;
   cancelReason?: string;
+  review?: IssueReview;
 }
 
 export interface StoredRecommendation extends DraftRecommendation {
@@ -56,10 +60,6 @@ export async function getStoredRecommendations(): Promise<StoredRecommendation[]
   return markOverdue(recommendations);
 }
 
-function needsAcceptance(recommendation: DraftRecommendation) {
-  return recommendation.level === 'sub-county' || recommendation.level === 'county';
-}
-
 export async function createIssueWithRecommendations(
   issue: NewIssue,
   drafts: DraftRecommendation[],
@@ -76,9 +76,10 @@ export async function createIssueWithRecommendations(
     dateLogged: today,
   });
 
+  await notifyChairsToReview(savedIssue, today);
+
   for (const [index, draft] of drafts.entries()) {
     const code = `${issueCode}-R${index + 1}`;
-    const acceptance = needsAcceptance(draft);
 
     await apiPost<StoredRecommendation>('/recommendations', {
       ...draft,
@@ -86,30 +87,40 @@ export async function createIssueWithRecommendations(
       issueId: savedIssue.id,
       issueCode,
       dueDate: draft.dateOfCompletion,
-      status: acceptance ? 'Pending acceptance' : 'Open',
+      status: 'Pending review',
       timesRedone: 0,
       dateLogged: today,
-    });
-
-    if (!draft.responsiblePersonId) {
-      continue;
-    }
-
-    await apiPost<AppNotification>('/notifications', {
-      recipientId: draft.responsiblePersonId,
-      date: today,
-      at: new Date().toISOString(),
-      message: acceptance
-        ? `New recommendation needs your acceptance within ${await acceptanceDeadline(draft.level)}`
-        : 'New recommendation assigned to you',
-      recommendationId: code,
-      from: 'System',
-      category: acceptance ? 'acceptance-needed' : 'assigned',
-      read: false,
     });
   }
 
   return savedIssue;
+}
+
+async function notifyChairsToReview(issue: StoredIssue, today: string) {
+  try {
+    const [users, locations] = await Promise.all([apiGet<User[]>('/users'), apiGet<Location[]>('/locations')]);
+    const chairs = users.filter(
+      (user) =>
+        user.role === 'FACILITY_CHAIR' &&
+        user.active !== false &&
+        user.deleted !== true &&
+        placesWithin(user.assignedLocations, locations).has(issue.loggedAt)
+    );
+    for (const chair of chairs) {
+      await apiPost<AppNotification>('/notifications', {
+        recipientId: chair.id,
+        date: today,
+        at: new Date().toISOString(),
+        message: `New issue ${issue.code} needs your case review`,
+        recommendationId: issue.code,
+        from: 'System',
+        category: 'review-needed',
+        read: false,
+      });
+    }
+  } catch {
+    return;
+  }
 }
 
 export function toTableRow(recommendation: StoredRecommendation): Recommendation {

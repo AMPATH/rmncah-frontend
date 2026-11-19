@@ -1,0 +1,86 @@
+.mpdsr-app {
+  .review-case {
+    &__subtitle {
+      margin: 24px 0 8px;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    &__error {
+      margin: 4px 0 0;
+      font-size: 0.75rem;
+      color: #da1e28;
+    }
+
+    &__changes {
+      display: grid;
+      gap: 8px;
+      margin: 0 0 16px;
+      padding: 0;
+      list-style: none;
+
+      li {
+        display: grid;
+        gap: 2px;
+        padding: 8px 12px;
+        border-left: 3px solid #1d4ed8;
+        background-color: #f4f7ff;
+        font-size: 0.875rem;
+      }
+
+      span {
+        color: #525252;
+        overflow-wrap: anywhere;
+      }
+    }
+  }
+
+  .review-rec {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #ffffff;
+
+    &__head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+
+      .cds--btn {
+        margin-left: auto;
+      }
+    }
+
+    &__text {
+      margin: 0;
+      color: #525252;
+    }
+
+    &--removed {
+      background-color: #fff1f1;
+      border-style: dashed;
+    }
+
+    &--locked {
+      background-color: #f4f4f4;
+    }
+  }
+}
+
+.mpdsr-app .review-case__logged {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-left: 3px solid #1d4ed8;
+  background-color: #f4f7ff;
+
+  span {
+    font-size: 0.75rem;
+    color: #525252;
+  }
+}

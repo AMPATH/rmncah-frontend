@@ -10,6 +10,10 @@ describe('who can log issues', () => {
     expect(loggers.sort()).toEqual(['CHP', 'FACILITY_REPORTER']);
   });
 
+  it('lets only the facility MPDSR chair review a case', () => {
+    expect(roles.filter((role) => can({ role }, 'issue.review'))).toEqual(['FACILITY_CHAIR']);
+  });
+
   it('lets only the facility reporter log near misses', () => {
     expect(roles.filter((role) => can({ role }, 'issue.logNearMiss'))).toEqual(['FACILITY_REPORTER']);
   });

@@ -48,3 +48,20 @@
 .mpdsr-app .issue-detail__history {
   margin-bottom: 16px;
 }
+
+.mpdsr-app {
+  .issue-detail__title {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+
+    .cds--tag {
+      margin: 0;
+    }
+  }
+
+  .issue-detail__review {
+    margin-bottom: 16px;
+  }
+}

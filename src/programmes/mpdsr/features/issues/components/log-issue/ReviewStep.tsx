@@ -16,7 +16,7 @@ function ReviewStep({ items, recommendationCount }: ReviewStepProps) {
         lowContrast
         hideCloseButton
         title="On submit"
-        subtitle={`The system creates the issue ID and ${recommendationCount} recommendation ID(s), routes each recommendation and sends the notifications.`}
+        subtitle={`The system creates the issue ID and ${recommendationCount} recommendation ID(s). The facility MPDSR chair reviews the case first; only then is each recommendation sent to its responsible person.`}
       />
     </>
   );
