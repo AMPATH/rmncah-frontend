@@ -6,6 +6,7 @@ import {
   Settings,
   Logout,
   Close,
+  Checkmark,
 } from '@carbon/icons-react'
 
 import { useNavigate } from 'react-router'
@@ -16,9 +17,13 @@ import './ProfileMenu.scss'
 
 interface ProfileMenuProps {
   activeRole: UserRole
+  onRoleChange: (role: UserRole) => void
 }
 
-function ProfileMenu({ activeRole }: ProfileMenuProps) {
+function ProfileMenu({
+  activeRole,
+  onRoleChange,
+}: ProfileMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [isSignOutDialogOpen, setIsSignOutDialogOpen] =
     useState(false)
@@ -51,10 +56,18 @@ function ProfileMenu({ activeRole }: ProfileMenuProps) {
     document.addEventListener('keydown', handleEscape)
 
     return () => {
-      document.removeEventListener('mousedown', handleOutsideClick)
+      document.removeEventListener(
+        'mousedown',
+        handleOutsideClick,
+      )
       document.removeEventListener('keydown', handleEscape)
     }
   }, [])
+
+  function handleRoleSelection(role: UserRole) {
+    onRoleChange(role)
+    setIsOpen(false)
+  }
 
   function handleSignOutClick() {
     setIsOpen(false)
@@ -94,6 +107,7 @@ function ProfileMenu({ activeRole }: ProfileMenuProps) {
             role="menu"
             aria-label="Account options"
           >
+            {/* Account information */}
             <div className="emonc-profile-menu__account">
               <User size={24} />
 
@@ -107,6 +121,46 @@ function ProfileMenu({ activeRole }: ProfileMenuProps) {
 
             <div className="emonc-profile-menu__divider" />
 
+            {/* Role switching */}
+            <div className="emonc-profile-menu__role-section">
+              <div className="emonc-profile-menu__role-heading">
+                SWITCH ROLE
+              </div>
+
+              {roles.map((role) => {
+                const isActive = activeRole === role.id
+
+                return (
+                  <button
+                    type="button"
+                    key={role.id}
+                    role="menuitemradio"
+                    aria-checked={isActive}
+                    className={`emonc-profile-menu__role-option ${
+                      isActive
+                        ? 'emonc-profile-menu__role-option--active'
+                        : ''
+                    }`}
+                    onClick={() =>
+                      handleRoleSelection(role.id)
+                    }
+                  >
+                    <span>{role.label}</span>
+
+                    {isActive && (
+                      <Checkmark
+                        size={16}
+                        className="emonc-profile-menu__role-check"
+                      />
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="emonc-profile-menu__divider" />
+
+            {/* Profile */}
             <button
               type="button"
               className="emonc-profile-menu__item"
@@ -119,6 +173,7 @@ function ProfileMenu({ activeRole }: ProfileMenuProps) {
               <small>Coming soon</small>
             </button>
 
+            {/* Settings */}
             <button
               type="button"
               className="emonc-profile-menu__item"
@@ -133,6 +188,7 @@ function ProfileMenu({ activeRole }: ProfileMenuProps) {
 
             <div className="emonc-profile-menu__divider" />
 
+            {/* Sign out */}
             <button
               type="button"
               className="emonc-profile-menu__item emonc-profile-menu__item--signout"
@@ -150,6 +206,7 @@ function ProfileMenu({ activeRole }: ProfileMenuProps) {
         )}
       </div>
 
+      {/* Sign-out confirmation */}
       {isSignOutDialogOpen && (
         <div
           className="emonc-profile-dialog-backdrop"

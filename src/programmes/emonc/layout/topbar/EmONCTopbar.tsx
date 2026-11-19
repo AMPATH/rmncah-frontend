@@ -1,16 +1,12 @@
 
-import { useEffect, useRef, useState } from 'react'
-
 import {
   Search,
   Notification,
-  ChevronDown,
-  Checkmark,
   Menu,
   Close,
 } from '@carbon/icons-react'
 
-import { roles, type UserRole } from '../../config/roles'
+import { type UserRole } from '../../config/roles'
 import ProfileMenu from './profile/ProfileMenu'
 
 import './EmONCTopbar.scss'
@@ -30,50 +26,6 @@ export default function EmONCTopbar({
   onMenuClick,
   mobileMenuOpen,
 }: EmONCTopbarProps) {
-  const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false)
-
-  const roleSwitcherRef = useRef<HTMLDivElement>(null)
-
-  const selectedRole = roles.find(
-    (role) => role.id === activeRole,
-  )
-
-  useEffect(() => {
-    function handleOutsideClick(event: MouseEvent) {
-      if (
-        roleSwitcherRef.current &&
-        !roleSwitcherRef.current.contains(event.target as Node)
-      ) {
-        setIsRoleMenuOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleOutsideClick)
-
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideClick)
-    }
-  }, [])
-
-  useEffect(() => {
-    function handleEscape(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        setIsRoleMenuOpen(false)
-      }
-    }
-
-    document.addEventListener('keydown', handleEscape)
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape)
-    }
-  }, [])
-
-  function handleRoleSelection(role: UserRole) {
-    onRoleChange(role)
-    setIsRoleMenuOpen(false)
-  }
-
   return (
     <header className="emonc-topbar">
       <button
@@ -97,9 +49,11 @@ export default function EmONCTopbar({
 
       <div className="emonc-topbar__breadcrumb">
         <span>Workspace</span>
+
         <span className="emonc-topbar__breadcrumb-separator">
           /
         </span>
+
         <strong>{pageTitle}</strong>
       </div>
 
@@ -120,82 +74,10 @@ export default function EmONCTopbar({
           <Notification size={20} />
         </button>
 
-        {/* Development role preview */}
-        <div
-          className="emonc-topbar__role-switcher"
-          ref={roleSwitcherRef}
-        >
-          <button
-            type="button"
-            className={`emonc-topbar__role-trigger ${
-              isRoleMenuOpen
-                ? 'emonc-topbar__role-trigger--open'
-                : ''
-            }`}
-            aria-label="Select application role"
-            aria-expanded={isRoleMenuOpen}
-            aria-haspopup="menu"
-            onClick={() => setIsRoleMenuOpen((open) => !open)}
-          >
-            <span className="emonc-topbar__role-name">
-              {selectedRole?.label ?? 'County Mentor / RH / MOH'}
-            </span>
-
-            <ChevronDown
-              size={16}
-              className={`emonc-topbar__chevron ${
-                isRoleMenuOpen
-                  ? 'emonc-topbar__chevron--open'
-                  : ''
-              }`}
-            />
-          </button>
-
-          {isRoleMenuOpen && (
-            <div
-              className="emonc-topbar__role-menu"
-              role="menu"
-              aria-label="Switch application role"
-            >
-              <div className="emonc-topbar__role-menu-heading">
-                SWITCH ROLE
-              </div>
-
-              {roles.map((role) => {
-                const isActive = activeRole === role.id
-
-                return (
-                  <button
-                    type="button"
-                    key={role.id}
-                    role="menuitemradio"
-                    aria-checked={isActive}
-                    className={`emonc-topbar__role-option ${
-                      isActive
-                        ? 'emonc-topbar__role-option--active'
-                        : ''
-                    }`}
-                    onClick={() => handleRoleSelection(role.id)}
-                  >
-                    <span className="emonc-topbar__role-option-label">
-                      <span>{role.label}</span>
-                    </span>
-
-                    {isActive && (
-                      <Checkmark
-                        size={16}
-                        className="emonc-topbar__role-check"
-                      />
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Account profile menu */}
-        <ProfileMenu activeRole={activeRole} />
+        <ProfileMenu
+          activeRole={activeRole}
+          onRoleChange={onRoleChange}
+        />
       </div>
     </header>
   )

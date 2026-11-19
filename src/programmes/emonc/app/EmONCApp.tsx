@@ -57,7 +57,7 @@ import AdminReportsPage from '../features/system-admin/pages/ReportsPage'
 
 import './App.scss'
 
-const DEFAULT_PATH = '/county-mentor/overview'
+const DEFAULT_PATH = '/program-lead/overview'
 const EMONC_PREFIX = '/emonc'
 
 function App() {
@@ -85,7 +85,7 @@ function App() {
         .some((item) => item.path === requestedPath),
   )
 
-  const activeRole: UserRole = matchedRole ?? 'county-mentor'
+  const activeRole: UserRole = matchedRole ?? 'program-lead'
   const activePath = matchedRole ? requestedPath : DEFAULT_PATH
 
   const currentNavigation = navigationByRole[activeRole]
