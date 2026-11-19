@@ -20,6 +20,7 @@ export const actionLabels: Record<ActionKey, string> = {
 };
 
 export const statusColours: Record<string, string> = {
+  'Pending review': '#0072c3',
   Open: '#1d4ed8',
   'In progress': '#007d79',
   'Pending acceptance': '#d02670',
@@ -29,7 +30,7 @@ export const statusColours: Record<string, string> = {
   Cancelled: '#8d8d8d',
 };
 
-const statusOrder = ['Pending acceptance', 'Open', 'In progress', 'Pending approval', 'Overdue', 'Closed', 'Cancelled'];
+const statusOrder = ['Pending review', 'Pending acceptance', 'Open', 'In progress', 'Pending approval', 'Overdue', 'Closed', 'Cancelled'];
 const classificationLabels: Record<string, string> = {
   immediate: 'Immediate',
   intermediate: 'Intermediate',
