@@ -1,13 +1,13 @@
 import { Tag } from '@carbon/react';
 import type { RecommendationStatus } from '../../features/issues/types/issue.types';
 
-const statusColours: Record<RecommendationStatus, 'blue' | 'teal' | 'magenta' | 'purple' | 'red' | 'gray'> = {
+const statusColours: Record<RecommendationStatus, 'blue' | 'teal' | 'magenta' | 'purple' | 'red' | 'green' | 'gray'> = {
   Open: 'blue',
   'In progress': 'teal',
   'Pending acceptance': 'magenta',
   'Pending approval': 'purple',
   Overdue: 'red',
-  Closed: 'gray',
+  Closed: 'green',
   Cancelled: 'gray',
 };
 

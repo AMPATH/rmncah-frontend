@@ -5,7 +5,7 @@ import { useApiData } from '../../../hooks/useApiData';
 import ApiErrorNotice from '../../../components/shared/ApiErrorNotice';
 import { getIssues, getStoredRecommendations, toTableRow } from '../../issues/services/issueService';
 import type { StoredIssue, StoredRecommendation } from '../../issues/services/issueService';
-import RecommendationsTable from '../../my-work/components/RecommendationsTable';
+import RecommendationsTable from '../../overview/components/RecommendationsTable';
 
 function OverdueListPage() {
   const { currentUser, scope } = useCurrentUser();
