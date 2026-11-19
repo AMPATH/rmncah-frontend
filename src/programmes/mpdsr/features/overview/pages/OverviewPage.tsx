@@ -144,8 +144,8 @@ function OverviewPage() {
       ) : (
         <>
           <div className="overview-kpis">
-            <KpiCard value={loggedByMe.length} label="Issues you logged" />
-            <KpiCard value={figures.recommendations} label="Your recommendations" />
+            <KpiCard value={loggedByMe.length} label="Issues logged" />
+            <KpiCard value={figures.recommendations} label="Recommendations" />
             <KpiCard value={figures.overdue} label="Overdue" alert={figures.overdue > 0} />
             <KpiCard value={figures.closedByDueDate} label={`Closed by due date (${figures.closedByDueDateDetail})`} />
             <KpiCard value={figures.redone} label={`Redone (${figures.timesRedone} ${figures.timesRedone === 1 ? 'time' : 'times'})`} />
