@@ -150,7 +150,7 @@
     height: 100%;
     transition: width 0.2s ease;
 
-    &--published {
+    &--completed {
       background: #198038;
     }
 
@@ -188,7 +188,7 @@
     height: 8px;
     border-radius: 50%;
 
-    &--published {
+    &--completed {
       background: #198038;
     }
 
@@ -198,6 +198,9 @@
 
     &--incomplete {
       background: #da1e28;
+    }
+    &--completed {
+      background: #198038;
     }
   }
 }
@@ -439,4 +442,290 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+}
+
+// PROGRAMME-WIDE OVERSIGHT
+
+.emonc-app {
+  .programme-overview,
+  .programme-curriculum {
+    margin-top: 28px;
+  }
+
+  .programme-overview {
+    &__heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 16px;
+
+      h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      p {
+        margin: 5px 0 0;
+        color: #858d89;
+        font-size: 12px;
+      }
+    }
+
+    &__statistics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    &__card {
+      min-width: 0;
+      padding: 20px;
+      background: #fff;
+      border: 1px solid #e7ebe8;
+      border-radius: 8px;
+
+      > span {
+        color: #68716d;
+        font-size: 13px;
+      }
+
+      > strong {
+        display: block;
+        margin-top: 17px;
+        font-size: 29px;
+        font-weight: 600;
+        line-height: 1;
+      }
+
+      > p {
+        min-height: 18px;
+        margin: 9px 0 8px;
+        color: #858d89;
+        font-size: 12px;
+      }
+    }
+
+    &__attention {
+      margin-top: 24px;
+      padding: 22px;
+      background: #fff;
+      border: 1px solid #e7ebe8;
+      border-radius: 8px;
+    }
+
+    &__attention-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0 24px;
+    }
+
+    &__attention-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 15px 0;
+      border-bottom: 1px solid #edf0ee;
+
+      > strong {
+        min-width: 34px;
+        color: #285b49;
+        font-size: 21px;
+        font-weight: 600;
+      }
+
+      h3 {
+        margin: 0;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      p {
+        margin: 5px 0 0;
+        color: #858d89;
+        font-size: 11px;
+        line-height: 1.5;
+      }
+    }
+  }
+
+  .programme-curriculum {
+    &__heading {
+      margin-bottom: 16px;
+
+      h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      p {
+        margin: 5px 0 0;
+        color: #858d89;
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+@media (max-width: 1100px) {
+  .emonc-app .programme-overview__statistics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .emonc-app .programme-overview {
+    &__statistics,
+    &__attention-list {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    &__attention {
+      padding: 17px;
+    }
+  }
+}
+
+// PROGRAMME-WIDE OVERSIGHT
+
+.emonc-app {
+  .programme-overview,
+  .programme-curriculum {
+    margin-top: 28px;
+  }
+
+  .programme-overview {
+    &__heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 16px;
+
+      h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      p {
+        margin: 5px 0 0;
+        color: #858d89;
+        font-size: 12px;
+      }
+    }
+
+    &__statistics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    &__card {
+      min-width: 0;
+      padding: 20px;
+      background: #fff;
+      border: 1px solid #e7ebe8;
+      border-radius: 8px;
+
+      > span {
+        color: #68716d;
+        font-size: 13px;
+      }
+
+      > strong {
+        display: block;
+        margin-top: 17px;
+        font-size: 29px;
+        font-weight: 600;
+        line-height: 1;
+      }
+
+      > p {
+        min-height: 18px;
+        margin: 9px 0 8px;
+        color: #858d89;
+        font-size: 12px;
+      }
+    }
+
+    &__attention {
+      margin-top: 24px;
+      padding: 22px;
+      background: #fff;
+      border: 1px solid #e7ebe8;
+      border-radius: 8px;
+    }
+
+    &__attention-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0 24px;
+    }
+
+    &__attention-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 15px 0;
+      border-bottom: 1px solid #edf0ee;
+
+      > strong {
+        min-width: 34px;
+        color: #285b49;
+        font-size: 21px;
+        font-weight: 600;
+      }
+
+      h3 {
+        margin: 0;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      p {
+        margin: 5px 0 0;
+        color: #858d89;
+        font-size: 11px;
+        line-height: 1.5;
+      }
+    }
+  }
+
+  .programme-curriculum {
+    &__heading {
+      margin-bottom: 16px;
+
+      h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      p {
+        margin: 5px 0 0;
+        color: #858d89;
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+@media (max-width: 1100px) {
+  .emonc-app .programme-overview__statistics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .emonc-app .programme-overview {
+    &__statistics,
+    &__attention-list {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    &__attention {
+      padding: 17px;
+    }
+  }
 }

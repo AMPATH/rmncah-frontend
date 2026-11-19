@@ -28,7 +28,7 @@ function ContentAttention({
       <div className="program-panel__header">
         <div>
           <h2>Content requiring attention</h2>
-          <p>Complete these activities to prepare training modules for publication.</p>
+          <p>Complete these activities to improve training module content readiness.</p>
         </div>
       </div>
 

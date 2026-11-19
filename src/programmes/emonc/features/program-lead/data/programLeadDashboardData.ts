@@ -7,45 +7,36 @@ import type {
 } from '../types/program-lead.types'
 
 /**
- * Program Lead dashboard statistics.
- * Currently using demonstration data until backend integration.
- */
-export const programDashboardStatistics: ProgramDashboardStatistics = {
-  totalModules: 12,
-  publishedModules: 8,
-  draftModules: 3,
-  incompleteModules: 1,
-  totalSections: 42,
-  totalMaterials: 86,
-}
-
-/**
- * Recently updated training modules.
+ * Currently available demonstration training module records.
+ *
+ * The official EmONC curriculum contains 13 modules.
+ * The remaining official module records will be added when
+ * the approved module titles and content are provided.
  */
 export const programModules: ProgramModule[] = [
   {
     id: 'MOD-001',
     title: 'Emergency Obstetric Care',
     category: 'EmONC',
-    sectionsCount: 8,
-    materialsCount: 18,
-    status: 'Published',
+    sectionsCount: 4,
+    materialsCount: 4,
+    status: 'Completed',
     updatedAt: '08 Nov 2026',
   },
   {
     id: 'MOD-002',
     title: 'Basic Newborn Care',
     category: 'Newborn Health',
-    sectionsCount: 6,
-    materialsCount: 14,
-    status: 'Published',
+    sectionsCount: 3,
+    materialsCount: 3,
+    status: 'Completed',
     updatedAt: '07 Nov 2026',
   },
   {
     id: 'MOD-003',
     title: 'Maternal and Perinatal Death Surveillance',
     category: 'MPDSR',
-    sectionsCount: 5,
+    sectionsCount: 2,
     materialsCount: 0,
     status: 'Incomplete content',
     updatedAt: '06 Nov 2026',
@@ -54,21 +45,54 @@ export const programModules: ProgramModule[] = [
     id: 'MOD-004',
     title: 'Essential Newborn Resuscitation',
     category: 'Newborn Health',
-    sectionsCount: 4,
-    materialsCount: 9,
-    status: 'Draft',
+    sectionsCount: 2,
+    materialsCount: 2,
+    status: 'Completed',
     updatedAt: '05 Nov 2026',
   },
   {
     id: 'MOD-005',
     title: 'Management of Obstetric Emergencies',
     category: 'EmONC',
-    sectionsCount: 7,
-    materialsCount: 16,
-    status: 'Published',
+    sectionsCount: 2,
+    materialsCount: 1,
+    status: 'Completed',
     updatedAt: '03 Nov 2026',
   },
 ]
+
+/**
+ * Program Lead dashboard statistics.
+ *
+ * totalModules represents the expected official curriculum count.
+ * Other statistics are calculated from currently available records.
+ */
+export const programDashboardStatistics: ProgramDashboardStatistics = {
+  totalModules: 13,
+
+  completeModules: programModules.filter(
+    (module) =>
+      module.sectionsCount > 0 && module.materialsCount > 0,
+  ).length,
+
+  draftModules: programModules.filter(
+    (module) => module.status === 'Draft',
+  ).length,
+
+  incompleteModules: programModules.filter(
+    (module) => module.status === 'Incomplete content',
+  ).length,
+
+  totalSections: programModules.reduce(
+    (total, module) => total + module.sectionsCount,
+    0,
+  ),
+
+  totalMaterials: programModules.reduce(
+    (total, module) => total + module.materialsCount,
+    0,
+  ),
+}
 
 /**
  * Content requiring attention.
@@ -79,7 +103,9 @@ export const contentAttentionItems: ContentAttentionItem[] = [
     title: 'Modules missing sections',
     description:
       'Some training modules need sections created before their content can be completed.',
-    count: 2,
+    count: programModules.filter(
+      (module) => module.sectionsCount === 0,
+    ).length,
     actionLabel: 'Manage sections',
     path: '/program-lead/module-sections',
   },
@@ -88,18 +114,11 @@ export const contentAttentionItems: ContentAttentionItem[] = [
     title: 'Modules missing learning materials',
     description:
       'Add e-books, presentations or videos to support the training modules.',
-    count: 3,
+    count: programModules.filter(
+      (module) => module.materialsCount === 0,
+    ).length,
     actionLabel: 'Manage materials',
     path: '/program-lead/learning-materials',
-  },
-  {
-    id: 'ATT-003',
-    title: 'Modules ready for publication',
-    description:
-      'Publish completed training modules to make them available in the Module Library.',
-    count: 2,
-    actionLabel: 'Open module library',
-    path: '/program-lead/module-library',
   },
 ]
 
@@ -109,9 +128,9 @@ export const contentAttentionItems: ContentAttentionItem[] = [
 export const programActivities: ProgramActivity[] = [
   {
     id: 'ACT-001',
-    action: 'Module published',
+    action: 'Training module completed',
     description:
-      'Emergency Obstetric Care was published to the Module Library.',
+      'Emergency Obstetric Care has its sections and learning materials in place.',
     actor: 'Program Lead',
     date: '08 Nov 2026',
   },

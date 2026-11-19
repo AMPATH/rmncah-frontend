@@ -35,11 +35,11 @@ interface ModuleLibraryPageProps {
   onNavigate: (path: string) => void
 }
 
-type LibraryFilter = 'all' | 'Published' | 'Draft' | 'Incomplete content'
+type LibraryFilter = 'all' | ProgramModuleStatus
 
 const getStatusTagType = (status: ProgramModuleStatus) => {
   switch (status) {
-    case 'Published':
+    case 'Completed':
       return 'green' as const
 
     case 'Incomplete content':
@@ -54,8 +54,7 @@ const ModuleLibraryPage = ({
   title,
   onNavigate,
 }: ModuleLibraryPageProps) => {
-  const [modules, setModules] =
-    useState<ProgramModule[]>(programModules)
+  const modules = programModules
 
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] =
@@ -82,6 +81,13 @@ const ModuleLibraryPage = ({
         materials,
         actualSectionsCount: sections.length,
         actualMaterialsCount: materials.length,
+        status: (
+          sections.length === 0 && materials.length === 0
+            ? 'Draft'
+            : isReady
+              ? 'Completed'
+              : 'Incomplete content'
+        ) as ProgramModuleStatus,
         isReady,
       }
     })
@@ -106,78 +112,18 @@ const ModuleLibraryPage = ({
 
   const statistics = useMemo(() => {
     return {
-      total: modules.length,
-      published: modules.filter(
-        (module) => module.status === 'Published',
+      total: moduleContent.length,
+      completed: moduleContent.filter(
+        (module) => module.status === 'Completed',
       ).length,
-      drafts: modules.filter(
+      drafts: moduleContent.filter(
         (module) => module.status === 'Draft',
       ).length,
-      incomplete: modules.filter(
+      incomplete: moduleContent.filter(
         (module) => module.status === 'Incomplete content',
       ).length,
     }
-  }, [modules])
-
-  const handlePublish = (module: ProgramModule) => {
-    const sections = initialModuleSections.filter(
-      (section) => section.moduleId === module.id,
-    )
-
-    const materials = initialLearningMaterials.filter(
-      (material) => material.moduleId === module.id,
-    )
-
-    if (sections.length === 0 || materials.length === 0) {
-      return
-    }
-
-    setModules((currentModules) =>
-      currentModules.map((currentModule) =>
-        currentModule.id === module.id
-          ? {
-              ...currentModule,
-              status: 'Published',
-              updatedAt: new Date().toISOString(),
-            }
-          : currentModule,
-      ),
-    )
-
-    setSelectedModule((currentSelected) =>
-      currentSelected?.id === module.id
-        ? {
-            ...currentSelected,
-            status: 'Published',
-            updatedAt: new Date().toISOString(),
-          }
-        : currentSelected,
-    )
-  }
-
-  const handleUnpublish = (module: ProgramModule) => {
-    setModules((currentModules) =>
-      currentModules.map((currentModule) =>
-        currentModule.id === module.id
-          ? {
-              ...currentModule,
-              status: 'Draft',
-              updatedAt: new Date().toISOString(),
-            }
-          : currentModule,
-      ),
-    )
-
-    setSelectedModule((currentSelected) =>
-      currentSelected?.id === module.id
-        ? {
-            ...currentSelected,
-            status: 'Draft',
-            updatedAt: new Date().toISOString(),
-          }
-        : currentSelected,
-    )
-  }
+  }, [moduleContent])
 
   const handleOpenDetails = (module: ProgramModule) => {
     setSelectedModule(module)
@@ -210,8 +156,8 @@ const ModuleLibraryPage = ({
           </h1>
 
           <p className="program-module-library__description">
-            Review training content and manage which EmONC modules are
-            available to mentors through the Module Library.
+            Explore the EmONC curriculum, review module structure and
+            monitor the completeness of training content.
           </p>
         </div>
 
@@ -242,17 +188,17 @@ const ModuleLibraryPage = ({
         </div>
 
         <div className="program-module-library__stat-card">
-          <div className="program-module-library__stat-icon program-module-library__stat-icon--published">
+          <div className="program-module-library__stat-icon program-module-library__stat-icon--completed">
             <CheckmarkFilled size={20} />
           </div>
 
           <div>
             <span className="program-module-library__stat-label">
-              Published
+              Completed
             </span>
 
             <strong className="program-module-library__stat-value">
-              {statistics.published}
+              {statistics.completed}
             </strong>
           </div>
         </div>
@@ -296,7 +242,7 @@ const ModuleLibraryPage = ({
             <h2>Training module library</h2>
 
             <p>
-              Review module content and control publication availability.
+              Browse module sections and learning materials, and review content readiness.
             </p>
           </div>
 
@@ -319,14 +265,14 @@ const ModuleLibraryPage = ({
           <div className="program-module-library__filter">
             <Select
               id="library-status-filter"
-              labelText="Publication status"
+              labelText="Content readiness"
               value={statusFilter}
               onChange={(event) =>
                 setStatusFilter(event.target.value as LibraryFilter)
               }
             >
               <SelectItem value="all" text="All statuses" />
-              <SelectItem value="Published" text="Published" />
+              <SelectItem value="Completed" text="Completed" />
               <SelectItem value="Draft" text="Draft" />
               <SelectItem
                 value="Incomplete content"
@@ -343,8 +289,7 @@ const ModuleLibraryPage = ({
             <h3>No modules found</h3>
 
             <p>
-              Try another search term or change the publication status
-              filter.
+              Try another search term or change the content readiness filter.
             </p>
           </div>
         ) : (
@@ -386,8 +331,9 @@ const ModuleLibraryPage = ({
                     <WarningAlt size={16} />
 
                     <span>
-                      Add at least one section and one learning material
-                      before publishing.
+                      {module.status === 'Draft'
+                        ? 'No sections or learning materials have been added yet.'
+                        : 'This module still needs sections or learning materials.'}
                     </span>
                   </div>
                 )}
@@ -402,24 +348,7 @@ const ModuleLibraryPage = ({
                     Preview
                   </Button>
 
-                  {module.status === 'Published' ? (
-                    <Button
-                      kind="tertiary"
-                      size="sm"
-                      onClick={() => handleUnpublish(module)}
-                    >
-                      Unpublish
-                    </Button>
-                  ) : (
-                    <Button
-                      kind="primary"
-                      size="sm"
-                      disabled={!module.isReady}
-                      onClick={() => handlePublish(module)}
-                    >
-                      Publish
-                    </Button>
-                  )}
+
                 </div>
               </article>
             ))}
@@ -430,31 +359,10 @@ const ModuleLibraryPage = ({
       <Modal
         open={selectedModule !== null}
         modalHeading={selectedModule?.title ?? 'Module details'}
-        modalLabel="MODULE LIBRARY PREVIEW"
-        primaryButtonText={
-          selectedModule?.status === 'Published'
-            ? 'Unpublish module'
-            : 'Publish module'
-        }
-        secondaryButtonText="Close"
-        primaryButtonDisabled={
-          selectedModule?.status !== 'Published' &&
-          selectedModule !== null &&
-          (
-            getModuleSections(selectedModule.id).length === 0 ||
-            getModuleMaterials(selectedModule.id).length === 0
-          )
-        }
+        modalLabel="CURRICULUM OVERVIEW"
+        primaryButtonText="Close"
         onRequestClose={handleCloseDetails}
-        onRequestSubmit={() => {
-          if (!selectedModule) return
-
-          if (selectedModule.status === 'Published') {
-            handleUnpublish(selectedModule)
-          } else {
-            handlePublish(selectedModule)
-          }
-        }}
+        onRequestSubmit={handleCloseDetails}
       >
         {selectedModule && (
           <div className="program-module-library__preview">
@@ -470,7 +378,7 @@ const ModuleLibraryPage = ({
               </div>
 
               <div>
-                <span>Publication status</span>
+                <span>Content readiness</span>
                 <Tag type={getStatusTagType(selectedModule.status)}>
                   {selectedModule.status}
                 </Tag>
@@ -560,20 +468,7 @@ const ModuleLibraryPage = ({
               )}
             </div>
 
-            {selectedModule.status !== 'Published' &&
-              (
-                getModuleSections(selectedModule.id).length === 0 ||
-                getModuleMaterials(selectedModule.id).length === 0
-              ) && (
-                <div className="program-module-library__readiness program-module-library__readiness--warning">
-                  <WarningAlt size={16} />
 
-                  <span>
-                    This module is not ready for publication. Add at least
-                    one section and one learning material first.
-                  </span>
-                </div>
-              )}
           </div>
         )}
       </Modal>
