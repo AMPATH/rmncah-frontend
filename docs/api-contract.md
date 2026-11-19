@@ -60,7 +60,7 @@ Roles (the backend's predefined role codes): `SYSTEM_ADMIN` (module PLATFORM); `
 |---|---|---|
 | GET | `/locations` | `LocationDto[]`: `{ id, name, type, parentId }`, type one of `county`, `sub-county`, `facility`, `community-unit` |
 | POST | `/locations` | (admin) body `CreateLocationRequest`: `{ name, type, parentId }` → `LocationDto`. The parent must be one level up (a facility sits in a sub-county); 409 if the name is taken |
-| GET | `/reference/icd11-causes?search=haem` | `ReferenceItemDto[]`: `{ id, code, label }` |
+| GET | `/reference/icd11-causes?search=haem&issueType=` | `{ id, code, name, appliesTo, active }[]`: active causes for the issue type; json-server stand-in is `/causesOfDeath` |
 | GET | `/reference/delay-factors` | `ReferenceItemDto[]`: `{ id, label, delayLevel }` |
 
 ### Issues
@@ -79,7 +79,21 @@ Roles (the backend's predefined role codes): `SYSTEM_ADMIN` (module PLATFORM); `
 
 **Cancelling an issue.** Facility MPDSR chair only, with a reason. The server cancels the issue's recommendations that are still running (with the same reason) and leaves cancelled issues out of the reports.
 
-`POST /issues` saves the issue and all its recommendations in **one transaction**, sets each recommendation's status (`Open`, or `Pending acceptance` for sub-county and county) and sends the notifications. `POST /issues/:id/recommendations` does the same for one recommendation added later (e.g. after the review meeting).
+`POST /issues` saves the issue and all its recommendations in **one transaction**. Each recommendation starts as `Pending review` with **no `level` and no `responsiblePersonId`** (the logger gives the gap, text, classification and due date only), and **nobody is notified yet** except the facility MPDSR chair. The recommendations go out only when the chair completes the case review (below). `POST /issues/:id/recommendations` does the same for one recommendation added later (e.g. after the review meeting).
+
+**Case review.** A new issue starts as **Pending review**, and the server notifies the facility MPDSR chair for that place (category `review-needed`). The chair reviews it once, with the committee:
+
+| Method | Path | Body | Returns |
+|---|---|---|---|
+| POST | `/issues/:id/review` | `{ reviewDate, finalCause, maternalCondition, contributingFactors[], recommendationChanges[], newRecommendations[] }` | `IssueDto` with `review` filled in (`reviewDate`, `finalCause`, `maternalCondition`, `completedAt`, `completedBy`) |
+
+- `finalCause` is the cause chosen at logging unless the chair changes it. `maternalCondition` (ICD-PM M1–M5) only for perinatal deaths.
+- A recommendation's responsible person must work at its level of implementation (`user.level === level`); 422 otherwise. The same rule applies to `POST /issues` and `POST /issues/:id/recommendations`.
+- Each recommendation's `gap` must be one of the `contributingFactors`; due dates follow the classification.
+- The **chair chooses the level of implementation and the responsible person** for each recommendation in the review. `recommendationChanges[]`: `{ code, text, gap, classification, dueDate, level, responsiblePersonId, removed }` for recommendations still `Open`, `Pending acceptance` or `In progress`. Removed ones are cancelled; a new responsible person is notified.
+- On completion every `Pending review` recommendation is **sent out**: status becomes `Open` (community, facility) or `Pending acceptance` (sub-county, county), a history entry with action `released` is added, and the responsible person is notified. Removed ones become `Cancelled` with no notification. Recommendations added before the review (`POST /issues/:id/recommendations`) also wait as `Pending review`.
+- In **one transaction**: update the issue (final cause, factors, `review` with `completedAt` and `completedBy`), apply the recommendation changes, and add one `/issueEvents` entry with action `reviewed` listing every change (field, from, to).
+- After review the issue is **locked**: `PATCH /issues/:id` returns 409. Only the facility MPDSR chair may review (permission `issue.review`).
 
 ### Recommendations
 

@@ -21,6 +21,8 @@ import { cancelIssue, editIssue, issueDifferences } from '../services/issueEditS
 import type { IssueChanges } from '../services/issueEditService';
 import { addDays, daysBetween, getToday, yearsBetween } from '../../../utils/dates';
 import { whyIssueBlocked } from '../utils/issueRules';
+import { causeOptionsFor, getCausesOfDeath } from '../services/causeService';
+import type { CauseOfDeath } from '../services/causeService';
 
 const MAX_PERINATAL_AGE_DAYS = 42;
 
@@ -44,6 +46,7 @@ function IssueEditPage() {
   const { currentUser, scope } = useCurrentUser();
   const issuesData = useApiData<StoredIssue[]>(getIssues, []);
   const recommendationsData = useApiData<StoredRecommendation[]>(getStoredRecommendations, []);
+  const causesData = useApiData<CauseOfDeath[]>(getCausesOfDeath, []);
 
   const issue = issuesInScope(issuesData.data, scope).find((item) => item.code === code);
   const recommendations = recommendationsData.data.filter((recommendation) => recommendation.issueId === issue?.id);
@@ -199,7 +202,7 @@ function IssueEditPage() {
               <CauseFields
                 isDeath={isDeath}
                 causeOfDeath={values.causeOfDeath}
-                causeOptions={[]}
+                causeOptions={causeOptionsFor(causesData.data, issue.issueType)}
                 onCauseOfDeathChange={(value) => set('causeOfDeath', value)}
               />
               <PeriodDetailFields

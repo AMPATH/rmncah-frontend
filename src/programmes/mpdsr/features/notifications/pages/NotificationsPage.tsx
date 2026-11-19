@@ -22,7 +22,7 @@ function inCategories(...categories: NotificationCategory[]) {
 const tabs: NotificationTab[] = [
   { label: 'All', matches: () => true },
   { label: 'Unread', matches: (notification) => !notification.read },
-  { label: 'Action needed', matches: inCategories('assigned', 'acceptance-needed', 'approval-needed') },
+  { label: 'Action needed', matches: inCategories('assigned', 'acceptance-needed', 'approval-needed', 'review-needed') },
   { label: 'Reminders', matches: inCategories('reminder') },
   { label: 'Escalations', matches: inCategories('escalated', 'overdue') },
   { label: 'Decisions', matches: inCategories('approved', 'rejected', 'cancelled') },

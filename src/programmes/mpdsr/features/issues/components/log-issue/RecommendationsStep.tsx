@@ -12,6 +12,7 @@ import {
 import type { Classification, DraftRecommendation, Level, User } from '../../types/issue.types';
 import { latestCompletionDate } from '../../utils/classification';
 import AssignmentFields from '../recommendation/AssignmentFields';
+import GapField from '../recommendation/GapField';
 import ClassificationFields from '../recommendation/ClassificationFields';
 import CompletionFields from '../recommendation/CompletionFields';
 import RecommendationText from '../recommendation/RecommendationText';
@@ -24,6 +25,7 @@ interface RecommendationsStepProps {
   users: User[];
   today: string;
   showErrors: boolean;
+  held?: boolean;
   onAdd: (recommendation: DraftRecommendation) => void;
   onRemove: (index: number) => void;
 }
@@ -34,6 +36,7 @@ function RecommendationsStep({
   users,
   today,
   showErrors,
+  held = false,
   onAdd,
   onRemove,
 }: RecommendationsStepProps) {
@@ -53,12 +56,19 @@ function RecommendationsStep({
   }
 
   function handleAdd() {
-    if (text.trim() === '' || classification === '' || level === '' || dateOfCompletion === '') {
+    if (text.trim() === '' || classification === '' || (!held && level === '') || dateOfCompletion === '') {
       setShowDraftErrors(true);
       return;
     }
 
-    onAdd({ gap, responsiblePersonId, text: text.trim(), classification, level, dateOfCompletion });
+    onAdd({
+      gap,
+      responsiblePersonId: held ? '' : responsiblePersonId,
+      text: text.trim(),
+      classification,
+      level: held ? '' : level,
+      dateOfCompletion,
+    });
 
     setGap('');
     setResponsiblePersonId('');
@@ -80,7 +90,7 @@ function RecommendationsStep({
               <TableHeader>Classification</TableHeader>
               <TableHeader>Level</TableHeader>
               <TableHeader>Due</TableHeader>
-              <TableHeader>Routing</TableHeader>
+              <TableHeader>{held ? 'After review' : 'Routing'}</TableHeader>
               <TableHeader>
                 <span className="cds--visually-hidden">Remove</span>
               </TableHeader>
@@ -97,12 +107,14 @@ function RecommendationsStep({
                   )}
                 </TableCell>
                 <TableCell>{recommendation.classification}</TableCell>
-                <TableCell>{recommendation.level}</TableCell>
+                <TableCell>{recommendation.level || 'Chair sets at review'}</TableCell>
                 <TableCell>{recommendation.dateOfCompletion}</TableCell>
                 <TableCell>
-                  {recommendation.level === 'sub-county' || recommendation.level === 'county'
-                    ? 'Needs acceptance'
-                    : 'Auto-assigned'}
+                  {held
+                    ? 'Chair assigns'
+                    : recommendation.level === 'sub-county' || recommendation.level === 'county'
+                      ? 'Needs acceptance'
+                      : 'Auto-assigned'}
                 </TableCell>
                 <TableCell>
                   <Button kind="danger--ghost" size="sm" onClick={() => onRemove(index)}>
@@ -118,14 +130,7 @@ function RecommendationsStep({
       <div className="recommendations-step__add">
         <h3 className="recommendations-step__title">Add recommendation</h3>
 
-        <AssignmentFields
-          gap={gap}
-          responsiblePersonId={responsiblePersonId}
-          gapOptions={gapOptions}
-          users={users}
-          onGapChange={setGap}
-          onResponsiblePersonChange={setResponsiblePersonId}
-        />
+        <GapField gap={gap} gapOptions={gapOptions} onGapChange={setGap} />
 
         <RecommendationText text={text} onTextChange={setText} />
 
@@ -134,10 +139,30 @@ function RecommendationsStep({
           level={level}
           dateLogged={today}
           onClassificationChange={handleClassificationChange}
-          onLevelChange={setLevel}
+          onLevelChange={(value) => {
+            setLevel(value);
+            setResponsiblePersonId('');
+          }}
+          showLevel={!held}
         />
 
-        <RoutingHint level={level} />
+        {held ? (
+          <p className="form-note">
+            The facility MPDSR chair chooses the level of implementation and the responsible person during the case
+            review.
+          </p>
+        ) : (
+          <>
+            <AssignmentFields
+              responsiblePersonId={responsiblePersonId}
+              level={level}
+              users={users}
+              onResponsiblePersonChange={setResponsiblePersonId}
+            />
+
+            <RoutingHint level={level} />
+          </>
+        )}
 
         <CompletionFields
           level={level}
@@ -145,6 +170,7 @@ function RecommendationsStep({
           earliestDate={today}
           latestDate={latestCompletion}
           showErrors={showDraftErrors}
+          held={held}
           onDateOfCompletionChange={setDateOfCompletion}
         />
 

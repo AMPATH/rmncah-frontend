@@ -9,6 +9,7 @@ import {
   HeaderMenuButton,
   HeaderName,
   HeaderPanel,
+  Modal,
   SideNav,
   SideNavDivider,
   SideNavItems,
@@ -38,6 +39,7 @@ import { useApiData } from '../../../hooks/useApiData';
 import { LARGE_SCREEN_QUERY, useMediaQuery } from '../../../hooks/useMediaQuery';
 import { NOTIFICATIONS_CHANGED_EVENT, getNotifications } from '../../../features/notifications/services/notificationService';
 import type { AppNotification } from '../../../features/notifications/types/notification.types';
+import { showToast } from '../../shared/toast/toast';
 import './MPDSRTopbar.scss';
 
 interface NavItem {
@@ -70,6 +72,7 @@ interface HeaderContentProps {
 
 function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderContentProps) {
   const [profileOpen, setProfileOpen] = useState(false);
+  const [confirmingLogout, setConfirmingLogout] = useState(false);
   
   const isLargeScreen = useMediaQuery(LARGE_SCREEN_QUERY);
   const navigate = useNavigate();
@@ -96,12 +99,31 @@ function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderConten
 
   
   function handleLogout() {
-    console.log('Log out');
     setProfileOpen(false);
+    setConfirmingLogout(true);
+  }
+
+  function confirmLogout() {
+    setConfirmingLogout(false);
+    setCurrentUserId('');
     navigate('/');
+    showToast('You are logged out.');
+  }
+
+  function handleSwitchUser(id: string) {
+    setProfileOpen(false);
+    if (id === '') {
+      handleLogout();
+      return;
+    }
+    setCurrentUserId(id);
+    navigate('/mpdsr');
+    const name = users.find((user) => user.id === id)?.fullName ?? 'the new user';
+    showToast(`Signed out. Now signed in as ${name}.`);
   }
 
   return (
+    <>
     <Header aria-label="MPDSR" className="topbar">
       {}
       <HeaderMenuButton
@@ -159,7 +181,7 @@ function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderConten
             labelText="Acting as (testing)"
             size="sm"
             value={currentUser?.id ?? ''}
-            onChange={(event) => setCurrentUserId(event.target.value)}
+            onChange={(event) => handleSwitchUser(event.target.value)}
             helperText={users.length === 0 ? 'No users yet. Add them under "users" in db.json.' : undefined}
           >
             <SelectItem value="" text="Choose a user" />
@@ -213,6 +235,25 @@ function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderConten
         </SideNav>
       </Theme>
     </Header>
+
+    <Theme theme="white">
+      <Modal
+        open={confirmingLogout}
+        danger
+        size="xs"
+        modalHeading="Log out?"
+        primaryButtonText="Log out"
+        secondaryButtonText="Stay signed in"
+        onRequestClose={() => setConfirmingLogout(false)}
+        onRequestSubmit={confirmLogout}
+      >
+        <p>
+          {currentUser ? `You are signed in as ${currentUser.fullName}. ` : ''}
+          You will need to sign in again to continue.
+        </p>
+      </Modal>
+    </Theme>
+    </>
   );
 }
 

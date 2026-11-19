@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from 'react-router';
 import { Button, DataTableSkeleton, InlineNotification, Tag } from '@carbon/react';
-import { Add, Edit } from '@carbon/icons-react';
+import { Add, Edit, TaskApproved } from '@carbon/icons-react';
 import { useCurrentUser } from '../../../context/currentUserContext';
 import { can } from '../../../auth/permissions';
 import { issuesInScope } from '../../../auth/scope';
@@ -13,6 +13,7 @@ import { getIssueEvents } from '../services/issueEditService';
 import type { IssueEvent } from '../services/issueEditService';
 import { formatDateTime, getToday } from '../../../utils/dates';
 import { whyIssueBlocked } from '../utils/issueRules';
+import { isReviewed } from '../utils/caseReview';
 import type { StoredIssue, StoredRecommendation } from '../services/issueService';
 import './IssueDetailPage.scss';
 import '../../recommendations/recommendations.scss';
@@ -63,12 +64,26 @@ function IssueDetailPage() {
     <div className="page">
       <div className="page-header">
         <div>
-          <h1>{issue.code}</h1>
+          <h1 className="issue-detail__title">
+            {issue.code}
+            {!issue.cancelled && (
+              <Tag type={isReviewed(issue) ? 'green' : 'purple'}>{isReviewed(issue) ? 'Reviewed' : 'Pending review'}</Tag>
+            )}
+          </h1>
           <p className="page-subtitle">
             {issueTypeLabels[issue.issueType] ?? issue.issueType} · {issue.loggedAt} · logged {issue.dateLogged}
           </p>
         </div>
         <div className="form-actions">
+          {can(currentUser, 'issue.review') && !issue.cancelled && (
+            <Button
+              kind={isReviewed(issue) ? 'tertiary' : 'primary'}
+              renderIcon={TaskApproved}
+              onClick={() => navigate(`/issues/${issue.code}/review`)}
+            >
+              {isReviewed(issue) ? 'View review' : 'Review case'}
+            </Button>
+          )}
           {can(currentUser, 'recommendation.add') && !issue.cancelled && (
             <Button kind="tertiary" renderIcon={Edit} onClick={() => navigate(`/issues/${issue.code}/edit`)}>
               {whyIssueBlocked('edit', issue, currentUser, ofIssue, getToday()) === '' ? 'Edit or cancel' : 'Cancel issue'}
@@ -90,6 +105,33 @@ function IssueDetailPage() {
           title="This issue is cancelled"
           subtitle={issue.cancelReason ?? ''}
         />
+      )}
+
+      {!issue.cancelled && !isReviewed(issue) && can(currentUser, 'issue.review') && (
+        <InlineNotification
+          kind="info"
+          lowContrast
+          hideCloseButton
+          title="Waiting for your case review"
+          subtitle="Review the case: confirm the cause and contributing factors, and check each recommendation and who is responsible."
+        />
+      )}
+
+      {issue.review && isReviewed(issue) && (
+        <section className="form-card issue-detail__review">
+          <h2 className="form-section-title">Case review</h2>
+          <InfoList
+            items={[
+              { label: 'Review date', value: orDash(issue.review.reviewDate) },
+              { label: 'Reviewed by', value: nameOf(issue.review.completedById) },
+              { label: 'Final cause of death', value: orDash(issue.review.finalCause) },
+              ...(issue.issueType === 'perinatal'
+                ? [{ label: 'Maternal condition', value: orDash(issue.review.maternalCondition) }]
+                : []),
+              { label: 'Completed', value: formatDateTime(issue.review.completedAt) },
+            ]}
+          />
+        </section>
       )}
 
       <div className="issue-detail">
@@ -148,7 +190,7 @@ function IssueDetailPage() {
                 <span className="recommendation-history__date">
                   {formatDateTime(event.at)} · {nameOf(event.byUserId)}
                 </span>
-                {event.action === 'cancelled' ? 'Cancelled' : 'Edited'}
+                {event.action === 'cancelled' ? 'Cancelled' : event.action === 'reviewed' ? 'Case reviewed' : 'Edited'}
                 <span className="recommendation-history__note">{event.note}</span>
                 {event.changes.map((change) => (
                   <span key={change.field} className="recommendation-history__date">

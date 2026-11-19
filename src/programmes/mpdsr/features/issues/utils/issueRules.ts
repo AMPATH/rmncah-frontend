@@ -2,6 +2,7 @@ import type { User } from '../types/issue.types';
 import type { StoredIssue, StoredRecommendation } from '../services/issueService';
 import { can } from '../../../auth/permissions';
 import { daysBetween } from '../../../utils/dates';
+import { isReviewed } from './caseReview';
 
 export const LOGGER_EDIT_DAYS = 7;
 
@@ -23,6 +24,10 @@ export function whyIssueBlocked(
 
   if (action === 'cancel') {
     return isChair ? '' : 'Only the facility MPDSR chair can cancel an issue.';
+  }
+
+  if (isReviewed(issue)) {
+    return 'The case review is complete, so this record is locked.';
   }
 
   if (isChair) {

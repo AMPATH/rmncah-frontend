@@ -18,7 +18,7 @@ import type { AppNotification } from '../types/notification.types';
 const headers = [
   { key: 'when', header: 'When' },
   { key: 'message', header: 'Message' },
-  { key: 'recommendationId', header: 'Recommendation' },
+  { key: 'recommendationId', header: 'Record' },
   { key: 'from', header: 'From' },
   { key: 'read', header: 'Status' },
 ];
@@ -78,7 +78,11 @@ function NotificationsTable({ notifications, onOpen }: NotificationsTableProps) 
                             ) : cell.info.header === 'recommendationId' ? (
                               <Link
                                 className="cds--link"
-                                to={`/recommendations/${cell.value}`}
+                                to={
+                                  notification.category === 'review-needed'
+                                    ? `/issues/${cell.value}/review`
+                                    : `/recommendations/${cell.value}`
+                                }
                                 onClick={() => onOpen(notification)}
                               >
                                 {cell.value}

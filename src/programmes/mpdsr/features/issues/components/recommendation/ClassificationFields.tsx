@@ -8,6 +8,7 @@ interface ClassificationFieldsProps {
   dateLogged: string;
   onClassificationChange: (value: Classification | '') => void;
   onLevelChange: (value: Level | '') => void;
+  showLevel?: boolean;
 }
 
 function ClassificationFields({
@@ -16,6 +17,7 @@ function ClassificationFields({
   dateLogged,
   onClassificationChange,
   onLevelChange,
+  showLevel = true,
 }: ClassificationFieldsProps) {
   return (
     <div className="form-row">
@@ -32,6 +34,7 @@ function ClassificationFields({
         <SelectItem value="long-term" text="Long term (6 months)" />
       </Select>
 
+      {showLevel && (
       <Select
         id="level"
         labelText="Level of implementation"
@@ -45,6 +48,7 @@ function ClassificationFields({
         <SelectItem value="sub-county" text="Sub-county" />
         <SelectItem value="county" text="County" />
       </Select>
+      )}
 
       <TextInput id="dateLogged" labelText={<AutoLabel text="Date logged" />} value={dateLogged} readOnly />
     </div>

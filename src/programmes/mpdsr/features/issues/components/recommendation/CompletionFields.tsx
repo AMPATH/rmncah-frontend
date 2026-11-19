@@ -9,6 +9,7 @@ interface CompletionFieldsProps {
   latestDate: string;
   showErrors: boolean;
   level: Level | '';
+  held?: boolean;
   onDateOfCompletionChange: (value: string) => void;
 }
 
@@ -18,9 +19,14 @@ function CompletionFields({
   latestDate,
   showErrors,
   level,
+  held = false,
   onDateOfCompletionChange,
 }: CompletionFieldsProps) {
-  const startingStatus = level === 'sub-county' || level === 'county' ? 'Pending acceptance' : 'Open';
+  const startingStatus = held
+    ? 'Pending review'
+    : level === 'sub-county' || level === 'county'
+      ? 'Pending acceptance'
+      : 'Open';
 
   return (
     <div className="form-row">

@@ -3,6 +3,7 @@ import type { RecommendationStatus } from '../../issues/types/issue.types';
 import { PHONE_QUERY, useMediaQuery } from '../../../hooks/useMediaQuery';
 
 const stages: RecommendationStatus[] = [
+  'Pending review',
   'Open',
   'Pending acceptance',
   'In progress',

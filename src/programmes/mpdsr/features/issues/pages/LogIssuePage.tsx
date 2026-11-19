@@ -23,6 +23,9 @@ import { placesAbove } from '../../../auth/locations';
 import { createIssueWithRecommendations } from '../services/issueService';
 import type { NewIssue } from '../services/issueService';
 import BackButton from '../../../components/layout/BackButton';
+import { useApiData } from '../../../hooks/useApiData';
+import { causeOptionsFor, getCausesOfDeath } from '../services/causeService';
+import type { CauseOfDeath } from '../services/causeService';
 import './LogIssuePage.scss';
 
 const MAX_PERINATAL_AGE_DAYS = 42;
@@ -75,7 +78,8 @@ function LogIssuePage() {
   const [showErrors, setShowErrors] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const causeOptions: string[] = [];
+  const causesData = useApiData<CauseOfDeath[]>(getCausesOfDeath, []);
+  const causeOptions = causeOptionsFor(causesData.data, issueType);
   const { currentUser, users: allUsers, locations, scope } = useCurrentUser();
 
   const loggedAtOptions = locations
@@ -311,7 +315,7 @@ function LogIssuePage() {
     setSaving(true);
     try {
       await createIssueWithRecommendations({ ...issue, loggedById: currentUser?.id }, recommendations, today);
-      showToast(`Issue logged with ${recommendations.length} recommendation(s)`);
+      showToast(`Issue logged. It goes to the facility MPDSR chair for review before the recommendations are sent out.`);
       resetForm();
       navigate('/mpdsr');
     } catch {
@@ -473,6 +477,7 @@ function LogIssuePage() {
 
           {step === 4 && (
             <RecommendationsStep
+              held
               recommendations={recommendations}
               gapOptions={selectedFactors}
               users={users}
