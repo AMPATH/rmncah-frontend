@@ -1,4 +1,5 @@
 import { Content, Theme } from '@carbon/react';
+import { Fragment } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import MPDSRTopbar from './topbar/MPDSRTopbar';
 import ToastHost from '../shared/toast/ToastHost';
@@ -10,7 +11,7 @@ import { permissionsForPath } from '../../auth/pageAccess';
 import NoAccess from './NoAccess';
 import './AppLayout.scss';
 
-const pagesWithOwnBackButton = ['/issues/new'];
+const pagesWithOwnBackButton = ['/issues/new', '/mpdsr'];
 
 function GuardedPage() {
   const { pathname } = useLocation();
@@ -23,7 +24,11 @@ function GuardedPage() {
   if (ready && needed.length > 0 && !canAny(currentUser, needed)) {
     return <NoAccess signedIn={currentUser !== null} />;
   }
-  return <Outlet />;
+  return (
+    <Fragment key={currentUser?.id}>
+      <Outlet />
+    </Fragment>
+  );
 }
 
 function AppLayout() {
@@ -31,7 +36,6 @@ function AppLayout() {
 
   return (
     <CurrentUserProvider>
-      {}
       <div className="mpdsr-app">
         <MPDSRTopbar />
         <Theme as={Content} theme="g10" className="app-content">
