@@ -102,3 +102,18 @@
     color: $muted;
   }
 }
+
+.mpdsr-app {
+  .recommendation-actions--row {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .recommendation-actions__waiting {
+    margin: 0;
+    padding: 12px 16px;
+    border-left: 3px solid #8d8d8d;
+    background-color: #f4f4f4;
+    color: #525252;
+  }
+}

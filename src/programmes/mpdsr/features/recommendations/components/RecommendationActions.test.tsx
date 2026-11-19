@@ -13,47 +13,47 @@ function renderActions(...args: Parameters<typeof RecommendationActions>) {
   );
 }
 
-const enabled = (name: string) => screen.getByRole('button', { name }).hasAttribute('disabled') === false;
+const buttonNames = () => screen.queryAllByRole('button').map((button) => button.textContent);
 
 describe('RecommendationActions', () => {
   afterEach(cleanup);
 
-  it('lets the holder of open work mark it as done, and nothing else', () => {
+  it('shows the holder of open work only what they can do', () => {
     renderActions({
       recommendation: makeRecommendation({ status: 'Open', responsiblePersonId: 'u3' }),
       user: makeUser({ id: 'u3', role: 'FACILITY_REPORTER' }),
     });
 
-    expect(enabled('Mark as done')).toBe(true);
-    expect(enabled('Accept or escalate')).toBe(false);
-    expect(enabled('Approve or reject')).toBe(false);
-    expect(enabled('Reassign')).toBe(false);
+    expect(buttonNames()).toContain('Mark as done');
+    expect(buttonNames()).not.toContain('Approve or reject');
+    expect(buttonNames()).not.toContain('Reassign');
+    expect(buttonNames()).not.toContain('Accept or escalate');
   });
 
-  it('explains why a button is disabled', () => {
-    renderActions({
-      recommendation: makeRecommendation({ status: 'Open', responsiblePersonId: 'u3' }),
-      user: makeUser({ id: 'u3', role: 'FACILITY_REPORTER' }),
-    });
-
-    expect(screen.getByText('Only work marked as done can be approved or rejected.')).toBeTruthy();
-  });
-
-  it('lets the chair approve completed work', () => {
+  it('shows the chair only the approval for completed work', () => {
     renderActions({
       recommendation: makeRecommendation({ status: 'Pending approval', responsiblePersonId: 'u3' }),
       user: makeUser({ id: 'u4', role: 'FACILITY_CHAIR' }),
     });
 
-    expect(enabled('Approve or reject')).toBe(true);
-    expect(enabled('Mark as done')).toBe(false);
+    expect(buttonNames()).toContain('Approve or reject');
+    expect(buttonNames()).not.toContain('Mark as done');
   });
 
-  it('enables nothing when nobody is chosen', () => {
+  it('says who it is waiting on when the user has nothing to do', () => {
+    renderActions({
+      recommendation: makeRecommendation({ status: 'Pending acceptance', responsiblePersonId: 'u6' }),
+      user: makeUser({ id: 'u7', role: 'COUNTY_SURVEILLANCE_LEAD', level: 'county' }),
+      holderName: 'Peter Kiplagat',
+    });
+
+    expect(buttonNames()).toEqual([]);
+    expect(screen.getByText('Waiting for Peter Kiplagat to accept it.')).toBeTruthy();
+  });
+
+  it('shows no buttons when nobody is chosen', () => {
     renderActions({ recommendation: makeRecommendation(), user: null });
 
-    for (const button of screen.getAllByRole('button')) {
-      expect(button.hasAttribute('disabled')).toBe(true);
-    }
+    expect(buttonNames()).toEqual([]);
   });
 });

@@ -27,7 +27,7 @@ export function daysText(days: number): string {
   return days === 1 ? '1 day' : `${days} days`;
 }
 
-export async function acceptanceDeadline(level: Level): Promise<string> {
+export async function acceptanceDeadline(level: Level | ''): Promise<string> {
   const matrix = await getEscalationMatrix();
-  return daysText(matrix[level]);
+  return daysText(matrix[level === '' ? 'facility' : level]);
 }

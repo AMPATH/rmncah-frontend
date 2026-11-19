@@ -30,7 +30,7 @@ export function whyBlocked(
       if (!can(user, 'recommendation.reassign')) return 'Only the PCN coordinator can reassign.';
       return '';
     case 'edit':
-      if (status !== 'Open' && status !== 'Pending acceptance') return 'Only a recommendation whose work has not started can be edited.';
+      if (status !== 'Pending review' && status !== 'Open' && status !== 'Pending acceptance') return 'Only a recommendation whose work has not started can be edited.';
       if (!can(user, 'recommendation.add')) return 'Only staff who add recommendations can edit them.';
       return '';
     case 'cancel':
