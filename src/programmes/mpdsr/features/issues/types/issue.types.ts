@@ -7,6 +7,7 @@ export type IssueType = 'perinatal' | 'maternal' | 'near-miss';
 export type Setting = 'facility' | 'community';
 
 export type RecommendationStatus =
+  | 'Pending review'
   | 'Open'
   | 'In progress'
   | 'Pending acceptance'
@@ -34,7 +35,7 @@ export interface Recommendation {
   id: string;
   issueId: string;
   text: string;
-  level: Level;
+  level: Level | '';
   dueDate: string;
   status: RecommendationStatus;
   timesRedone: number;
@@ -48,7 +49,7 @@ export interface NewRecommendation {
   responsiblePersonId: string;
   text: string;
   classification: Classification;
-  level: Level;
+  level: Level | '';
   dateOfCompletion: string;
 }
 

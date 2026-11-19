@@ -30,7 +30,7 @@ export interface IssueEvent {
   issueCode: string;
   at: string;
   byUserId: string;
-  action: 'edited' | 'cancelled';
+  action: 'edited' | 'cancelled' | 'reviewed';
   note: string;
   changes: IssueFieldChange[];
 }
@@ -53,7 +53,7 @@ export function getIssueEvents(issueCode: string): Promise<IssueEvent[]> {
   return apiGet<IssueEvent[]>('/issueEvents', { issueCode });
 }
 
-async function recordIssueEvent(event: Omit<IssueEvent, 'id' | 'at'>): Promise<void> {
+export async function recordIssueEvent(event: Omit<IssueEvent, 'id' | 'at'>): Promise<void> {
   await apiPost<IssueEvent>('/issueEvents', { ...event, at: new Date().toISOString() });
 }
 

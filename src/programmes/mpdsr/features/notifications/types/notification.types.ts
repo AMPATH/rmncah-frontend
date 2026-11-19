@@ -5,6 +5,7 @@ export type NotificationCategory =
   | 'escalated'
   | 'overdue'
   | 'approval-needed'
+  | 'review-needed'
   | 'approved'
   | 'rejected'
   | 'cancelled';

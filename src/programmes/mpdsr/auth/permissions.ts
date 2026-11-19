@@ -47,6 +47,7 @@ export const roleDescriptions: Record<Role, string> = {
 export type Permission =
   | 'issue.log'
   | 'issue.logNearMiss'
+  | 'issue.review'
   | 'recommendation.add'
   | 'recommendation.accept'
   | 'recommendation.escalate'
@@ -74,6 +75,7 @@ export const rolePermissions: Record<Role, Permission[]> = {
     'reports.view',
   ],
   FACILITY_CHAIR: [
+    'issue.review',
     'recommendation.add',
     ...holder,
     'recommendation.approve',

@@ -141,7 +141,8 @@ export type RecommendationAction =
   | 'rejected'
   | 'marked-overdue'
   | 'edited'
-  | 'cancelled';
+  | 'cancelled'
+  | 'released';
 
 export interface RecommendationEventDto {
   id: string;
@@ -203,6 +204,7 @@ export type NotificationCategory =
   | 'escalated'
   | 'overdue'
   | 'approval-needed'
+  | 'review-needed'
   | 'approved'
   | 'rejected'
   | 'cancelled';
