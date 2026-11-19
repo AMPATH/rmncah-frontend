@@ -7,7 +7,7 @@ import { issuesInScope } from '../../../auth/scope';
 import { useApiData } from '../../../hooks/useApiData';
 import ApiErrorNotice from '../../../components/shared/ApiErrorNotice';
 import InfoList from '../../../components/shared/InfoList';
-import RecommendationsTable from '../../my-work/components/RecommendationsTable';
+import RecommendationsTable from '../../overview/components/RecommendationsTable';
 import { getIssues, getStoredRecommendations, toTableRow } from '../services/issueService';
 import { getIssueEvents } from '../services/issueEditService';
 import type { IssueEvent } from '../services/issueEditService';
