@@ -183,7 +183,10 @@ export const initialTrainingModules: TrainingModule[] =
     title: module.title,
     category: module.category,
     description: '',
-    status: module.status,
+    status:
+      module.status === 'Completed'
+        ? 'Published'
+        : module.status,
     createdAt: DEMO_TIMESTAMP,
     updatedAt: toTimestamp(module.updatedAt),
   }))

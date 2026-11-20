@@ -1,3 +1,4 @@
+
 import type { ProgramDashboardStatistics } from '../../types/program-lead.types.ts'
 
 interface ModuleStatusOverviewProps {
@@ -7,13 +8,11 @@ interface ModuleStatusOverviewProps {
 function ModuleStatusOverview({
   statistics,
 }: ModuleStatusOverviewProps) {
-  const total = statistics.totalModules
-
   const statuses = [
     {
-      label: 'Published',
-      count: statistics.publishedModules,
-      className: 'published',
+      label: 'Completed',
+      count: statistics.completeModules,
+      className: 'completed',
     },
     {
       label: 'Draft',
@@ -31,12 +30,12 @@ function ModuleStatusOverview({
     <section className="program-panel module-status">
       <div className="program-panel__header">
         <div>
-          <h2>Module publication status</h2>
-          <p>Overall status of training modules</p>
+          <h2>Module Status</h2>
+          <p>Overall status of EmONC training modules</p>
         </div>
 
         <span className="module-status__total">
-          {total} modules
+          {statistics.totalModules} modules
         </span>
       </div>
 
@@ -47,7 +46,9 @@ function ModuleStatusOverview({
             className={`module-status__segment module-status__segment--${status.className}`}
             style={{
               width: `${
-                total > 0 ? (status.count / total) * 100 : 0
+                statistics.totalModules > 0
+                  ? (status.count / statistics.totalModules) * 100
+                  : 0
               }%`,
             }}
           />

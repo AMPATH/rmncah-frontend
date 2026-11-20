@@ -34,7 +34,7 @@ interface TrainingModulesPageProps {
   onNavigate: (path: string) => void
 }
 
-type ModuleStatus = 'Draft' | 'Published' | 'Incomplete content'
+type ModuleStatus = ProgramModule['status']
 
 const tableHeaders = [
   'Module ID',
@@ -49,7 +49,7 @@ const tableHeaders = [
 
 const getStatusTagType = (status: ModuleStatus) => {
   switch (status) {
-    case 'Published':
+    case 'Completed':
       return 'green' as const
 
     case 'Incomplete content':
@@ -115,8 +115,8 @@ const TrainingModulesPage = ({
   const statistics = useMemo(() => {
     return {
       total: modules.length,
-      published: modules.filter(
-        (module) => module.status === 'Published',
+      completed: modules.filter(
+        (module) => module.status === 'Completed',
       ).length,
       drafts: modules.filter(
         (module) => module.status === 'Draft',
@@ -238,17 +238,17 @@ const TrainingModulesPage = ({
         </div>
 
         <div className="program-modules__stat-card">
-          <div className="program-modules__stat-icon program-modules__stat-icon--published">
+          <div className="program-modules__stat-icon program-modules__stat-icon--completed">
             <CheckmarkFilled size={20} />
           </div>
 
           <div>
             <span className="program-modules__stat-label">
-              Published
+              Completed
             </span>
 
             <strong className="program-modules__stat-value">
-              {statistics.published}
+              {statistics.completed}
             </strong>
           </div>
         </div>
@@ -321,7 +321,7 @@ const TrainingModulesPage = ({
               onChange={(event) => setStatusFilter(event.target.value)}
             >
               <SelectItem value="all" text="All statuses" />
-              <SelectItem value="Published" text="Published" />
+              <SelectItem value="Completed" text="Completed" />
               <SelectItem value="Draft" text="Draft" />
               <SelectItem
                 value="Incomplete content"
@@ -437,8 +437,8 @@ const TrainingModulesPage = ({
 
           <p>
             Modules are organized into sections and supported by learning
-            materials. Complete these steps before publishing content to
-            the Module Library.
+            materials. Add and complete these resources to improve curriculum
+            readiness in the Module Library.
           </p>
         </div>
 
@@ -602,8 +602,8 @@ const TrainingModulesPage = ({
           </Select>
 
           <div className="program-modules__form-note">
-            New modules are created with Draft status. Add the required
-            sections and learning materials before publishing.
+            New modules start as Draft. Add sections and learning
+            materials to move a module towards content completion.
           </div>
         </div>
       </Modal>

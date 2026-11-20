@@ -1,11 +1,12 @@
+
 export type ProgramModuleStatus =
+  | 'Completed'
   | 'Draft'
-  | 'Published'
   | 'Incomplete content'
 
 export interface ProgramDashboardStatistics {
   totalModules: number
-  publishedModules: number
+  completeModules: number
   draftModules: number
   incompleteModules: number
   totalSections: number
@@ -47,7 +48,6 @@ export interface ProgramModuleSection {
   sequence: number
   updatedAt: string
 }
-
 
 export type LearningMaterialType = 'E-book' | 'Slides' | 'Video'
 

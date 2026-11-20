@@ -14,7 +14,7 @@ function RecentModules({
 }: RecentModulesProps) {
   function getStatusType(status: ProgramModule['status']) {
     switch (status) {
-      case 'Published':
+      case 'Completed':
         return 'green' as const
 
       case 'Incomplete content':

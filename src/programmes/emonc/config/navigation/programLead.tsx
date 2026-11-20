@@ -4,6 +4,9 @@ import {
   Document,
   CloudUpload,
   Catalog,
+  UserMultiple,
+  User,
+  Group,
 } from '@carbon/icons-react'
 
 import type { RoleNavigation } from './navigation.types.ts'
@@ -14,12 +17,38 @@ export const programLeadNavigation: RoleNavigation = {
 
   groups: [
     {
+      label: 'Programme Oversight',
       items: [
         {
           label: 'Overview',
           path: '/program-lead/overview',
           icon: <Dashboard size={20} />,
         },
+      ],
+    },
+    {
+      label: 'Programme Management',
+      items: [
+        {
+          label: 'Mentors',
+          path: '/program-lead/mentors',
+          icon: <UserMultiple size={20} />,
+        },
+        {
+          label: 'Mentees',
+          path: '/program-lead/mentees',
+          icon: <User size={20} />,
+        },
+        {
+          label: 'Cohorts',
+          path: '/program-lead/cohorts',
+          icon: <Group size={20} />,
+        },
+      ],
+    },
+    {
+      label: 'Curriculum Management',
+      items: [
         {
           label: 'Training Modules',
           path: '/program-lead/training-modules',

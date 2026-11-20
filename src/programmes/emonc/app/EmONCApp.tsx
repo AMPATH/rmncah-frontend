@@ -24,6 +24,9 @@ import TrainingModulesPage from '../features/program-lead/pages/TrainingModulesP
 import ModuleSectionsPage from '../features/program-lead/pages/ModuleSectionsPage'
 import LearningMaterialsPage from '../features/program-lead/pages/LearningMaterialsPage'
 import ModuleLibraryPage from '../features/program-lead/pages/ModuleLibraryPage'
+import ProgramLeadMentorsPage from '../features/program-lead/pages/MentorsPage'
+import ProgramLeadMenteesPage from '../features/program-lead/pages/MenteesPage'
+import ProgramLeadCohortsPage from '../features/program-lead/pages/CohortsPage'
 
 // Mentor pages
 import MentorOverviewPage from '../features/mentor/pages/OverviewPage'
@@ -57,7 +60,7 @@ import AdminReportsPage from '../features/system-admin/pages/ReportsPage'
 
 import './App.scss'
 
-const DEFAULT_PATH = '/county-mentor/overview'
+const DEFAULT_PATH = '/program-lead/overview'
 const EMONC_PREFIX = '/emonc'
 
 function App() {
@@ -85,7 +88,7 @@ function App() {
         .some((item) => item.path === requestedPath),
   )
 
-  const activeRole: UserRole = matchedRole ?? 'county-mentor'
+  const activeRole: UserRole = matchedRole ?? 'program-lead'
   const activePath = matchedRole ? requestedPath : DEFAULT_PATH
 
   const currentNavigation = navigationByRole[activeRole]
@@ -196,6 +199,27 @@ function App() {
           onNavigate={handleNavigate}
         />
       )
+    }
+
+    if (
+      activeRole === 'program-lead' &&
+      activePath === '/program-lead/mentors'
+    ) {
+      return <ProgramLeadMentorsPage title={pageTitle} />
+    }
+
+    if (
+      activeRole === 'program-lead' &&
+      activePath === '/program-lead/mentees'
+    ) {
+      return <ProgramLeadMenteesPage title={pageTitle} />
+    }
+
+    if (
+      activeRole === 'program-lead' &&
+      activePath === '/program-lead/cohorts'
+    ) {
+      return <ProgramLeadCohortsPage title={pageTitle} />
     }
 
     if (

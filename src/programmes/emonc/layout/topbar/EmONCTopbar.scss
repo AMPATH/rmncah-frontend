@@ -56,6 +56,11 @@
       background: #f1f5f9;
       color: #1769aa;
     }
+
+    &:focus-visible {
+      outline: 2px solid #285b43;
+      outline-offset: 2px;
+    }
   }
 
   .emonc-topbar__menu-button {
@@ -92,141 +97,6 @@
     }
   }
 
-  .emonc-topbar__role-switcher {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-
-  .emonc-topbar__role-trigger {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 44px;
-    padding: 5px 0;
-    border: none;
-    border-radius: 0;
-    background: transparent;
-    color: #263c50;
-    cursor: pointer;
-    transition: color 0.2s ease;
-
-    &:hover,
-    &--open {
-      background: transparent;
-      border-color: transparent;
-    }
-
-    &--open {
-      box-shadow: none;
-    }
-  }
-
-  .emonc-topbar__role-name {
-    color: #263c50;
-    font-size: 13px;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-
-  .emonc-topbar__chevron {
-    flex-shrink: 0;
-    color: #8294a7;
-    transition: transform 0.2s ease;
-
-    &--open {
-      transform: rotate(180deg);
-    }
-  }
-
-  .emonc-topbar__role-menu {
-    position: absolute;
-    top: calc(100% + 10px);
-    right: 0;
-    z-index: 1000;
-    width: 280px;
-    padding: 8px;
-    background: #ffffff;
-    border: 1px solid #e1e9f1;
-    border-radius: 12px;
-    box-shadow:
-      0 12px 32px rgba(20, 42, 64, 0.12),
-      0 2px 8px rgba(20, 42, 64, 0.05);
-    animation: role-menu-enter 0.16s ease-out;
-  }
-
-  .emonc-topbar__role-menu-heading {
-    padding: 10px 12px 12px;
-    color: #8999aa;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1px;
-  }
-
-  .emonc-topbar__role-option {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    min-height: 46px;
-    padding: 8px 10px;
-    border: none;
-    border-radius: 8px;
-    background: transparent;
-    color: #52677b;
-    text-align: left;
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease;
-
-    &:hover {
-      background: #f3f7fb;
-      color: #163b63;
-    }
-
-    &--active {
-      background: #edf4fa;
-      color: #163b63;
-      font-weight: 600;
-
-      &:hover {
-        background: #e6eff8;
-      }
-    }
-  }
-
-  .emonc-topbar__role-option-label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .emonc-topbar__role-option-avatar {
-    display: grid;
-    place-items: center;
-    width: 30px;
-    height: 30px;
-    flex-shrink: 0;
-    border-radius: 7px;
-    background: #eef3f8;
-    color: #52677b;
-    font-size: 10px;
-    font-weight: 700;
-  }
-
-  .emonc-topbar__role-option--active
-    .emonc-topbar__role-option-avatar {
-    background: #163b63;
-    color: #ffffff;
-  }
-
-  .emonc-topbar__role-check {
-    flex-shrink: 0;
-    color: #1769aa;
-  }
-
   @media (max-width: 768px) {
     .emonc-topbar {
       padding: 0 18px;
@@ -234,12 +104,6 @@
 
     .emonc-topbar__actions {
       gap: 10px;
-    }
-
-    .emonc-topbar__role-name {
-      max-width: 145px;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
   }
 
@@ -262,30 +126,5 @@
     .emonc-topbar__actions {
       gap: 5px;
     }
-
-    .emonc-topbar__role-trigger {
-      gap: 7px;
-      padding-right: 8px;
-    }
-
-    .emonc-topbar__role-name {
-      display: none;
-    }
-
-    .emonc-topbar__role-menu {
-      width: min(280px, calc(100vw - 24px));
-    }
-  }
-}
-
-@keyframes role-menu-enter {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
