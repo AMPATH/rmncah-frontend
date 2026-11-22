@@ -121,3 +121,62 @@ export function figuresByPlace(issues: StoredIssue[], recommendations: StoredRec
     };
   });
 }
+
+export interface CountRow {
+  label: string;
+  value: number;
+}
+
+const delayNames: Record<string, string> = {
+  '1st': '1st delay · Personal or family',
+  '2nd': '2nd delay · Access to care',
+  '3rd': '3rd delay · Quality of care',
+};
+
+const periodNames: Record<string, string> = {
+  antenatal: 'Antenatal',
+  intrapartum: 'Intrapartum',
+  postpartum: 'Postpartum',
+};
+
+function tally(values: string[]): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const value of values) counts.set(value, (counts.get(value) ?? 0) + 1);
+  return counts;
+}
+
+function ranked(counts: Map<string, number>, limit?: number): CountRow[] {
+  const rows = [...counts.entries()]
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value || a.label.localeCompare(b.label));
+  return limit ? rows.slice(0, limit) : rows;
+}
+
+export function issueBreakdowns(issues: StoredIssue[]) {
+  const setting: CountRow[] = [
+    { label: 'Facility', value: issues.filter((issue) => issue.setting === 'facility').length },
+    { label: 'Community', value: issues.filter((issue) => issue.setting === 'community').length },
+  ];
+
+  const delay: CountRow[] = Object.entries(delayNames).map(([id, label]) => ({
+    label,
+    value: issues.filter((issue) => issue.contributingFactors.some((factor) => factor.startsWith(`${id} delay:`))).length,
+  }));
+
+  const factors = ranked(
+    tally(issues.flatMap((issue) => issue.contributingFactors.map((factor) => factor.replace(/ delay: /, ' · ')))),
+    5
+  );
+
+  const causes = ranked(tally(issues.filter((issue) => issue.issueType !== 'near-miss').map((issue) => issue.causeOfDeath || 'Not recorded')), 6);
+
+  const periods: CountRow[] = [
+    ...Object.entries(periodNames).map(([key, label]) => ({
+      label,
+      value: issues.filter((issue) => issue.periodOfDeath === key).length,
+    })),
+    { label: 'Not recorded', value: issues.filter((issue) => !periodNames[issue.periodOfDeath]).length },
+  ];
+
+  return { setting, delay, factors, causes, periods };
+}

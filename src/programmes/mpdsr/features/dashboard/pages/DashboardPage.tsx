@@ -1,15 +1,17 @@
 import { useState } from 'react';
-import { Button } from '@carbon/react';
-import { Document, Printer } from '@carbon/icons-react';
+import { Button, MenuButton, MenuItem } from '@carbon/react';
+import { Printer } from '@carbon/icons-react';
 import DashboardFilters from '../components/DashboardFilters';
 import StatPanel from '../components/StatPanel';
 import type { DashboardFilterValues, StatRow } from '../types/dashboard.types';
 import { downloadPdf } from '../utils/downloadPdf';
+import type { PdfReport } from '../utils/downloadPdf';
+import { downloadExcel } from '../utils/downloadExcel';
 import { showToast } from '../../../components/shared/toast/toast';
 import { addDays, getToday } from '../../../utils/dates';
 import { getIssues, getStoredRecommendations } from '../../issues/services/issueService';
 import type { StoredIssue, StoredRecommendation } from '../../issues/services/issueService';
-import { figuresByPlace, filterRecords, performanceFigures } from '../utils/reportFigures';
+import { figuresByPlace, filterRecords, issueBreakdowns, performanceFigures } from '../utils/reportFigures';
 import PlaceTable from '../components/PlaceTable';
 import { getAllRecommendationEvents } from '../../recommendations/services/recommendationService';
 import type { RecommendationEvent } from '../../recommendations/services/recommendationService';
@@ -45,7 +47,7 @@ interface Panel {
 
 function DashboardPage() {
   const [filters, setFilters] = useState<DashboardFilterValues>(noFilters);
-  const [pdfBusy, setPdfBusy] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   const { currentUser, locations, scope } = useCurrentUser();
   const placesOfType = (type: string) =>
@@ -86,6 +88,7 @@ function DashboardPage() {
     shownRecommendations.filter((recommendation) => recommendation[field] === value).length;
   const performance = performanceFigures(shownRecommendations, eventsData.data);
   const placeRows = figuresByPlace(shownIssues, shownRecommendations);
+  const breakdown = issueBreakdowns(shownIssues);
 
   const summaryPanels: Panel[] = [
     {
@@ -95,8 +98,23 @@ function DashboardPage() {
         { label: 'Maternal', value: countIssues('maternal') },
         { label: 'Near miss', value: countIssues('near-miss') },
       ],
-      note: 'Also by setting, delay, cause and period of death.',
     },
+    { title: 'By setting', rows: breakdown.setting },
+    {
+      title: 'By level of delay',
+      rows: breakdown.delay,
+      note: 'Issues with at least one contributing factor at that level.',
+    },
+    {
+      title: 'Top contributing factors',
+      rows: breakdown.factors.length ? breakdown.factors : [{ label: 'None recorded', value: 0 }],
+    },
+    {
+      title: 'Cause of death',
+      rows: breakdown.causes.length ? breakdown.causes : [{ label: 'None recorded', value: 0 }],
+      note: 'Top causes. Near misses are not included.',
+    },
+    { title: 'Period of death', rows: breakdown.periods },
     {
       title: 'Recommendations by status',
       rows: [
@@ -153,34 +171,42 @@ function DashboardPage() {
     setFilters((current) => ({ ...current, [name]: value }));
   }
 
-  async function handleDownloadPdf() {
-    setPdfBusy(true);
+  function buildReport(extension: string): PdfReport {
+    const filterText = (Object.keys(filterLabels) as (keyof DashboardFilterValues)[])
+      .map((key) => `${filterLabels[key]}: ${filters[key] || 'All'}`)
+      .join(' · ');
+    return {
+      fileName: `mpdsr-report-${today}.${extension}`,
+      title: 'MPDSR report',
+      details: [`Generated ${today}${currentUser ? ` by ${currentUser.fullName}` : ''}`, filterText],
+      sections: [
+        ...[...summaryPanels, performancePanel].map((panel) => ({
+          title: panel.title,
+          head: ['Measure', 'Value'],
+          rows: panel.rows.map((row) => [row.label, row.value]),
+          note: panel.note,
+        })),
+        {
+          title: 'By place',
+          head: ['Place', 'Issues', 'Recommendations', 'Still running', 'Overdue', 'Closed'],
+          rows: placeRows.map((row) => [row.place, row.issues, row.recommendations, row.running, row.overdue, row.closed]),
+        },
+      ],
+    };
+  }
+
+  async function handleDownload(format: 'excel' | 'pdf') {
+    setBusy(true);
     try {
-      const filterText = (Object.keys(filterLabels) as (keyof DashboardFilterValues)[])
-        .map((key) => `${filterLabels[key]}: ${filters[key] || 'All'}`)
-        .join(' · ');
-      await downloadPdf({
-        fileName: `mpdsr-report-${today}.pdf`,
-        title: 'MPDSR report',
-        details: [`Generated ${today}${currentUser ? ` by ${currentUser.fullName}` : ''}`, filterText],
-        sections: [
-          ...[...summaryPanels, performancePanel].map((panel) => ({
-            title: panel.title,
-            head: ['Measure', 'Value'],
-            rows: panel.rows.map((row) => [row.label, row.value]),
-            note: panel.note,
-          })),
-          {
-            title: 'By place',
-            head: ['Place', 'Issues', 'Recommendations', 'Still running', 'Overdue', 'Closed'],
-            rows: placeRows.map((row) => [row.place, row.issues, row.recommendations, row.running, row.overdue, row.closed]),
-          },
-        ],
-      });
+      if (format === 'excel') {
+        await downloadExcel(buildReport('xlsx'));
+      } else {
+        await downloadPdf(buildReport('pdf'));
+      }
     } catch {
-      showToast("Couldn't make the PDF. Try again.", 'error');
+      showToast(`Couldn't make the ${format === 'excel' ? 'Excel file' : 'PDF'}. Try again.`, 'error');
     } finally {
-      setPdfBusy(false);
+      setBusy(false);
     }
   }
 
@@ -189,9 +215,10 @@ function DashboardPage() {
       <div className="page-header">
         <h1>Reports</h1>
         <div className="form-actions no-print">
-          <Button kind="tertiary" renderIcon={Document} onClick={handleDownloadPdf} disabled={pdfBusy}>
-            {pdfBusy ? 'Making PDF…' : 'Download PDF'}
-          </Button>
+          <MenuButton kind="tertiary" label={busy ? 'Preparing…' : 'Download'} disabled={busy} menuAlignment="bottom-end">
+            <MenuItem label="Excel (.xlsx)" onClick={() => handleDownload('excel')} />
+            <MenuItem label="PDF" onClick={() => handleDownload('pdf')} />
+          </MenuButton>
           <Button kind="ghost" renderIcon={Printer} onClick={() => window.print()}>
             Print
           </Button>
