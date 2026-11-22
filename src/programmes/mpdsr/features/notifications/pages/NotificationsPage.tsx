@@ -25,7 +25,7 @@ const tabs: NotificationTab[] = [
   { label: 'Action needed', matches: inCategories('assigned', 'acceptance-needed', 'approval-needed', 'review-needed') },
   { label: 'Reminders', matches: inCategories('reminder') },
   { label: 'Escalations', matches: inCategories('escalated', 'overdue') },
-  { label: 'Decisions', matches: inCategories('approved', 'rejected', 'cancelled') },
+  { label: 'Decisions', matches: inCategories('approved', 'rejected', 'cancelled', 'reviewed') },
 ];
 
 function NotificationsPage() {

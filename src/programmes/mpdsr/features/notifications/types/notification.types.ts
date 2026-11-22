@@ -6,6 +6,7 @@ export type NotificationCategory =
   | 'overdue'
   | 'approval-needed'
   | 'review-needed'
+  | 'reviewed'
   | 'approved'
   | 'rejected'
   | 'cancelled';

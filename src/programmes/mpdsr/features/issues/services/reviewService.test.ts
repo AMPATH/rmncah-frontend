@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { makeIssue, makeRecommendation, makeUser } from '../../../test/fixtures';
-import { reviewDifferences } from './reviewService';
+import { reporterSummary, reviewDifferences } from './reviewService';
 import { isReviewed } from '../utils/caseReview';
 import { whyIssueBlocked } from '../utils/issueRules';
 
@@ -56,5 +56,23 @@ describe('case review', () => {
 
     expect(isReviewed(issue)).toBe(true);
     expect(whyIssueBlocked('edit', issue, chair, [], '2026-11-19')).toMatch(/locked/);
+  });
+});
+
+describe('reporterSummary', () => {
+  it('lists what changed, without level or responsible person', () => {
+    const text = reporterSummary('MP-1', 'Jane Chair', [
+      { field: 'Cause of death', from: 'A', to: 'B' },
+      { field: 'MP-1-R1 text', from: 'x', to: 'y' },
+      { field: 'MP-1-R1 level', from: '—', to: 'facility' },
+      { field: 'MP-1-R1 responsible person', from: '—', to: 'Mercy' },
+    ]);
+    expect(text).toBe('Jane Chair reviewed MP-1 and changed: Cause of death, MP-1-R1 text. Open the issue to see the details.');
+  });
+
+  it('says when nothing the reporter logged was changed', () => {
+    expect(reporterSummary('MP-1', 'Jane Chair', [{ field: 'MP-1-R1 level', from: '—', to: 'county' }])).toBe(
+      'Jane Chair reviewed MP-1 with no changes to what you logged.'
+    );
   });
 });

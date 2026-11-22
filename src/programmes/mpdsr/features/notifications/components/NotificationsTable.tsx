@@ -81,7 +81,9 @@ function NotificationsTable({ notifications, onOpen }: NotificationsTableProps) 
                                 to={
                                   notification.category === 'review-needed'
                                     ? `/issues/${cell.value}/review`
-                                    : `/recommendations/${cell.value}`
+                                    : notification.category === 'reviewed'
+                                      ? `/issues/${cell.value}`
+                                      : `/recommendations/${cell.value}`
                                 }
                                 onClick={() => onOpen(notification)}
                               >

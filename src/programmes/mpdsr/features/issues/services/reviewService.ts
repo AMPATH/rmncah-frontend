@@ -1,4 +1,6 @@
-import { apiPatch } from '../../../api/apiClient';
+import { apiPatch, apiPost } from '../../../api/apiClient';
+import { getToday } from '../../../utils/dates';
+import type { AppNotification } from '../../notifications/types/notification.types';
 import type { DraftRecommendation, User } from '../types/issue.types';
 import type { StoredIssue, StoredRecommendation } from './issueService';
 import { recordIssueEvent } from './issueEditService';
@@ -81,6 +83,19 @@ export function reviewDifferences(input: Omit<CaseReviewInput, 'byUserId'>): Iss
   return changes;
 }
 
+// The reporter does not set the level or the responsible person, so those are left out.
+export function reporterSummary(issueCode: string, chairName: string, changes: IssueFieldChange[]): string {
+  const fields = [
+    ...new Set(
+      changes
+        .map((change) => change.field)
+        .filter((field) => !field.endsWith(' level') && !field.endsWith(' responsible person'))
+    ),
+  ];
+  if (fields.length === 0) return `${chairName} reviewed ${issueCode} with no changes to what you logged.`;
+  return `${chairName} reviewed ${issueCode} and changed: ${fields.join(', ')}. Open the issue to see the details.`;
+}
+
 export async function completeCaseReview(input: CaseReviewInput): Promise<StoredIssue> {
   const { issue, byUserId, review, contributingFactors, existing, edited, added, users } = input;
   const changes = reviewDifferences(input);
@@ -132,6 +147,20 @@ export async function completeCaseReview(input: CaseReviewInput): Promise<Stored
   for (const draft of added) {
     const saved = await addRecommendationToIssue(issue, draft, codes, false);
     codes.push(saved.code ?? '');
+  }
+
+  if (issue.loggedById && issue.loggedById !== byUserId) {
+    const chairName = users.find((user) => user.id === byUserId)?.fullName ?? 'The facility MPDSR chair';
+    await apiPost<AppNotification>('/notifications', {
+      recipientId: issue.loggedById,
+      date: getToday(),
+      at: new Date().toISOString(),
+      message: reporterSummary(issue.code, chairName, changes),
+      recommendationId: issue.code,
+      from: chairName,
+      category: 'reviewed',
+      read: false,
+    });
   }
 
   return updated;
