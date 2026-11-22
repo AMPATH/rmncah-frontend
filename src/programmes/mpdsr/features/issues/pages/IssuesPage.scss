@@ -1,0 +1,25 @@
+@use '../../../../../styles/tokens' as *;
+
+.mpdsr-app {
+  .issue-filters {
+    @include box;
+    display: grid;
+    grid-template-columns: 2fr repeat(5, minmax(9rem, 1fr)) auto;
+    align-items: end;
+    gap: 16px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 82rem) {
+    .issue-filters {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 42rem) {
+    .issue-filters {
+      grid-template-columns: 1fr;
+    }
+  }
+}
