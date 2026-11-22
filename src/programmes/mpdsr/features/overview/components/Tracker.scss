@@ -1,0 +1,151 @@
+@use '../../../../../styles/tokens' as *;
+
+.mpdsr-app {
+  .overview-filters {
+    @include box;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 24px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+
+    .cds--select {
+      min-width: 14rem;
+    }
+
+    &__switch {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 32rem;
+    }
+
+    &__label {
+      margin: 0;
+      font-size: 0.75rem;
+      color: $muted;
+    }
+  }
+
+  .tracker {
+    --tracker-colour: #{$primary};
+    margin-bottom: 20px;
+
+    &--maternal {
+      --tracker-colour: #c0392b;
+    }
+
+    &--perinatal {
+      --tracker-colour: #6929c4;
+    }
+
+    &--near-miss {
+      --tracker-colour: #b35900;
+    }
+
+    &__title {
+      margin: 0 0 10px;
+      padding-left: 10px;
+      border-left: 3px solid var(--tracker-colour);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--tracker-colour);
+    }
+
+    &__cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    &__card {
+      @include box;
+      padding: 14px 18px;
+    }
+
+    &__card--current {
+      border: 2px solid var(--tracker-colour);
+    }
+
+    &__label {
+      margin: 0;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: $muted;
+    }
+
+    &__count {
+      margin: 4px 0;
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--tracker-colour);
+    }
+
+    &__detail {
+      margin: 0;
+      font-size: 0.8rem;
+      color: $muted;
+    }
+  }
+
+  .overview-section-title {
+    margin: 32px 0 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .facility-table {
+    margin: 8px 0 24px;
+
+    &__tools {
+      display: flex;
+      justify-content: flex-end;
+      padding: 0 16px 12px;
+
+      .cds--select-input__wrapper {
+        min-width: 9rem;
+      }
+    }
+
+    &__name {
+      font-weight: 600;
+    }
+
+    &__number {
+      text-align: right;
+    }
+
+    &__total {
+      font-weight: 700;
+    }
+  }
+
+  .recommendations-table__actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 16px 12px;
+  }
+
+  .overview-actions {
+    @include box;
+    padding: 16px 24px;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 66rem) {
+    .tracker__cards {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .overview-filters__switch {
+      min-width: 0;
+      width: 100%;
+    }
+  }
+}

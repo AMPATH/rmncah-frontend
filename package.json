@@ -15,6 +15,7 @@
   "dependencies": {
     "@carbon/icons-react": "^11.92.0",
     "@carbon/react": "^1.120.0",
+    "exceljs": "^4.4.0",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.9",
     "react": "^19.3.1",
