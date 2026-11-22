@@ -20,10 +20,13 @@ import { clearDraft, draftKeyFor, loadDraft, saveDraft } from '../utils/logIssue
 import type { LogIssueDraft } from '../utils/logIssueDraft';
 import { useCurrentUser } from '../../../context/currentUserContext';
 import { placesAbove } from '../../../auth/locations';
-import { createIssueWithRecommendations } from '../services/issueService';
-import type { NewIssue } from '../services/issueService';
+import { createIssueWithRecommendations, getIssues } from '../services/issueService';
+import type { NewIssue, StoredIssue } from '../services/issueService';
+import DuplicateWarning from '../components/log-issue/DuplicateWarning';
+import { findDuplicates } from '../utils/duplicates';
 import BackButton from '../../../components/layout/BackButton';
 import { useApiData } from '../../../hooks/useApiData';
+import { PHONE_QUERY, useMediaQuery } from '../../../hooks/useMediaQuery';
 import { causeOptionsFor, getCausesOfDeath } from '../services/causeService';
 import type { CauseOfDeath } from '../services/causeService';
 import './LogIssuePage.scss';
@@ -78,7 +81,10 @@ function LogIssuePage() {
   const [showErrors, setShowErrors] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  const phone = useMediaQuery(PHONE_QUERY);
   const causesData = useApiData<CauseOfDeath[]>(getCausesOfDeath, []);
+  const issuesData = useApiData<StoredIssue[]>(getIssues, []);
+  const duplicates = findDuplicates(issuesData.data, { issueType, loggedAt, dateOfDeath, dateOfNotification });
   const causeOptions = causeOptionsFor(causesData.data, issueType);
   const { currentUser, users: allUsers, locations, scope } = useCurrentUser();
 
@@ -351,16 +357,27 @@ function LogIssuePage() {
         </div>
       </div>
 
-      <ProgressIndicator
-        className="log-issue__steps"
-        currentIndex={step}
-        onChange={goToStep}
-        spaceEqually
-      >
-        {steps.map((label, index) => (
-          <ProgressStep key={label} label={label} disabled={index > furthestStep} />
-        ))}
-      </ProgressIndicator>
+      {phone ? (
+        <div className="log-issue__phone-steps" aria-label={`Step ${step + 1} of ${steps.length}`}>
+          <p>
+            Step {step + 1} of {steps.length} · <strong>{steps[step]}</strong>
+          </p>
+          <div className="log-issue__phone-bar">
+            <span style={{ width: `${((step + 1) / steps.length) * 100}%` }} />
+          </div>
+        </div>
+      ) : (
+        <ProgressIndicator
+          className="log-issue__steps"
+          currentIndex={step}
+          onChange={goToStep}
+          spaceEqually
+        >
+          {steps.map((label, index) => (
+            <ProgressStep key={label} label={label} disabled={index > furthestStep} />
+          ))}
+        </ProgressIndicator>
+      )}
 
       <form onSubmit={handleSubmit} noValidate={step === 4}>
         {offeredDraft && (
@@ -472,6 +489,7 @@ function LogIssuePage() {
                 onDateOfDeathChange={handleDateOfDeathChange}
                 onDateOfNotificationChange={setDateOfNotification}
               />
+              <DuplicateWarning matches={duplicates} />
             </>
           )}
 
@@ -491,7 +509,10 @@ function LogIssuePage() {
           )}
 
           {step === 5 && (
-            <ReviewStep items={reviewItems} recommendationCount={recommendations.length} />
+            <>
+              <DuplicateWarning matches={duplicates} />
+              <ReviewStep items={reviewItems} recommendationCount={recommendations.length} />
+            </>
           )}
         </section>
 
