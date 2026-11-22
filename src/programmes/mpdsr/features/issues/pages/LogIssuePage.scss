@@ -18,5 +18,56 @@
       justify-content: space-between;
       align-items: center;
     }
+
+    &__phone-steps {
+      margin-bottom: 16px;
+
+      p {
+        margin: 0 0 8px;
+        font-size: 0.875rem;
+        color: #525252;
+      }
+
+      strong {
+        color: #161616;
+      }
+    }
+
+    &__phone-bar {
+      height: 4px;
+      background: #e0e0e0;
+
+      span {
+        display: block;
+        height: 100%;
+        background: #0f62fe;
+        transition: width 0.2s ease;
+      }
+    }
+  }
+
+  // On a phone the step buttons stay in reach at the bottom of the screen, on one row.
+  @media (max-width: 41.99rem) {
+    .app-content .page .log-issue__actions {
+      position: sticky;
+      bottom: 0;
+      z-index: 2;
+      flex-wrap: nowrap;
+      gap: 4px;
+      margin: 0 -12px;
+      padding: 8px 12px;
+      background: #ffffff;
+      box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.12);
+
+      .form-actions {
+        width: auto;
+        flex-wrap: nowrap;
+        gap: 4px;
+
+        .cds--btn {
+          flex: 0 0 auto;
+        }
+      }
+    }
   }
 }

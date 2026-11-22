@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { makeEvent, makeIssue, makeRecommendation } from '../../../test/fixtures';
 import type { Location } from '../../../auth/locations';
-import { figuresByPlace, filterRecords, performanceFigures } from './reportFigures';
+import { figuresByPlace, filterRecords, issueBreakdowns, performanceFigures } from './reportFigures';
+import type { StoredIssue } from '../../issues/services/issueService';
 
 const locations: Location[] = [
   { id: 'l1', name: 'Uasin Gishu County', type: 'county', parent: '' },
@@ -120,5 +121,24 @@ describe('figuresByPlace', () => {
         closed: 1,
       },
     ]);
+  });
+});
+
+describe('issueBreakdowns', () => {
+  const base = { setting: 'facility', contributingFactors: [], causeOfDeath: '', periodOfDeath: '', issueType: 'maternal' };
+  const issues = [
+    { ...base, id: 'a', contributingFactors: ['1st delay: Poverty', '3rd delay: Staff shortage'], causeOfDeath: 'PPH', periodOfDeath: 'postpartum' },
+    { ...base, id: 'b', setting: 'community', contributingFactors: ['3rd delay: Staff shortage'], causeOfDeath: 'PPH' },
+    { ...base, id: 'c', issueType: 'near-miss', causeOfDeath: '' },
+  ] as unknown as StoredIssue[];
+
+  it('counts setting, delays, factors, causes and periods', () => {
+    const result = issueBreakdowns(issues);
+    expect(result.setting).toEqual([{ label: 'Facility', value: 2 }, { label: 'Community', value: 1 }]);
+    expect(result.delay.map((row) => row.value)).toEqual([1, 0, 2]);
+    expect(result.factors[0]).toEqual({ label: '3rd · Staff shortage', value: 2 });
+    expect(result.causes).toEqual([{ label: 'PPH', value: 2 }]);
+    expect(result.periods.find((row) => row.label === 'Postpartum')?.value).toBe(1);
+    expect(result.periods.find((row) => row.label === 'Not recorded')?.value).toBe(2);
   });
 });

@@ -7,6 +7,7 @@ import { acceptanceDeadline, getEscalationMatrix } from './escalationMatrix';
 import { placesWithin } from '../../../auth/locations';
 import type { Location } from '../../../auth/locations';
 import { uploadEvidence } from './evidenceService';
+import { sendDueReminders } from './dueReminders';
 import { isReviewed } from '../../issues/utils/caseReview';
 import type { IssueReview } from '../../issues/utils/caseReview';
 
@@ -217,7 +218,9 @@ export async function markOverdue(recommendations: StoredRecommendation[]): Prom
       }
     })
   );
-  return checkAcceptanceDeadlines(checked);
+  const result = await checkAcceptanceDeadlines(checked);
+  await sendDueReminders(result);
+  return result;
 }
 
 export function getAllRecommendationEvents(): Promise<RecommendationEvent[]> {

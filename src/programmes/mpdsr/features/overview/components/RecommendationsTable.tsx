@@ -14,6 +14,7 @@ import type { Recommendation } from '../../issues/types/issue.types';
 import StatusTag from '../../../components/shared/StatusTag';
 import { Link } from 'react-router';
 import { CheckmarkOutline } from '@carbon/icons-react';
+import type { ReactNode } from 'react';
 
 const headers = [
   { key: 'id', header: 'ID' },
@@ -27,9 +28,15 @@ interface RecommendationsTableProps {
   recommendations: Recommendation[];
   description: string;
   emptyText?: string;
+  actions?: ReactNode;
 }
 
-function RecommendationsTable({ recommendations, description, emptyText = 'No recommendations yet.' }: RecommendationsTableProps) {
+function RecommendationsTable({
+  recommendations,
+  description,
+  emptyText = 'No recommendations yet.',
+  actions,
+}: RecommendationsTableProps) {
   const pager = usePager();
   return (
     <DataTable rows={recommendations} headers={headers} isSortable>
@@ -38,6 +45,7 @@ function RecommendationsTable({ recommendations, description, emptyText = 'No re
           title="Action plan"
           description={description}
         >
+          {actions && <div className="recommendations-table__actions">{actions}</div>}
           <Table {...getTableProps()} aria-label="Action plan">
             <TableHead>
               <TableRow>
