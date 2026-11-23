@@ -49,7 +49,7 @@ function PlacesPage() {
   }
 
   const nameTaken = locations.some((location) => location.name.toLowerCase() === name.trim().toLowerCase());
-  const nameError = name.trim() === '' ? 'Enter the name' : nameTaken ? 'A place with this name already exists' : '';
+  const nameError = name.trim() === '' ? 'Enter the name' : nameTaken ? 'A location with this name already exists' : '';
   const parentError = parentType !== '' && parent === '' ? `Choose the ${placeTypeLabels[parentType].toLowerCase()} it belongs to` : '';
 
   function changeType(value: LocationType | '') {
@@ -73,7 +73,7 @@ function PlacesPage() {
       setParent('');
       setShowErrors(false);
     } catch {
-      showToast("Couldn't save the place. Is the server running?", 'error');
+      showToast("Couldn't save the location. Is the server running?", 'error');
     }
     setBusy(false);
   }
@@ -82,9 +82,9 @@ function PlacesPage() {
     <div className="page">
       <div className="page-header">
         <div>
-          <h1>Places</h1>
+          <h1>Locations</h1>
           <p className="page-subtitle">
-            Counties, sub-counties, facilities and community units. Users see records at their places and
+            Counties, sub-counties, facilities and community units. Users see records at their locations and
             everything under them.
           </p>
         </div>
@@ -94,14 +94,14 @@ function PlacesPage() {
         <section className="form-card">
           <h2 className="form-section-title">Hierarchy</h2>
           {locations.length === 0 ? (
-            <p className="empty-note">No places yet. Start with a county.</p>
+            <p className="empty-note">No locations yet. Start with a county.</p>
           ) : (
             <PlaceBranch parent="" locations={locations} users={usersPerPlace} />
           )}
         </section>
 
         <form className="form-card form-stack" onSubmit={handleAdd} noValidate>
-          <h2 className="form-section-title">Add a place</h2>
+          <h2 className="form-section-title">Add a location</h2>
 
           <Select
             id="placeType"
@@ -145,11 +145,11 @@ function PlacesPage() {
 
           <div>
             <Button type="submit" disabled={busy}>
-              {busy ? 'Saving…' : 'Add place'}
+              {busy ? 'Saving…' : 'Add location'}
             </Button>
           </div>
           <p className="field-hint">
-            Renaming and removing places come with the backend: records refer to places by name for now.
+            Renaming and removing locations come with the backend: records refer to locations by name for now.
           </p>
         </form>
       </div>

@@ -8,6 +8,7 @@ import { placesWithin } from '../../../auth/locations';
 import type { Location } from '../../../auth/locations';
 import { uploadEvidence } from './evidenceService';
 import { sendDueReminders } from './dueReminders';
+import { isAllowedMove } from '../utils/levels';
 import { isReviewed } from '../../issues/utils/caseReview';
 import type { IssueReview } from '../../issues/utils/caseReview';
 
@@ -100,8 +101,12 @@ export async function escalateRecommendation(
   direction: 'escalate' | 'de-escalate',
   targetLevel: Level,
   targetUserId: string,
-  reason: string
+  reason: string,
+  issueType?: string
 ) {
+  if (!isAllowedMove(recommendation.level, direction, targetLevel, issueType)) {
+    throw new Error(`Cannot ${direction} from ${recommendation.level || 'no level'} to ${targetLevel}`);
+  }
   return applyChange(
     recommendation,
     { status: 'Pending acceptance', level: targetLevel, responsiblePersonId: targetUserId },

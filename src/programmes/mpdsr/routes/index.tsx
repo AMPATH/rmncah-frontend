@@ -8,6 +8,7 @@ import { notificationRoutes } from '../features/notifications/routes';
 import { adminRoutes } from '../features/admin/routes';
 import { overviewRoutes } from '../features/overview/routes';
 import { recommendationRoutes } from '../features/recommendations/routes';
+import { profileRoutes } from '../features/profile/routes';
 
 export const mpdsrRoutes: RouteObject[] = [
   {
@@ -24,6 +25,7 @@ export const mpdsrRoutes: RouteObject[] = [
           ...dashboardRoutes,
           ...notificationRoutes,
           ...adminRoutes,
+          ...profileRoutes,
         ],
       },
     ],

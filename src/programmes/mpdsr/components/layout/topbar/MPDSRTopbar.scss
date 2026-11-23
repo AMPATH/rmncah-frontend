@@ -49,6 +49,19 @@
       color: #f4f4f4;
     }
 
+    &__avatar {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #0f62fe;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
     &__name {
       margin: 0;
       font-weight: 600;
@@ -63,6 +76,14 @@
     &__button {
       width: 100%;
       max-width: none;
+    }
+
+    &__button.cds--btn--ghost {
+      color: #f4f4f4;
+
+      svg {
+        fill: #f4f4f4;
+      }
     }
   }
 

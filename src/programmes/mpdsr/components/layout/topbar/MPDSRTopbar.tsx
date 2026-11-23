@@ -16,6 +16,7 @@ import {
   SideNavLink,
   Select,
   SelectItem,
+  SelectItemGroup,
   Theme,
 } from '@carbon/react';
 import type { CarbonIconType } from '@carbon/icons-react';
@@ -31,6 +32,7 @@ import {
   Timer,
   UserAvatar,
   UserMultiple,
+  UserProfile,
 } from '@carbon/icons-react';
 import { useCurrentUser } from '../../../context/currentUserContext';
 import { canAny, roleLabels } from '../../../auth/permissions';
@@ -40,6 +42,8 @@ import { LARGE_SCREEN_QUERY, useMediaQuery } from '../../../hooks/useMediaQuery'
 import { NOTIFICATIONS_CHANGED_EVENT, getNotifications } from '../../../features/notifications/services/notificationService';
 import type { AppNotification } from '../../../features/notifications/types/notification.types';
 import { showToast } from '../../shared/toast/toast';
+import { initialsOf } from '../../../features/profile/utils/profileFigures';
+import { actingAsGroups } from './actingAsGroups';
 import './MPDSRTopbar.scss';
 
 interface NavItem {
@@ -60,7 +64,7 @@ const navGroups: NavItem[][] = [
   [{ path: '/reports', label: 'Reports', icon: Report }],
   [
     { path: '/admin/users', label: 'Users', icon: UserMultiple },
-    { path: '/admin/places', label: 'Places', icon: Location },
+    { path: '/admin/places', label: 'Locations', icon: Location },
     { path: '/admin/escalation', label: 'Escalation matrix', icon: Timer },
   ],
 ];
@@ -77,7 +81,7 @@ function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderConten
   const isLargeScreen = useMediaQuery(LARGE_SCREEN_QUERY);
   const navigate = useNavigate();
   const location = useLocation();
-  const { currentUser, users, setCurrentUserId } = useCurrentUser();
+  const { currentUser, users, locations, setCurrentUserId } = useCurrentUser();
 
   
   const visibleGroups = navGroups
@@ -163,16 +167,36 @@ function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderConten
         {}
         <div inert={profileOpen === false}>
         <div className="profile-panel__user">
-          <UserAvatar size={32} />
+          <span className="profile-panel__avatar" aria-hidden="true">
+            {currentUser ? initialsOf(currentUser.fullName) : <UserAvatar size={20} />}
+          </span>
           <div>
             <p className="profile-panel__name">{currentUser?.fullName ?? 'Not signed in'}</p>
-            <p className="profile-panel__role">
-              {currentUser
-                ? `${roleLabels[currentUser.role]} · ${currentUser.assignedLocations.join(', ')}`
-                : 'Choose a user below'}
-            </p>
+            {currentUser ? (
+              <>
+                <p className="profile-panel__role">{roleLabels[currentUser.role]}</p>
+                <p className="profile-panel__role">{currentUser.assignedLocations.join(', ')}</p>
+                {currentUser.email && <p className="profile-panel__role">{currentUser.email}</p>}
+              </>
+            ) : (
+              <p className="profile-panel__role">Choose a user below</p>
+            )}
           </div>
         </div>
+
+        {currentUser && (
+          <Button
+            className="profile-panel__button"
+            kind="ghost"
+            renderIcon={UserProfile}
+            onClick={() => {
+              setProfileOpen(false);
+              navigate('/profile');
+            }}
+          >
+            View my profile
+          </Button>
+        )}
 
         {}
         <div className="profile-panel__acting-as">
@@ -182,15 +206,15 @@ function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderConten
             size="sm"
             value={currentUser?.id ?? ''}
             onChange={(event) => handleSwitchUser(event.target.value)}
-            helperText={users.length === 0 ? 'No users yet. Add them under "users" in db.json.' : undefined}
+            helperText={users.length === 0 ? 'No users yet. Add them under "users" in mpdsrdb.json.' : undefined}
           >
             <SelectItem value="" text="Choose a user" />
-            {users.filter((user) => user.deleted !== true).map((user) => (
-              <SelectItem
-                key={user.id}
-                value={user.id}
-                text={`${user.fullName} · ${roleLabels[user.role]}${user.active === false ? ' (deactivated)' : ''}`}
-              />
+            {actingAsGroups(users, locations).map((group) => (
+              <SelectItemGroup key={group.label} label={group.label}>
+                {group.options.map((option) => (
+                  <SelectItem key={option.id} value={option.id} text={option.text} />
+                ))}
+              </SelectItemGroup>
             ))}
           </Select>
         </div>

@@ -1,4 +1,4 @@
-import { Link } from '@carbon/react';
+import { Button } from '@carbon/react';
 import { ArrowRight } from '@carbon/icons-react';
 import type { ActionKey } from '../utils/overviewFigures';
 
@@ -28,16 +28,9 @@ function ActionList({ rows, selected, onOpen }: ActionListProps) {
           <span className={badgeClass(row)}>{row.count}</span>
           <span className="action-list__open">
             {row.count > 0 && (
-              <Link
-                href="#"
-                renderIcon={ArrowRight}
-                onClick={(event) => {
-                  event.preventDefault();
-                  onOpen(row.key);
-                }}
-              >
+              <Button kind="ghost" size="sm" renderIcon={ArrowRight} onClick={() => onOpen(row.key)}>
                 View
-              </Link>
+              </Button>
             )}
           </span>
         </li>
