@@ -3,9 +3,6 @@ import {
   mentorRepository,
   cohortRepository,
   menteeRepository,
-  trainingModuleRepository,
-  trainingSectionRepository,
-  learningMaterialRepository,
   learningPlanRepository,
   learningPlanModuleRepository,
   learningSessionRepository,
@@ -20,9 +17,6 @@ import {
   initialMentors,
   initialCohorts,
   initialMentees,
-  initialTrainingModules,
-  initialTrainingSections,
-  initialLearningMaterialsData,
   initialLearningPlans,
   initialLearningPlanModules,
   initialLearningSessions,
@@ -60,9 +54,6 @@ export interface SeedResult {
   mentors: number
   cohorts: number
   mentees: number
-  trainingModules: number
-  trainingSections: number
-  learningMaterials: number
   learningPlans: number
   learningPlanModules: number
   learningSessions: number
@@ -98,21 +89,6 @@ export function initializeDemoData(): SeedResult {
     mentees: seedIfEmpty(
       menteeRepository,
       initialMentees,
-    ),
-
-    trainingModules: seedIfEmpty(
-      trainingModuleRepository,
-      initialTrainingModules,
-    ),
-
-    trainingSections: seedIfEmpty(
-      trainingSectionRepository,
-      initialTrainingSections,
-    ),
-
-    learningMaterials: seedIfEmpty(
-      learningMaterialRepository,
-      initialLearningMaterialsData,
     ),
 
     learningPlans: seedIfEmpty(

@@ -111,6 +111,8 @@ export interface TrainingModule extends BaseRecord {
   category: string
   description: string
   status: TrainingModuleStatus
+  sequence?: number
+  subTrackCount?: number
   publishedAt?: string | null
 }
 

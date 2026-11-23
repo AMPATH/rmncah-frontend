@@ -1,0 +1,373 @@
+{
+  "emoncTrainingModules": [
+    {
+      "id": "EMONC-M01",
+      "title": "Infection Prevention & Control",
+      "category": "EmONC",
+      "description": "",
+      "status": "Incomplete content",
+      "sequence": 1,
+      "createdAt": "2026-11-23T08:35:25.779Z",
+      "updatedAt": "2026-11-23T08:35:25.780Z"
+    },
+    {
+      "id": "EMONC-M02",
+      "title": "Focused Antenatal Care",
+      "category": "EmONC",
+      "description": "",
+      "status": "Incomplete content",
+      "sequence": 2,
+      "createdAt": "2026-11-23T08:35:25.780Z",
+      "updatedAt": "2026-11-23T08:35:25.780Z"
+    },
+    {
+      "id": "EMONC-M03",
+      "title": "Labour & Delivery (Normal)",
+      "category": "EmONC",
+      "description": "",
+      "status": "Incomplete content",
+      "sequence": 3,
+      "createdAt": "2026-11-23T08:35:25.780Z",
+      "updatedAt": "2026-11-23T08:35:25.780Z"
+    },
+    {
+      "id": "EMONC-M04",
+      "title": "Partograph Use",
+      "category": "EmONC",
+      "description": "",
+      "status": "Incomplete content",
+      "sequence": 4,
+      "createdAt": "2026-11-23T08:35:25.780Z",
+      "updatedAt": "2026-11-23T08:35:25.780Z"
+    },
+    {
+      "id": "EMONC-M05",
+      "title": "Postpartum Haemorrhage (PPH)",
+      "category": "EmONC",
+      "description": "",
+      "status": "Incomplete content",
+      "sequence": 5,
+      "createdAt": "2026-11-23T08:35:25.780Z",
+      "updatedAt": "2026-11-23T08:35:25.780Z",
+      "subTrackCount": 10
+    },
+    {
+      "id": "EMONC-M06",
+      "title": "Pre-eclampsia & Eclampsia",
+      "category": "EmONC",
+      "description": "",
+      "status": "Incomplete content",
+      "sequence": 6,
+      "createdAt": "2026-11-23T08:35:25.780Z",
+      "updatedAt": "2026-11-23T08:35:25.780Z"
+    },
+    {
+      "id": "EMONC-M07",
+      "title": "Obstructed Labour & Shoulder Dystocia",
+      "category": "EmONC",
+      "description": "",
+      "status": "Incomplete content",
+      "sequence": 7,
+      "createdAt": "2026-11-23T08:35:25.780Z",
+      "updatedAt": "2026-11-23T08:35:25.780Z"
+    },
+    {
+      "id": "EMONC-M08",
+      "title": "Sepsis & Puerperal Infection",
+      "category": "EmONC",
+      "description": "",
+      "status": "Incomplete content",
+      "sequence": 8,
+      "createdAt": "2026-11-23T08:35:25.780Z",
+      "updatedAt": "2026-11-23T08:35:25.780Z"
+    },
+    {
+      "id": "EMONC-M09",
+      "title": "Newborn Resuscitation",
+      "category": "EmONC",
+      "description": "",
+      "status": "Incomplete content",
+      "sequence": 9,
+      "createdAt": "2026-11-23T08:35:25.780Z",
+      "updatedAt": "2026-11-23T08:35:25.780Z"
+    },
+    {
+      "id": "EMONC-M10",
+      "title": "Preterm & Low Birth Weight",
+      "category": "EmONC",
+      "description": "",
+      "status": "Incomplete content",
+      "sequence": 10,
+      "createdAt": "2026-11-23T08:35:25.780Z",
+      "updatedAt": "2026-11-23T08:35:25.780Z"
+    },
+    {
+      "id": "EMONC-M11",
+      "title": "HIV in Pregnancy",
+      "category": "EmONC",
+      "description": "",
+      "status": "Incomplete content",
+      "sequence": 11,
+      "createdAt": "2026-11-23T08:35:25.780Z",
+      "updatedAt": "2026-11-23T08:35:25.780Z"
+    },
+    {
+      "id": "EMONC-M12",
+      "title": "Nutrition in Pregnancy",
+      "category": "EmONC",
+      "description": "",
+      "status": "Incomplete content",
+      "sequence": 12,
+      "createdAt": "2026-11-23T08:35:25.780Z",
+      "updatedAt": "2026-11-23T08:35:25.780Z"
+    },
+    {
+      "id": "EMONC-M13",
+      "title": "Family Planning Post-Partum",
+      "category": "EmONC",
+      "description": "",
+      "status": "Incomplete content",
+      "sequence": 13,
+      "createdAt": "2026-11-23T08:35:25.780Z",
+      "updatedAt": "2026-11-23T08:35:25.780Z"
+    }
+  ],
+  "emoncTrainingSections": [
+    {
+      "id": "EMONC-M01-S01",
+      "moduleId": "EMONC-M01",
+      "title": "Introduction and Learning Objectives",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 1,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M01-S02",
+      "moduleId": "EMONC-M01",
+      "title": "Core Concepts and Guided Practice",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 2,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M02-S01",
+      "moduleId": "EMONC-M02",
+      "title": "Introduction and Learning Objectives",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 1,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M02-S02",
+      "moduleId": "EMONC-M02",
+      "title": "Core Concepts and Guided Practice",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 2,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M03-S01",
+      "moduleId": "EMONC-M03",
+      "title": "Introduction and Learning Objectives",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 1,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M03-S02",
+      "moduleId": "EMONC-M03",
+      "title": "Core Concepts and Guided Practice",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 2,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M04-S01",
+      "moduleId": "EMONC-M04",
+      "title": "Introduction and Learning Objectives",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 1,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M04-S02",
+      "moduleId": "EMONC-M04",
+      "title": "Core Concepts and Guided Practice",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 2,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M05-S01",
+      "moduleId": "EMONC-M05",
+      "title": "Introduction and Learning Objectives",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 1,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M05-S02",
+      "moduleId": "EMONC-M05",
+      "title": "Core Concepts and Guided Practice",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 2,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M06-S01",
+      "moduleId": "EMONC-M06",
+      "title": "Introduction and Learning Objectives",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 1,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M06-S02",
+      "moduleId": "EMONC-M06",
+      "title": "Core Concepts and Guided Practice",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 2,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M07-S01",
+      "moduleId": "EMONC-M07",
+      "title": "Introduction and Learning Objectives",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 1,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M07-S02",
+      "moduleId": "EMONC-M07",
+      "title": "Core Concepts and Guided Practice",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 2,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M08-S01",
+      "moduleId": "EMONC-M08",
+      "title": "Introduction and Learning Objectives",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 1,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M08-S02",
+      "moduleId": "EMONC-M08",
+      "title": "Core Concepts and Guided Practice",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 2,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M09-S01",
+      "moduleId": "EMONC-M09",
+      "title": "Introduction and Learning Objectives",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 1,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M09-S02",
+      "moduleId": "EMONC-M09",
+      "title": "Core Concepts and Guided Practice",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 2,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M10-S01",
+      "moduleId": "EMONC-M10",
+      "title": "Introduction and Learning Objectives",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 1,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M10-S02",
+      "moduleId": "EMONC-M10",
+      "title": "Core Concepts and Guided Practice",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 2,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M11-S01",
+      "moduleId": "EMONC-M11",
+      "title": "Introduction and Learning Objectives",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 1,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M11-S02",
+      "moduleId": "EMONC-M11",
+      "title": "Core Concepts and Guided Practice",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 2,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M12-S01",
+      "moduleId": "EMONC-M12",
+      "title": "Introduction and Learning Objectives",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 1,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M12-S02",
+      "moduleId": "EMONC-M12",
+      "title": "Core Concepts and Guided Practice",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 2,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M13-S01",
+      "moduleId": "EMONC-M13",
+      "title": "Introduction and Learning Objectives",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 1,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    },
+    {
+      "id": "EMONC-M13-S02",
+      "moduleId": "EMONC-M13",
+      "title": "Core Concepts and Guided Practice",
+      "description": "Example section placeholder. Replace with approved EmONC curriculum content.",
+      "sequence": 2,
+      "createdAt": "2026-11-23T09:07:22.612Z",
+      "updatedAt": "2026-11-23T09:07:22.612Z"
+    }
+  ],
+  "emoncLearningMaterials": [],
+  "$schema": "./node_modules/json-server/schema.json"
+}
