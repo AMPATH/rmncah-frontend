@@ -1,0 +1,78 @@
+@use '../../../../../styles/tokens' as *;
+
+.mpdsr-app {
+  .profile {
+    &__card {
+      @include box;
+      max-width: 40rem;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    &__identity {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    &__avatar {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: $primary;
+      color: #ffffff;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    &__name {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    &__heading {
+      margin: 0 0 12px;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    &__list {
+      display: grid;
+      grid-template-columns: 10rem 1fr;
+      gap: 10px 16px;
+      margin: 0;
+
+      dt {
+        color: $muted;
+      }
+
+      dd {
+        margin: 0;
+        overflow-wrap: anywhere;
+      }
+    }
+  }
+
+  @media (max-width: 41.99rem) {
+    .profile__card {
+      padding: 16px;
+    }
+
+    .profile__list {
+      grid-template-columns: 1fr;
+      gap: 2px;
+
+      dd {
+        margin-bottom: 10px;
+      }
+    }
+  }
+}
