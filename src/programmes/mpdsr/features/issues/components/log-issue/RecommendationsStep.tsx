@@ -26,6 +26,7 @@ interface RecommendationsStepProps {
   today: string;
   showErrors: boolean;
   held?: boolean;
+  issueType?: string;
   onAdd: (recommendation: DraftRecommendation) => void;
   onRemove: (index: number) => void;
 }
@@ -37,6 +38,7 @@ function RecommendationsStep({
   today,
   showErrors,
   held = false,
+  issueType,
   onAdd,
   onRemove,
 }: RecommendationsStepProps) {
@@ -144,6 +146,7 @@ function RecommendationsStep({
             setResponsiblePersonId('');
           }}
           showLevel={!held}
+          issueType={issueType}
         />
 
         {held ? (

@@ -1,6 +1,7 @@
 import { Select, SelectItem, TextInput } from '@carbon/react';
 import AutoLabel from '../../../../components/shared/AutoLabel';
 import type { Classification, Level } from '../../types/issue.types';
+import { levelLabels, levelsFor } from '../../../recommendations/utils/levels';
 
 interface ClassificationFieldsProps {
   classification: Classification | '';
@@ -9,6 +10,7 @@ interface ClassificationFieldsProps {
   onClassificationChange: (value: Classification | '') => void;
   onLevelChange: (value: Level | '') => void;
   showLevel?: boolean;
+  issueType?: string;
 }
 
 function ClassificationFields({
@@ -18,6 +20,7 @@ function ClassificationFields({
   onClassificationChange,
   onLevelChange,
   showLevel = true,
+  issueType,
 }: ClassificationFieldsProps) {
   return (
     <div className="form-row">
@@ -43,10 +46,9 @@ function ClassificationFields({
         required
       >
         <SelectItem value="" text="Select level" />
-        <SelectItem value="community" text="Community" />
-        <SelectItem value="facility" text="Facility" />
-        <SelectItem value="sub-county" text="Sub-county" />
-        <SelectItem value="county" text="County" />
+        {levelsFor(issueType).map((key) => (
+          <SelectItem key={key} value={key} text={levelLabels[key]} />
+        ))}
       </Select>
       )}
 

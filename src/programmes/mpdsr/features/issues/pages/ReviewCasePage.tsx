@@ -41,6 +41,7 @@ import { latestCompletionDate } from '../utils/classification';
 import type { Classification, DraftRecommendation, Level } from '../types/issue.types';
 import './LogIssuePage.scss';
 import './ReviewCasePage.scss';
+import { levelLabels, levelsFor } from '../../recommendations/utils/levels';
 
 const steps = ['Case summary', 'Final cause', 'Contributing factors', 'Recommendations', 'Check and complete'];
 const lastStep = steps.length - 1;
@@ -52,12 +53,7 @@ const issueTypeLabels: Record<string, string> = {
   'near-miss': 'Near miss',
 };
 
-const levelLabels: Record<Level, string> = {
-  community: 'Community',
-  facility: 'Facility',
-  'sub-county': 'Sub-county',
-  county: 'County',
-};
+
 
 const classificationLabels: Record<Classification, string> = {
   immediate: 'Immediate (1 month)',
@@ -543,7 +539,7 @@ function ReviewForm({ issue, recommendations, causeOptions, userId, users }: Rev
                               invalidText="Choose the level"
                             >
                               <SelectItem value="" text="Choose a level" />
-                              {(Object.keys(levelLabels) as Level[]).map((key) => (
+                              {levelsFor(issue.issueType).map((key) => (
                                 <SelectItem key={key} value={key} text={levelLabels[key]} />
                               ))}
                             </Select>
@@ -589,6 +585,7 @@ function ReviewForm({ issue, recommendations, causeOptions, userId, users }: Rev
               <RecommendationsStep
                 recommendations={added}
                 gapOptions={factors}
+                issueType={issue.issueType}
                 users={people}
                 today={today}
                 showErrors={false}
