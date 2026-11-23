@@ -21,7 +21,7 @@ function AcceptEscalatePage() {
   const { id: code = '' } = useParams();
   const navigate = useNavigate();
   const { currentUser, users } = useCurrentUser();
-  const { recommendation, loading, failed } = useRecommendation(code);
+  const { recommendation, issue, loading, failed } = useRecommendation(code);
   const { data: matrix } = useApiData(getEscalationMatrix, defaultEscalationMatrix);
 
   const [action, setAction] = useState<EscalationAction | ''>('');
@@ -79,7 +79,8 @@ function AcceptEscalatePage() {
       return;
     }
     run(
-      () => escalateRecommendation(recommendation!, currentUser!.id, action, targetLevel, targetPersonId, reason),
+      () =>
+        escalateRecommendation(recommendation!, currentUser!.id, action, targetLevel, targetPersonId, reason, issue?.issueType),
       action === 'escalate' ? 'Recommendation escalated' : 'Recommendation de-escalated'
     );
   }
@@ -102,6 +103,8 @@ function AcceptEscalatePage() {
         />
 
         <EscalateForm
+          currentLevel={recommendation.level}
+          issueType={issue?.issueType}
           action={action}
           targetLevel={targetLevel}
           targetPersonId={targetPersonId}
@@ -109,7 +112,10 @@ function AcceptEscalatePage() {
           users={peopleAtLevel}
           blockedBecause={blockedBecause}
           busy={busy}
-          onActionChange={setAction}
+          onActionChange={(value) => {
+            setAction(value);
+            changeLevel('');
+          }}
           onTargetLevelChange={changeLevel}
           onTargetPersonChange={setTargetPersonId}
           onReasonChange={setReason}

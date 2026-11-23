@@ -2,8 +2,11 @@ import { Button, Select, SelectItem, TextArea } from '@carbon/react';
 import type { FormEvent } from 'react';
 import type { Level, User } from '../../../issues/types/issue.types';
 import type { EscalationAction } from '../../types/action.types';
+import { levelLabels, moveTargets } from '../../../recommendations/utils/levels';
 
 interface EscalateFormProps {
+  currentLevel: Level | '';
+  issueType?: string;
   action: EscalationAction | '';
   targetLevel: Level | '';
   targetPersonId: string;
@@ -19,6 +22,8 @@ interface EscalateFormProps {
 }
 
 function EscalateForm({
+  currentLevel,
+  issueType,
   action,
   targetLevel,
   targetPersonId,
@@ -33,6 +38,9 @@ function EscalateForm({
   onSubmit,
 }: EscalateFormProps) {
   const disabled = blockedBecause !== '';
+  const canEscalate = moveTargets(currentLevel, 'escalate', issueType).length > 0;
+  const canDeEscalate = moveTargets(currentLevel, 'de-escalate', issueType).length > 0;
+  const targets = moveTargets(currentLevel, action, issueType);
 
   return (
     <form className="form-card form-stack" onSubmit={onSubmit}>
@@ -47,23 +55,27 @@ function EscalateForm({
         required
       >
         <SelectItem value="" text="Select action" />
-        <SelectItem value="escalate" text="Escalate" />
-        <SelectItem value="de-escalate" text="De-escalate" />
+        <SelectItem value="escalate" text="Escalate (move up)" disabled={!canEscalate} />
+        <SelectItem value="de-escalate" text="De-escalate (move down)" disabled={!canDeEscalate} />
       </Select>
 
       <Select
         id="targetLevel"
         labelText="Target level"
         value={targetLevel}
-        disabled={disabled}
+        disabled={disabled || action === ''}
         onChange={(event) => onTargetLevelChange(event.target.value as Level | '')}
+        helperText={
+          action === ''
+            ? 'Choose escalate or de-escalate first'
+            : `Now at ${currentLevel ? levelLabels[currentLevel] : 'no level'}. ${action === 'escalate' ? 'Only higher' : 'Only lower'} levels are shown.`
+        }
         required
       >
         <SelectItem value="" text="Select level" />
-        <SelectItem value="community" text="Community" />
-        <SelectItem value="facility" text="Facility" />
-        <SelectItem value="sub-county" text="Sub-county" />
-        <SelectItem value="county" text="County" />
+        {targets.map((level) => (
+          <SelectItem key={level} value={level} text={levelLabels[level]} />
+        ))}
       </Select>
 
       <Select
