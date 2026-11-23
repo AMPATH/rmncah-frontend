@@ -101,8 +101,8 @@ function UserForm({ values, locations, errors, busy, submitLabel, onChange, onSu
           invalidText={errors.assignedLocations}
           helperText={
             placeChoices.length === 0
-              ? `No ${placeTypeLabels[placeType].toLowerCase()} yet. Add one under Places.`
-              : 'They see records at these places and everything under them.'
+              ? `No ${placeTypeLabels[placeType].toLowerCase()} yet. Add one under Locations.`
+              : 'They see records at these locations and everything under them.'
           }
         />
       )}

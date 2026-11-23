@@ -13,7 +13,7 @@ import type { EscalationMatrix } from '../../recommendations/services/escalation
 import '../admin.scss';
 
 const levels: { level: Level; label: string }[] = [
-  { level: 'community', label: 'Community' },
+  { level: 'community', label: 'Community (CHP)' },
   { level: 'facility', label: 'Facility' },
   { level: 'sub-county', label: 'Sub-county' },
   { level: 'county', label: 'County' },

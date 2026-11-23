@@ -30,7 +30,7 @@ const headers = [
   { key: 'role', header: 'Role' },
   { key: 'cadre', header: 'Cadre' },
   { key: 'email', header: 'Email' },
-  { key: 'places', header: 'Places' },
+  { key: 'places', header: 'Locations' },
   { key: 'status', header: 'Status' },
 ];
 
@@ -56,7 +56,7 @@ function UsersPage() {
       <div className="page-header">
         <div>
           <h1>Users</h1>
-          <p className="page-subtitle">Who can use MPDSR, their role, and the places they cover.</p>
+          <p className="page-subtitle">Who can use MPDSR, their role, and the locations they cover.</p>
         </div>
         <Button renderIcon={Add} onClick={() => navigate('/admin/users/new')}>
           Add user
