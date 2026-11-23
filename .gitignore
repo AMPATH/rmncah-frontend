@@ -23,4 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 db.json
+mpdsrdb.json
+mpdsrdb.before-sample.json
 .env

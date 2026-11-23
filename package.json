@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "api": "node scripts/ensure-db.cjs && json-server --port 3001 db.json",
+    "api": "node scripts/ensure-db.cjs && json-server --port 3001 mpdsrdb.json",
     "dev:web": "vite",
     "test": "vitest run"
   },
