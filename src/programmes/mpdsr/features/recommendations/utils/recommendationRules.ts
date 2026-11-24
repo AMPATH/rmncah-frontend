@@ -34,8 +34,6 @@ export function whyBlocked(
       if (!can(user, 'recommendation.add')) return 'Only staff who add recommendations can edit them.';
       return '';
     case 'cancel':
-      if (status === 'Closed' || status === 'Cancelled') return 'A closed or cancelled recommendation cannot be cancelled.';
-      if (!can(user, 'recommendation.approve')) return 'Only the facility MPDSR chair can cancel a recommendation.';
-      return '';
+      return 'Recommendations cannot be cancelled.';
   }
 }
