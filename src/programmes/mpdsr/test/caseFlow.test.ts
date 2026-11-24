@@ -51,9 +51,9 @@ const draft = {
   gap: '3rd delay: Staff shortage',
   responsiblePersonId: '',
   text: 'Roster a second midwife at night',
-  classification: 'immediate' as const,
+  classification: '' as const,
   level: '' as const,
-  dateOfCompletion: '2099-12-01',
+  dateOfCompletion: '',
 };
 
 const notificationsFor = (id: string) => rows<AppNotification>('notifications').filter((item) => item.recipientId === id);
@@ -65,7 +65,7 @@ async function logAndReview(level: 'facility' | 'county', personId: string): Pro
   await completeCaseReview({
     issue: saved,
     byUserId: 'u4',
-    review: { reviewDate: getToday(), finalCause: saved.causeOfDeath, maternalCondition: '' },
+    review: { reviewDate: getToday(), finalCause: saved.causeOfDeath },
     contributingFactors: saved.contributingFactors,
     existing: [held],
     edited: [
@@ -73,11 +73,10 @@ async function logAndReview(level: 'facility' | 'county', personId: string): Pro
         code: held.code,
         text: held.text,
         gap: held.gap,
-        classification: held.classification,
-        dueDate: held.dueDate,
+        classification: 'immediate',
+        dueDate: '2099-12-01',
         responsiblePersonId: personId,
         level,
-        removed: false,
       },
     ],
     added: [],
