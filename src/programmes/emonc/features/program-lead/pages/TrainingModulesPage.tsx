@@ -1,3 +1,4 @@
+
 import { useMemo, useState } from 'react'
 
 import {
@@ -38,12 +39,8 @@ interface TrainingModulesPageProps {
 
 type ModuleStatus = ProgramModule['status']
 
-/**
- * Additional presentation metadata stored on EmONC curriculum records.
- */
 type CurriculumDisplayModule = TrainingModule & {
-  sequence?: number
-  subTrackCount?: number
+  displayOrder: number
 }
 
 const tableHeaders = [
@@ -86,10 +83,6 @@ const formatDate = (date: string) => {
   })
 }
 
-/**
- * Convert a shared curriculum module into the presentation
- * structure already used by the Program Lead interface.
- */
 const mapTrainingModule = (
   module: TrainingModule,
   sections: ReturnType<typeof useCurriculum>['sections'],
@@ -145,6 +138,7 @@ const TrainingModulesPage = ({
   const [statusFilter, setStatusFilter] = useState('all')
 
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
 
@@ -158,13 +152,10 @@ const TrainingModulesPage = ({
   const [moduleCategory, setModuleCategory] = useState('EmONC')
 
   /**
-   * Both curriculum displays use the same database-backed records.
-   *
-   * The sequence field controls the official curriculum order.
-   * The index is only a fallback for older records without sequence.
+   * Display the official curriculum in its defined sequence.
    */
-  const officialModules = useMemo(() => {
-    return (curriculumModules as CurriculumDisplayModule[])
+  const officialModules = useMemo<CurriculumDisplayModule[]>(() => {
+    return curriculumModules
       .map((module, index) => ({
         ...module,
         displayOrder: module.sequence ?? index + 1,
@@ -173,8 +164,7 @@ const TrainingModulesPage = ({
   }, [curriculumModules])
 
   /**
-   * Derive the directory modules from the shared curriculum records.
-   * No separate module collection is maintained in this page.
+   * Derive the directory from the shared curriculum records.
    */
   const modules = useMemo<ProgramModule[]>(() => {
     return curriculumModules.map((module) =>
@@ -183,18 +173,19 @@ const TrainingModulesPage = ({
   }, [curriculumModules, sections, materials])
 
   /**
-   * Resolve the selected module from the latest shared records.
-   * This prevents the details panel from displaying stale data
-   * after a module has been edited.
+   * Resolve the selected module using its database ID.
    */
   const selectedModule = useMemo(() => {
     if (!selectedModuleId) return null
 
-    return modules.find(
-      (module) => module.id === selectedModuleId,
-    ) ?? null
+    return (
+      modules.find((module) => module.id === selectedModuleId) ?? null
+    )
   }, [modules, selectedModuleId])
 
+  /**
+   * Apply search and status filters.
+   */
   const filteredModules = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase()
 
@@ -212,6 +203,9 @@ const TrainingModulesPage = ({
     })
   }, [modules, searchTerm, statusFilter])
 
+  /**
+   * Calculate directory statistics.
+   */
   const statistics = useMemo(() => {
     return {
       total: modules.length,
@@ -227,22 +221,39 @@ const TrainingModulesPage = ({
     }
   }, [modules])
 
+  /**
+   * Open the create module modal.
+   */
   const openCreateModal = () => {
+    setIsDetailsModalOpen(false)
+    setSelectedModuleId(null)
+
     setEditingModule(null)
     setModuleTitle('')
     setModuleCategory('EmONC')
     setActionError(null)
+
     setIsModalOpen(true)
   }
 
+  /**
+   * Open the edit module modal.
+   */
   const openEditModal = (module: ProgramModule) => {
+    setIsDetailsModalOpen(false)
+    setSelectedModuleId(null)
+
     setEditingModule(module)
     setModuleTitle(module.title)
     setModuleCategory(module.category)
     setActionError(null)
+
     setIsModalOpen(true)
   }
 
+  /**
+   * Close the create or edit modal.
+   */
   const closeModal = () => {
     if (isSaving) return
 
@@ -255,10 +266,6 @@ const TrainingModulesPage = ({
 
   /**
    * Save module changes through the shared curriculum provider.
-   *
-   * New records are created in the EmONC curriculum collection.
-   * JSON Server generates no ID automatically when one is supplied,
-   * so this page assigns a UUID to each new record.
    */
   const handleSaveModule = async () => {
     const trimmedTitle = moduleTitle.trim()
@@ -277,8 +284,6 @@ const TrainingModulesPage = ({
           category: moduleCategory,
           updatedAt: currentDate,
         })
-
-        setSelectedModuleId(editingModule.id)
       } else {
         const newModule: TrainingModule = {
           id: crypto.randomUUID(),
@@ -292,8 +297,6 @@ const TrainingModulesPage = ({
         }
 
         await createModule(newModule)
-
-        setSelectedModuleId(null)
       }
 
       await refresh()
@@ -313,8 +316,36 @@ const TrainingModulesPage = ({
     }
   }
 
+  /**
+   * Open the selected module details modal.
+   */
   const handleViewModule = (module: ProgramModule) => {
     setSelectedModuleId(module.id)
+    setIsDetailsModalOpen(true)
+  }
+
+  /**
+   * Close the module details modal.
+   */
+  const closeDetailsModal = () => {
+    setIsDetailsModalOpen(false)
+    setSelectedModuleId(null)
+  }
+
+  /**
+   * Navigate to module sections.
+   */
+  const openModuleSections = () => {
+    closeDetailsModal()
+    onNavigate('/program-lead/module-sections')
+  }
+
+  /**
+   * Navigate to learning materials.
+   */
+  const openLearningMaterials = () => {
+    closeDetailsModal()
+    onNavigate('/program-lead/learning-materials')
   }
 
   return (
@@ -653,9 +684,7 @@ const TrainingModulesPage = ({
           <Button
             kind="tertiary"
             renderIcon={DocumentMultiple_01}
-            onClick={() =>
-              onNavigate('/program-lead/module-sections')
-            }
+            onClick={openModuleSections}
           >
             Manage module sections
           </Button>
@@ -663,100 +692,12 @@ const TrainingModulesPage = ({
           <Button
             kind="tertiary"
             renderIcon={Document}
-            onClick={() =>
-              onNavigate('/program-lead/learning-materials')
-            }
+            onClick={openLearningMaterials}
           >
             Manage learning materials
           </Button>
         </div>
       </section>
-
-      {selectedModule && (
-        <section className="program-modules__details">
-          <div className="program-modules__details-header">
-            <div>
-              <span className="program-modules__eyebrow">
-                MODULE DETAILS
-              </span>
-
-              <h2>{selectedModule.title}</h2>
-
-              <p>{selectedModule.id}</p>
-            </div>
-
-            <div className="program-modules__details-actions">
-              <Button
-                kind="tertiary"
-                size="sm"
-                renderIcon={Edit}
-                onClick={() => openEditModal(selectedModule)}
-              >
-                Edit module
-              </Button>
-
-              <Button
-                kind="ghost"
-                size="sm"
-                onClick={() => setSelectedModuleId(null)}
-              >
-                Close
-              </Button>
-            </div>
-          </div>
-
-          <div className="program-modules__details-grid">
-            <div>
-              <span>Category</span>
-              <strong>{selectedModule.category}</strong>
-            </div>
-
-            <div>
-              <span>Status</span>
-              <Tag type={getStatusTagType(selectedModule.status)}>
-                {selectedModule.status}
-              </Tag>
-            </div>
-
-            <div>
-              <span>Module sections</span>
-              <strong>{selectedModule.sectionsCount}</strong>
-            </div>
-
-            <div>
-              <span>Learning materials</span>
-              <strong>{selectedModule.materialsCount}</strong>
-            </div>
-
-            <div>
-              <span>Last updated</span>
-              <strong>{formatDate(selectedModule.updatedAt)}</strong>
-            </div>
-          </div>
-
-          <div className="program-modules__details-footer">
-            <Button
-              kind="tertiary"
-              size="sm"
-              onClick={() =>
-                onNavigate('/program-lead/module-sections')
-              }
-            >
-              Open module sections
-            </Button>
-
-            <Button
-              kind="tertiary"
-              size="sm"
-              onClick={() =>
-                onNavigate('/program-lead/learning-materials')
-              }
-            >
-              Open learning materials
-            </Button>
-          </div>
-        </section>
-      )}
 
       <div className="program-modules__demo-notice">
         <span className="program-modules__demo-indicator" />
@@ -768,6 +709,77 @@ const TrainingModulesPage = ({
         </p>
       </div>
 
+      {/* View module details */}
+      <Modal
+        open={isDetailsModalOpen}
+        modalHeading="Training module details"
+        primaryButtonText="Close"
+        onRequestClose={closeDetailsModal}
+        onRequestSubmit={closeDetailsModal}
+      >
+        {selectedModule && (
+          <div className="program-modules__details">
+            <h3>{selectedModule.title}</h3>
+
+            <p>{selectedModule.id}</p>
+
+            <div className="program-modules__details-grid">
+              <div>
+                <span>Category</span>
+                <strong>{selectedModule.category}</strong>
+              </div>
+
+              <div>
+                <span>Status</span>
+                <Tag type={getStatusTagType(selectedModule.status)}>
+                  {selectedModule.status}
+                </Tag>
+              </div>
+
+              <div>
+                <span>Module sections</span>
+                <strong>{selectedModule.sectionsCount}</strong>
+              </div>
+
+              <div>
+                <span>Learning materials</span>
+                <strong>{selectedModule.materialsCount}</strong>
+              </div>
+
+              <div>
+                <span>Last updated</span>
+                <strong>{formatDate(selectedModule.updatedAt)}</strong>
+              </div>
+            </div>
+
+            <div className="program-modules__details-footer">
+              <Button
+                kind="tertiary"
+                onClick={openModuleSections}
+              >
+                Manage module sections
+              </Button>
+
+              <Button
+                kind="tertiary"
+                onClick={openLearningMaterials}
+              >
+                Manage learning materials
+              </Button>
+
+              <Button
+                kind="tertiary"
+                renderIcon={Edit}
+                onClick={() => openEditModal(selectedModule)}
+              >
+                Edit module
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Create and edit module */}
       <Modal
         open={isModalOpen}
         modalHeading={
@@ -824,9 +836,7 @@ const TrainingModulesPage = ({
           </div>
 
           {actionError && (
-            <p role="alert">
-              {actionError}
-            </p>
+            <p role="alert">{actionError}</p>
           )}
         </div>
       </Modal>

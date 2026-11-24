@@ -1,3 +1,4 @@
+
 import { useMemo, useState } from 'react'
 
 import {
@@ -20,13 +21,13 @@ import {
 } from '@carbon/icons-react'
 
 import type {
-  ProgramModule,
-  ProgramModuleStatus,
-} from '../types/program-lead.types.ts'
+  TrainingModule,
+  TrainingModuleStatus,
+  TrainingSection,
+  LearningMaterial,
+} from '../../../data/models'
 
-import { programModules } from '../data/programLeadDashboardData'
-import { initialModuleSections } from '../../../data/demo/training/moduleSectionsData'
-import { initialLearningMaterials } from '../../../data/demo/training/learningMaterialsData'
+import { useCurriculum } from '../../../data/providers/CurriculumContext'
 
 import '../styles/program-lead-library.scss'
 
@@ -35,9 +36,18 @@ interface ModuleLibraryPageProps {
   onNavigate: (path: string) => void
 }
 
-type LibraryFilter = 'all' | ProgramModuleStatus
+type LibraryFilter = 'all' | 'Completed' | 'Draft' | 'Incomplete content'
 
-const getStatusTagType = (status: ProgramModuleStatus) => {
+interface LibraryModule extends Omit<TrainingModule, 'status'> {
+  status: 'Completed' | 'Draft' | 'Incomplete content'
+  sections: TrainingSection[]
+  materials: LearningMaterial[]
+  isReady: boolean
+}
+
+const getStatusTagType = (
+  status: TrainingModuleStatus | LibraryModule['status'],
+) => {
   switch (status) {
     case 'Completed':
       return 'green' as const
@@ -54,45 +64,70 @@ const ModuleLibraryPage = ({
   title,
   onNavigate,
 }: ModuleLibraryPageProps) => {
-  const modules = programModules
+  const {
+    modules,
+    sections,
+    materials,
+    loading,
+    error,
+  } = useCurriculum()
 
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] =
     useState<LibraryFilter>('all')
 
   const [selectedModule, setSelectedModule] =
-    useState<ProgramModule | null>(null)
+    useState<LibraryModule | null>(null)
 
-  const moduleContent = useMemo(() => {
-    return modules.map((module) => {
-      const sections = initialModuleSections
-        .filter((section) => section.moduleId === module.id)
-        .sort((a, b) => a.sequence - b.sequence)
+  // Keep modules in their official curriculum sequence.
+  const orderedModules = useMemo(
+    () =>
+      [...modules].sort(
+        (a, b) => (a.sequence ?? 0) - (b.sequence ?? 0),
+      ),
+    [modules],
+  )
 
-      const materials = initialLearningMaterials.filter(
-        (material) => material.moduleId === module.id,
-      )
+  // Build the library from the shared curriculum records.
+  const moduleContent = useMemo<LibraryModule[]>(
+    () =>
+      orderedModules.map((module) => {
+        const moduleSections = sections
+          .filter((section) => section.moduleId === module.id)
+          .sort((a, b) => a.sequence - b.sequence)
 
-      const isReady = sections.length > 0 && materials.length > 0
+        const moduleMaterials = materials.filter(
+          (material) => material.moduleId === module.id,
+        )
 
-      return {
-        ...module,
-        sections,
-        materials,
-        actualSectionsCount: sections.length,
-        actualMaterialsCount: materials.length,
-        status: (
-          sections.length === 0 && materials.length === 0
-            ? 'Draft'
-            : isReady
-              ? 'Completed'
-              : 'Incomplete content'
-        ) as ProgramModuleStatus,
-        isReady,
-      }
-    })
-  }, [modules])
+        // Match the readiness rules used by Training Modules.
+        let status: LibraryModule['status']
 
+        if (module.status === 'Draft') {
+          status = 'Draft'
+        } else if (module.status === 'Incomplete content') {
+          status = 'Incomplete content'
+        } else if (
+          moduleSections.length > 0 &&
+          moduleMaterials.length > 0
+        ) {
+          status = 'Completed'
+        } else {
+          status = 'Incomplete content'
+        }
+
+        return {
+          ...module,
+          sections: moduleSections,
+          materials: moduleMaterials,
+          status,
+          isReady: status === 'Completed',
+        }
+      }),
+    [orderedModules, sections, materials],
+  )
+
+  // Search and filter the shared curriculum modules.
   const filteredModules = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase()
 
@@ -110,8 +145,9 @@ const ModuleLibraryPage = ({
     })
   }, [moduleContent, searchTerm, statusFilter])
 
-  const statistics = useMemo(() => {
-    return {
+  // Calculate statistics from the same records displayed in the library.
+  const statistics = useMemo(
+    () => ({
       total: moduleContent.length,
       completed: moduleContent.filter(
         (module) => module.status === 'Completed',
@@ -122,26 +158,17 @@ const ModuleLibraryPage = ({
       incomplete: moduleContent.filter(
         (module) => module.status === 'Incomplete content',
       ).length,
-    }
-  }, [moduleContent])
+    }),
+    [moduleContent],
+  )
 
-  const handleOpenDetails = (module: ProgramModule) => {
+  const handleOpenDetails = (module: LibraryModule) => {
     setSelectedModule(module)
   }
 
   const handleCloseDetails = () => {
     setSelectedModule(null)
   }
-
-  const getModuleSections = (moduleId: string) =>
-    initialModuleSections
-      .filter((section) => section.moduleId === moduleId)
-      .sort((a, b) => a.sequence - b.sequence)
-
-  const getModuleMaterials = (moduleId: string) =>
-    initialLearningMaterials.filter(
-      (material) => material.moduleId === moduleId,
-    )
 
   return (
     <div className="program-module-library">
@@ -164,11 +191,19 @@ const ModuleLibraryPage = ({
         <Button
           kind="secondary"
           renderIcon={ArrowRight}
-          onClick={() => onNavigate('/program-lead/training-modules')}
+          onClick={() =>
+            onNavigate('/program-lead/training-modules')
+          }
         >
           Manage training modules
         </Button>
       </header>
+
+      {error && (
+        <p role="alert">
+          Unable to load curriculum data: {error}
+        </p>
+      )}
 
       <section className="program-module-library__statistics">
         <div className="program-module-library__stat-card">
@@ -182,7 +217,7 @@ const ModuleLibraryPage = ({
             </span>
 
             <strong className="program-module-library__stat-value">
-              {statistics.total}
+              {loading ? '—' : statistics.total}
             </strong>
           </div>
         </div>
@@ -198,7 +233,7 @@ const ModuleLibraryPage = ({
             </span>
 
             <strong className="program-module-library__stat-value">
-              {statistics.completed}
+              {loading ? '—' : statistics.completed}
             </strong>
           </div>
         </div>
@@ -214,7 +249,7 @@ const ModuleLibraryPage = ({
             </span>
 
             <strong className="program-module-library__stat-value">
-              {statistics.drafts}
+              {loading ? '—' : statistics.drafts}
             </strong>
           </div>
         </div>
@@ -230,7 +265,7 @@ const ModuleLibraryPage = ({
             </span>
 
             <strong className="program-module-library__stat-value">
-              {statistics.incomplete}
+              {loading ? '—' : statistics.incomplete}
             </strong>
           </div>
         </div>
@@ -242,12 +277,13 @@ const ModuleLibraryPage = ({
             <h2>Training module library</h2>
 
             <p>
-              Browse module sections and learning materials, and review content readiness.
+              Browse module sections and learning materials, and review
+              content readiness.
             </p>
           </div>
 
           <Tag type="blue">
-            {filteredModules.length} modules
+            {loading ? 'Loading...' : `${filteredModules.length} modules`}
           </Tag>
         </div>
 
@@ -282,14 +318,26 @@ const ModuleLibraryPage = ({
           </div>
         </div>
 
-        {filteredModules.length === 0 ? (
+        {loading ? (
+          <div className="program-module-library__empty">
+            <Catalog size={32} />
+
+            <h3>Loading module library</h3>
+
+            <p>
+              Loading modules and curriculum content from the EmONC
+              database.
+            </p>
+          </div>
+        ) : filteredModules.length === 0 ? (
           <div className="program-module-library__empty">
             <Catalog size={32} />
 
             <h3>No modules found</h3>
 
             <p>
-              Try another search term or change the content readiness filter.
+              Try another search term or change the content readiness
+              filter.
             </p>
           </div>
         ) : (
@@ -347,8 +395,6 @@ const ModuleLibraryPage = ({
                   >
                     Preview
                   </Button>
-
-
                 </div>
               </article>
             ))}
@@ -401,13 +447,13 @@ const ModuleLibraryPage = ({
                 </Button>
               </div>
 
-              {getModuleSections(selectedModule.id).length === 0 ? (
+              {selectedModule.sections.length === 0 ? (
                 <p className="program-module-library__preview-empty">
                   No sections have been added to this module.
                 </p>
               ) : (
                 <ol className="program-module-library__section-list">
-                  {getModuleSections(selectedModule.id).map((section) => (
+                  {selectedModule.sections.map((section) => (
                     <li key={section.id}>
                       <div>
                         <strong>{section.title}</strong>
@@ -435,13 +481,13 @@ const ModuleLibraryPage = ({
                 </Button>
               </div>
 
-              {getModuleMaterials(selectedModule.id).length === 0 ? (
+              {selectedModule.materials.length === 0 ? (
                 <p className="program-module-library__preview-empty">
                   No learning materials have been added to this module.
                 </p>
               ) : (
                 <div className="program-module-library__material-list">
-                  {getModuleMaterials(selectedModule.id).map((material) => (
+                  {selectedModule.materials.map((material) => (
                     <div
                       className="program-module-library__material-item"
                       key={material.id}
@@ -457,7 +503,8 @@ const ModuleLibraryPage = ({
                       <div>
                         <strong>{material.title}</strong>
                         <span>
-                          {material.type} · {material.fileName}
+                          {material.type} ·{' '}
+                          {material.fileName || 'External resource'}
                         </span>
                       </div>
 
@@ -467,8 +514,6 @@ const ModuleLibraryPage = ({
                 </div>
               )}
             </div>
-
-
           </div>
         )}
       </Modal>
