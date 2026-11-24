@@ -28,7 +28,6 @@ import { showToast } from '../../../components/shared/toast/toast';
 import { formatDateTime, getToday, toIsoDate } from '../../../utils/dates';
 import CauseFields from '../components/log-issue/CauseFields';
 import ContributingFactors from '../components/log-issue/ContributingFactors';
-import RecommendationsStep from '../components/log-issue/RecommendationsStep';
 import { delayLevels } from '../constants/delayFactors';
 import { getIssues, getStoredRecommendations } from '../services/issueService';
 import type { StoredIssue, StoredRecommendation } from '../services/issueService';
@@ -36,8 +35,10 @@ import { causeOptionsFor, getCausesOfDeath } from '../services/causeService';
 import type { CauseOfDeath } from '../services/causeService';
 import { completeCaseReview, reviewDifferences } from '../services/reviewService';
 import type { ReviewedRecommendation } from '../services/reviewService';
-import { isReviewed, maternalConditions } from '../utils/caseReview';
+import { isReviewed } from '../utils/caseReview';
 import { latestCompletionDate } from '../utils/classification';
+import { delayGaps, delayOfGap, delaysMissing } from '../utils/delayRecommendations';
+import { countyOfPlace, responsiblePeople } from '../utils/responsiblePeople';
 import type { Classification, DraftRecommendation, Level } from '../types/issue.types';
 import './LogIssuePage.scss';
 import './ReviewCasePage.scss';
@@ -53,8 +54,6 @@ const issueTypeLabels: Record<string, string> = {
   'near-miss': 'Near miss',
 };
 
-
-
 const classificationLabels: Record<Classification, string> = {
   immediate: 'Immediate (1 month)',
   intermediate: 'Intermediate (3 months)',
@@ -67,7 +66,7 @@ function orDash(value: string | undefined) {
 
 function ReviewCasePage() {
   const { code = '' } = useParams();
-  const { currentUser, users, scope } = useCurrentUser();
+  const { currentUser, users, locations, scope } = useCurrentUser();
   const issuesData = useApiData<StoredIssue[]>(getIssues, []);
   const recommendationsData = useApiData<StoredRecommendation[]>(getStoredRecommendations, []);
   const causesData = useApiData<CauseOfDeath[]>(getCausesOfDeath, []);
@@ -125,6 +124,7 @@ function ReviewCasePage() {
       causeOptions={causeOptionsFor(causesData.data, issue.issueType)}
       userId={currentUser!.id}
       users={users}
+      locations={locations}
     />
   );
 }
@@ -157,9 +157,6 @@ function CompletedReview({ issue }: { issue: StoredIssue }) {
             { label: 'Review date', value: orDash(review.reviewDate) },
             { label: 'Reviewed by', value: nameOf(review.completedById) },
             { label: 'Final cause of death', value: orDash(review.finalCause) },
-            ...(issue.issueType === 'perinatal'
-              ? [{ label: 'Maternal condition', value: orDash(review.maternalCondition) }]
-              : []),
           ]}
         />
       </section>
@@ -170,20 +167,31 @@ function CompletedReview({ issue }: { issue: StoredIssue }) {
   );
 }
 
+// One recommendation the chair completes. A logged one has a code; a new one (for a delay
+// that had no recommendation, for example on an older issue) has an empty code.
+interface ReviewItem extends ReviewedRecommendation {
+  key: string;
+  delay: string;
+  // The gap and text when the review opened, so a cleared recommendation can come back.
+  startGap: string;
+  startText: string;
+}
+
 interface ReviewFormProps {
   issue: StoredIssue;
   recommendations: StoredRecommendation[];
   causeOptions: string[];
   userId: string;
   users: ReturnType<typeof useCurrentUser>['users'];
+  locations: ReturnType<typeof useCurrentUser>['locations'];
 }
 
-function ReviewForm({ issue, recommendations, causeOptions, userId, users }: ReviewFormProps) {
+function ReviewForm({ issue, recommendations, causeOptions, userId, users, locations }: ReviewFormProps) {
   const navigate = useNavigate();
   const today = getToday();
   const isDeath = issue.issueType !== 'near-miss';
-  const isPerinatal = issue.issueType === 'perinatal';
-  const people = users.filter((user) => user.role !== 'SYSTEM_ADMIN' && user.active !== false && user.deleted !== true);
+  // Responsible people come from the same county as the place where the issue was logged.
+  const issueCounty = countyOfPlace(issue.loggedAt, locations);
   const nameOf = (id: string) => users.find((user) => user.id === id)?.fullName ?? '—';
 
   const [step, setStep] = useState(0);
@@ -195,28 +203,72 @@ function ReviewForm({ issue, recommendations, causeOptions, userId, users }: Rev
   const [reviewDate, setReviewDate] = useState(today);
   const [changeCause, setChangeCause] = useState<'' | 'no' | 'yes'>('');
   const [finalCause, setFinalCause] = useState(loggedCause);
-  const [maternalCondition, setMaternalCondition] = useState('');
   const [factors, setFactors] = useState<string[]>(issue.contributingFactors ?? []);
-  const [edited, setEdited] = useState<ReviewedRecommendation[]>(() =>
-    recommendations
-      .filter((recommendation) => editableStatuses.includes(recommendation.status))
-      .map((recommendation) => ({
-        code: recommendation.code,
-        text: recommendation.text,
-        gap: recommendation.gap,
-        classification: recommendation.classification,
-        dueDate: recommendation.dueDate,
-        responsiblePersonId: recommendation.responsiblePersonId,
-        level: recommendation.level,
-        removed: false,
-      }))
-  );
-  const [added, setAdded] = useState<DraftRecommendation[]>([]);
 
   const locked = recommendations.filter((recommendation) => !editableStatuses.includes(recommendation.status));
-  const kept = edited.filter((item) => !item.removed);
-  const activeCount = kept.length + added.length + locked.length;
-  const review = { reviewDate, finalCause, maternalCondition };
+  const [items, setItems] = useState<ReviewItem[]>(() => {
+    const startGaps = delayGaps(issue.contributingFactors ?? []);
+    const logged: ReviewItem[] = recommendations
+      .filter((recommendation) => editableStatuses.includes(recommendation.status))
+      .map((recommendation) => {
+        const delay = delayOfGap(recommendation.gap);
+        // The gap follows the issue's factors, in case they were edited after logging.
+        const gap = startGaps.find((entry) => entry.delay === delay)?.gap || recommendation.gap;
+        return {
+          key: recommendation.code,
+          code: recommendation.code,
+          delay,
+          startGap: gap,
+          startText: recommendation.text,
+          text: recommendation.text,
+          gap,
+          classification: recommendation.classification,
+          dueDate: recommendation.dueDate,
+          responsiblePersonId: recommendation.responsiblePersonId,
+          level: recommendation.level,
+        };
+      });
+    const covered = [...logged.map((item) => item.delay), ...locked.map((recommendation) => delayOfGap(recommendation.gap))];
+    const missing: ReviewItem[] = startGaps
+      .filter((gap) => !covered.includes(gap.delay))
+      .map((gap) => ({
+        key: `new-${gap.delay}`,
+        code: '',
+        delay: gap.delay,
+        startGap: gap.gap,
+        startText: '',
+        text: '',
+        gap: gap.gap,
+        classification: '',
+        dueDate: '',
+        responsiblePersonId: '',
+        level: '',
+      }));
+    return [...logged, ...missing];
+  });
+
+  const edited: ReviewedRecommendation[] = items
+    .filter((item) => item.code !== '')
+    .map(({ code, text, gap, classification, dueDate, responsiblePersonId, level }) => ({
+      code,
+      text,
+      gap,
+      classification,
+      dueDate,
+      responsiblePersonId,
+      level,
+    }));
+  const added: DraftRecommendation[] = items
+    .filter((item) => item.code === '')
+    .map(({ text, gap, classification, dueDate, responsiblePersonId, level }) => ({
+      text,
+      gap,
+      classification,
+      dateOfCompletion: dueDate,
+      responsiblePersonId,
+      level,
+    }));
+  const review = { reviewDate, finalCause };
   const differences = reviewDifferences({
     issue,
     review,
@@ -227,23 +279,37 @@ function ReviewForm({ issue, recommendations, causeOptions, userId, users }: Rev
     users,
   });
 
-  function updateEdited(code: string, changes: Partial<ReviewedRecommendation>) {
-    setEdited((current) => current.map((item) => (item.code === code ? { ...item, ...changes } : item)));
+  const originalOf = (item: ReviewItem) => recommendations.find((recommendation) => recommendation.code === item.code);
+
+  function updateItem(key: string, changes: Partial<ReviewItem>) {
+    setItems((current) => current.map((item) => (item.key === key ? { ...item, ...changes } : item)));
   }
 
-  function changeClassification(item: ReviewedRecommendation, classification: Classification) {
-    const original = recommendations.find((recommendation) => recommendation.code === item.code)!;
-    updateEdited(item.code, { classification, dueDate: latestCompletionDate(classification, original.dateLogged) });
+  function changeClassification(item: ReviewItem, classification: Classification | '') {
+    // The date of completion follows the classification.
+    updateItem(item.key, { classification, dueDate: latestCompletionDate(classification, today) });
   }
 
+  // When the factors of a delay change, the recommendation written for the old factors no longer
+  // fits, so it is cleared. Ticking the factors back brings the logged text back.
   function toggleFactor(factor: string) {
-    setFactors((current) => (current.includes(factor) ? current.filter((item) => item !== factor) : [...current, factor]));
+    const next = factors.includes(factor) ? factors.filter((item) => item !== factor) : [...factors, factor];
+    const gaps = delayGaps(next);
+    setFactors(next);
+    setItems((current) =>
+      current.map((item) => {
+        const gap = gaps.find((entry) => entry.delay === item.delay)?.gap;
+        if (gap === undefined || gap === item.gap) return item;
+        return { ...item, gap, text: gap === item.startGap ? item.startText : '' };
+      })
+    );
   }
 
-  function recommendationProblem(item: { text: string; gap: string; responsiblePersonId: string; level: Level | '' }) {
+  function itemProblem(item: ReviewItem) {
     if (item.text.trim() === '') return 'Write the recommendation';
+    if (item.classification === '') return 'Choose the classification';
+    if (item.dueDate === '') return 'Choose the date of completion';
     if (item.level === '') return 'Choose the level of implementation';
-    if (!factors.includes(item.gap)) return 'Choose a gap from the contributing factors in step 3';
     if (item.responsiblePersonId === '') return 'Choose the responsible person';
     return '';
   }
@@ -253,17 +319,17 @@ function ReviewForm({ issue, recommendations, causeOptions, userId, users }: Rev
       return reviewDate !== '' && reviewDate <= today;
     }
     if (index === 1) {
-      const causeDone =
+      return (
         !isDeath ||
         (loggedCause !== '' && changeCause === 'no') ||
-        ((loggedCause === '' || changeCause === 'yes') && (causeOptions.length === 0 || finalCause !== ''));
-      return causeDone && (!isPerinatal || maternalCondition !== '');
+        ((loggedCause === '' || changeCause === 'yes') && (causeOptions.length === 0 || finalCause !== ''))
+      );
     }
     if (index === 2) {
-      return factors.length > 0;
+      return delaysMissing(factors).length === 0;
     }
     if (index === 3) {
-      return activeCount > 0 && [...kept, ...added].every((item) => recommendationProblem(item) === '');
+      return items.length + locked.length > 0 && items.every((item) => itemProblem(item) === '');
     }
     return true;
   }
@@ -309,6 +375,16 @@ function ReviewForm({ issue, recommendations, causeOptions, userId, users }: Rev
       setSaving(false);
     }
   }
+
+  const titleOf = (delay: string) => {
+    const level = delayLevels.find((entry) => entry.id === delay);
+    return level ? `${level.id} delay · ${level.title}` : 'Other recommendation';
+  };
+  const rankOf = (delay: string) => {
+    const position = delayLevels.findIndex((level) => level.id === delay);
+    return position === -1 ? delayLevels.length : position;
+  };
+  const sorted = [...items].sort((a, b) => rankOf(a.delay) - rankOf(b.delay));
 
   return (
     <div className="page">
@@ -372,200 +448,194 @@ function ReviewForm({ issue, recommendations, causeOptions, userId, users }: Rev
             </>
           )}
 
-          {step === 1 && (
-            <>
-              {isDeath ? (
-                <>
-                  {loggedCause !== '' ? (
-                    <>
-                      <div className="review-case__logged">
-                        <span>Cause chosen at logging</span>
-                        <strong>{loggedCause}</strong>
-                      </div>
-                      <RadioButtonGroup
-                        legendText="Should the cause of death be changed?"
-                        name="changeCause"
-                        valueSelected={changeCause}
-                        onChange={(value) => {
-                          setChangeCause(value as 'no' | 'yes');
-                          if (value === 'no') setFinalCause(loggedCause);
-                        }}
-                        invalid={showErrors && changeCause === ''}
-                        invalidText="Choose yes or no"
-                      >
-                        <RadioButton id="changeCause-no" labelText="No, keep it" value="no" />
-                        <RadioButton id="changeCause-yes" labelText="Yes, change it" value="yes" />
-                      </RadioButtonGroup>
-                    </>
-                  ) : (
-                    <p className="form-note">No cause was chosen at logging. Choose the final cause of death.</p>
-                  )}
-                  {(loggedCause === '' || changeCause === 'yes') && (
-                    <>
-                      <CauseFields
-                        isDeath
-                        causeOfDeath={finalCause}
-                        causeOptions={causeOptions}
-                        onCauseOfDeathChange={setFinalCause}
-                      />
-                      {showErrors && causeOptions.length > 0 && finalCause === '' && (
-                        <p className="review-case__error">Choose the final cause of death</p>
-                      )}
-                    </>
-                  )}
-                </>
-              ) : (
-                <InlineNotification
-                  kind="info"
-                  lowContrast
-                  hideCloseButton
-                  title="Near miss"
-                  subtitle="Not a death, so there is no final cause. Continue to the contributing factors."
-                />
-              )}
-
-              {isPerinatal && (
-                <RadioButtonGroup
-                  legendText="Maternal condition (ICD-PM)"
-                  name="maternalCondition"
-                  orientation="vertical"
-                  valueSelected={maternalCondition}
-                  onChange={(value) => setMaternalCondition(String(value))}
-                  helperText="The mother's condition that contributed to the baby's death."
-                  invalid={showErrors && maternalCondition === ''}
-                  invalidText="Choose the maternal condition"
-                >
-                  {maternalConditions.map((condition) => (
-                    <RadioButton key={condition} id={`mc-${condition.slice(0, 2)}`} labelText={condition} value={condition} />
-                  ))}
-                </RadioButtonGroup>
-              )}
-            </>
-          )}
+          {step === 1 &&
+            (isDeath ? (
+              <>
+                {loggedCause !== '' ? (
+                  <>
+                    <div className="review-case__logged">
+                      <span>Cause chosen at logging</span>
+                      <strong>{loggedCause}</strong>
+                    </div>
+                    <RadioButtonGroup
+                      legendText="Should the cause of death be changed?"
+                      name="changeCause"
+                      valueSelected={changeCause}
+                      onChange={(value) => {
+                        setChangeCause(value as 'no' | 'yes');
+                        if (value === 'no') setFinalCause(loggedCause);
+                      }}
+                      invalid={showErrors && changeCause === ''}
+                      invalidText="Choose yes or no"
+                    >
+                      <RadioButton id="changeCause-no" labelText="No, keep it" value="no" />
+                      <RadioButton id="changeCause-yes" labelText="Yes, change it" value="yes" />
+                    </RadioButtonGroup>
+                  </>
+                ) : (
+                  <p className="form-note">No cause was chosen at logging. Choose the final cause of death.</p>
+                )}
+                {(loggedCause === '' || changeCause === 'yes') && (
+                  <>
+                    <CauseFields
+                      isDeath
+                      causeOfDeath={finalCause}
+                      causeOptions={causeOptions}
+                      onCauseOfDeathChange={setFinalCause}
+                    />
+                    {showErrors && causeOptions.length > 0 && finalCause === '' && (
+                      <p className="review-case__error">Choose the final cause of death</p>
+                    )}
+                  </>
+                )}
+              </>
+            ) : (
+              <InlineNotification
+                kind="info"
+                lowContrast
+                hideCloseButton
+                title="Near miss"
+                subtitle="Not a death, so there is no final cause. Continue to the contributing factors."
+              />
+            ))}
 
           {step === 2 && (
-            <ContributingFactors
-              delayLevels={delayLevels}
-              selectedFactors={factors}
-              showErrors={showErrors}
-              onToggleFactor={toggleFactor}
-            />
+            <>
+              <p className="form-note">
+                If you change the factors of a level of delay, the recommendation logged for it is cleared and you
+                write a new one in the next step.
+              </p>
+              <ContributingFactors
+                delayLevels={delayLevels}
+                selectedFactors={factors}
+                showErrors={showErrors}
+                onToggleFactor={toggleFactor}
+              />
+            </>
           )}
 
           {step === 3 && (
             <>
-              <h3 className="review-case__subtitle">Recommendations from the log</h3>
               <InlineNotification
                 kind="info"
                 lowContrast
                 hideCloseButton
                 title="Not sent yet"
-                subtitle="These recommendations wait for your review. When you complete it, each one goes to its responsible person."
+                subtitle="When you complete the review, each recommendation goes to its responsible person."
               />
               <p className="form-note">
-                Choose the level of implementation and the responsible person for each one. You can also change the gap, text or classification, or remove one. The responsible person must work at the chosen level. Each must point to a
-                factor from step 3. The due date follows the classification.
+                There is one recommendation for each level of delay. For each one, choose the classification (it
+                sets the date of completion), the level of implementation and the responsible person.
               </p>
 
-              {edited.length === 0 && locked.length === 0 && <p className="empty-note">None were logged.</p>}
-
-              {edited.map((item) => {
-                const original = recommendations.find((recommendation) => recommendation.code === item.code)!;
+              {sorted.map((item) => {
+                const original = originalOf(item);
+                const factorsOfDelay = delayGaps(factors).find((entry) => entry.delay === item.delay)?.factors;
+                const cleared = item.startText !== '' && item.gap !== item.startGap;
                 return (
-                  <div key={item.code} className={`review-rec${item.removed ? ' review-rec--removed' : ''}`}>
+                  <div key={item.key} className="review-rec">
                     <div className="review-rec__head">
-                      <strong>{item.code}</strong>
-                      <StatusTag status={original.status} />
-                      {item.removed ? (
-                        <Tag type="red">Will be cancelled</Tag>
-                      ) : (
-                        recommendationChangesCount(original, item) > 0 && <Tag type="blue">Changed</Tag>
-                      )}
-                      <Button
-                        kind={item.removed ? 'ghost' : 'danger--ghost'}
-                        size="sm"
-                        onClick={() => updateEdited(item.code, { removed: !item.removed })}
-                      >
-                        {item.removed ? 'Undo remove' : 'Remove'}
-                      </Button>
+                      <strong>{titleOf(item.delay)}</strong>
+                      {original ? <StatusTag status={original.status} /> : <Tag type="purple">New</Tag>}
+                      {item.code && <span className="form-note">{item.code}</span>}
                     </div>
-                    {!item.removed && (
-                      <>
+
+                    <div className="review-rec__factors">
+                      <span className="form-note">Gap identified</span>
+                      {(factorsOfDelay ?? [item.gap]).map((factor) => (
+                        <Tag key={factor} type="cool-gray" size="sm">
+                          {factor}
+                        </Tag>
+                      ))}
+                    </div>
+
+                    {cleared && (
+                      <InlineNotification
+                        kind="warning"
+                        lowContrast
+                        hideCloseButton
+                        title="The factors for this delay changed"
+                        subtitle={`The logged recommendation was cleared. It said: "${item.startText}"`}
+                      />
+                    )}
+
+                    <TextArea
+                      id={`text-${item.key}`}
+                      labelText="Recommendation"
+                      rows={2}
+                      value={item.text}
+                      onChange={(event) => updateItem(item.key, { text: event.target.value })}
+                      invalid={showErrors && item.text.trim() === ''}
+                      invalidText="Write the recommendation"
+                    />
+
+                    <div className="form-row">
+                      <Select
+                        id={`class-${item.key}`}
+                        labelText="Classification"
+                        value={item.classification}
+                        onChange={(event) => changeClassification(item, event.target.value as Classification | '')}
+                        invalid={showErrors && item.classification === ''}
+                        invalidText="Choose the classification"
+                      >
+                        <SelectItem value="" text="Choose a classification" />
+                        {(Object.keys(classificationLabels) as Classification[]).map((key) => (
+                          <SelectItem key={key} value={key} text={classificationLabels[key]} />
+                        ))}
+                      </Select>
+                      <TextInput
+                        id={`due-${item.key}`}
+                        labelText="Date of completion (from classification)"
+                        value={item.dueDate}
+                        placeholder="Choose the classification first"
+                        readOnly
+                      />
+                    </div>
+
+                    <div className="form-row">
+                      {!original || original.status === 'Pending review' ? (
                         <Select
-                          id={`gap-${item.code}`}
-                          labelText="Gap identified"
-                          value={factors.includes(item.gap) ? item.gap : ''}
-                          onChange={(event) => updateEdited(item.code, { gap: event.target.value })}
-                          invalid={showErrors && !factors.includes(item.gap)}
-                          invalidText={item.gap ? `"${item.gap}" is no longer a factor` : 'Choose a gap'}
+                          id={`level-${item.key}`}
+                          labelText="Level of implementation"
+                          value={item.level}
+                          onChange={(event) =>
+                            updateItem(item.key, { level: event.target.value as Level | '', responsiblePersonId: '' })
+                          }
+                          invalid={showErrors && item.level === ''}
+                          invalidText="Choose the level"
                         >
-                          <SelectItem value="" text="Choose a factor from step 3" />
-                          {factors.map((factor) => (
-                            <SelectItem key={factor} value={factor} text={factor} />
+                          <SelectItem value="" text="Choose a level" />
+                          {levelsFor(issue.issueType).map((key) => (
+                            <SelectItem key={key} value={key} text={levelLabels[key]} />
                           ))}
                         </Select>
-                        <TextArea
-                          id={`text-${item.code}`}
-                          labelText="Recommendation"
-                          rows={2}
-                          value={item.text}
-                          onChange={(event) => updateEdited(item.code, { text: event.target.value })}
-                          invalid={showErrors && item.text.trim() === ''}
-                          invalidText="Write the recommendation"
-                        />
-                        <div className="form-row">
-                          <Select
-                            id={`class-${item.code}`}
-                            labelText="Classification"
-                            value={item.classification}
-                            onChange={(event) => changeClassification(item, event.target.value as Classification)}
-                          >
-                            {(Object.keys(classificationLabels) as Classification[]).map((key) => (
-                              <SelectItem key={key} value={key} text={classificationLabels[key]} />
-                            ))}
-                          </Select>
-                          <TextInput id={`due-${item.code}`} labelText="Due date (from classification)" value={item.dueDate} readOnly />
-                        </div>
-                        <div className="form-row">
-                          {original.status === 'Pending review' ? (
-                            <Select
-                              id={`level-${item.code}`}
-                              labelText="Level of implementation"
-                              value={item.level}
-                              onChange={(event) =>
-                                updateEdited(item.code, { level: event.target.value as Level | '', responsiblePersonId: '' })
-                              }
-                              invalid={showErrors && item.level === ''}
-                              invalidText="Choose the level"
-                            >
-                              <SelectItem value="" text="Choose a level" />
-                              {levelsFor(issue.issueType).map((key) => (
-                                <SelectItem key={key} value={key} text={levelLabels[key]} />
-                              ))}
-                            </Select>
-                          ) : (
-                            <TextInput id={`level-${item.code}`} labelText="Level of implementation" value={item.level} readOnly />
-                          )}
-                          <Select
-                            id={`person-${item.code}`}
-                            labelText="Responsible person"
-                            value={item.responsiblePersonId}
-                            onChange={(event) => updateEdited(item.code, { responsiblePersonId: event.target.value })}
-                            helperText={item.level ? `Only ${item.level} level staff` : 'Choose the level first'}
-                            disabled={item.level === ''}
-                            invalid={showErrors && item.level !== '' && item.responsiblePersonId === ''}
-                            invalidText="Choose the responsible person"
-                          >
-                            <SelectItem value="" text="Choose a person" />
-                            {people
-                              .filter((user) => user.level === item.level)
-                              .map((user) => (
-                                <SelectItem key={user.id} value={user.id} text={`${user.fullName} · ${user.cadre}`} />
-                              ))}
-                          </Select>
-                        </div>
-                      </>
-                    )}
+                      ) : (
+                        <Select id={`level-${item.key}`} labelText="Level of implementation" value={item.level} disabled>
+                          <SelectItem value={item.level} text={item.level ? levelLabels[item.level] : '—'} />
+                        </Select>
+                      )}
+                      <Select
+                        id={`person-${item.key}`}
+                        labelText="Responsible person"
+                        value={item.responsiblePersonId}
+                        onChange={(event) => updateItem(item.key, { responsiblePersonId: event.target.value })}
+                        helperText={
+                          item.level ? `Only ${item.level} level staff in ${issueCounty || 'this county'}` : 'Choose the level first'
+                        }
+                        disabled={item.level === ''}
+                        invalid={showErrors && item.level !== '' && item.responsiblePersonId === ''}
+                        invalidText="Choose the responsible person"
+                      >
+                        <SelectItem value="" text="Choose a person" />
+                        {responsiblePeople(users, locations, issue.loggedAt, item.level).map((user) => (
+                          <SelectItem
+                            key={user.id}
+                            value={user.id}
+                            text={`${user.fullName} · ${user.cadre} · ${user.assignedLocations.join(', ')}`}
+                          />
+                        ))}
+                      </Select>
+                    </div>
                   </div>
                 );
               })}
@@ -581,34 +651,13 @@ function ReviewForm({ issue, recommendations, causeOptions, userId, users }: Rev
                 </div>
               ))}
 
-              <h3 className="review-case__subtitle">Add recommendations</h3>
-              <RecommendationsStep
-                recommendations={added}
-                gapOptions={factors}
-                issueType={issue.issueType}
-                users={people}
-                today={today}
-                showErrors={false}
-                onAdd={(draft) => setAdded((current) => [...current, draft])}
-                onRemove={(index) => setAdded((current) => current.filter((_, position) => position !== index))}
-              />
-
-              {showErrors && activeCount === 0 && (
+              {showErrors && items.some((item) => itemProblem(item) !== '') && (
                 <InlineNotification
                   kind="error"
                   lowContrast
                   hideCloseButton
-                  title="Add at least one recommendation"
-                  subtitle="Every reviewed case needs at least one recommendation."
-                />
-              )}
-              {showErrors && added.some((draft) => recommendationProblem(draft) !== '') && (
-                <InlineNotification
-                  kind="error"
-                  lowContrast
-                  hideCloseButton
-                  title="Check the added recommendations"
-                  subtitle="Each needs a gap from step 3 and a responsible person. Remove it and add it again."
+                  title="Complete every recommendation"
+                  subtitle="Each one needs the recommendation, classification, date of completion, level and responsible person."
                 />
               )}
             </>
@@ -621,9 +670,8 @@ function ReviewForm({ issue, recommendations, causeOptions, userId, users }: Rev
                   { label: 'Review date', value: reviewDate },
                   { label: 'Reviewed by', value: nameOf(userId) },
                   { label: 'Final cause of death', value: isDeath ? orDash(finalCause) : 'Not a death' },
-                  ...(isPerinatal ? [{ label: 'Maternal condition', value: orDash(maternalCondition) }] : []),
                   { label: 'Contributing factors', value: `${factors.length} selected` },
-                  { label: 'Recommendations after the review', value: String(activeCount) },
+                  { label: 'Recommendations', value: String(items.length + locked.length) },
                 ]}
               />
 
@@ -648,7 +696,7 @@ function ReviewForm({ issue, recommendations, causeOptions, userId, users }: Rev
                 lowContrast
                 hideCloseButton
                 title="Completing locks the review"
-                subtitle="After this, the issue can't be edited, and each recommendation is sent to its responsible person."
+                subtitle="After this, the issue can't be edited, no recommendations can be added, and each recommendation is sent to its responsible person."
               />
             </>
           )}
@@ -656,7 +704,7 @@ function ReviewForm({ issue, recommendations, causeOptions, userId, users }: Rev
 
         <div className="log-issue__actions">
           <Button kind="ghost" onClick={() => (step === 0 ? navigate(`/issues/${issue.code}`) : goToStep(step - 1))}>
-            {step === 0 ? 'Cancel review' : 'Previous step'}
+            {step === 0 ? 'Back to the issue' : 'Previous step'}
           </Button>
           <Button type="submit" disabled={saving}>
             {saving ? 'Saving…' : step === lastStep ? 'Complete review' : 'Continue'}
@@ -665,16 +713,6 @@ function ReviewForm({ issue, recommendations, causeOptions, userId, users }: Rev
       </form>
     </div>
   );
-}
-
-function recommendationChangesCount(original: StoredRecommendation, item: ReviewedRecommendation) {
-  return [
-    item.text !== original.text,
-    item.gap !== original.gap,
-    item.classification !== original.classification,
-    item.level !== original.level,
-    item.responsiblePersonId !== original.responsiblePersonId,
-  ].filter(Boolean).length;
 }
 
 export default ReviewCasePage;
