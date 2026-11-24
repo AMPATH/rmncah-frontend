@@ -1,4 +1,6 @@
+
 import { useMemo, useState } from 'react'
+import type { ChangeEvent } from 'react'
 
 import {
   Button,
@@ -27,13 +29,11 @@ import {
 } from '@carbon/icons-react'
 
 import type {
-  ProgramLearningMaterial,
+  LearningMaterial,
   LearningMaterialType,
-} from '../types/program-lead.types.ts'
+} from '../../../data/models'
 
-import { programModules } from '../data/programLeadDashboardData'
-import { initialModuleSections } from '../../../data/demo/training/moduleSectionsData'
-import { initialLearningMaterials } from '../../../data/demo/training/learningMaterialsData'
+import { useCurriculum } from '../../../data/providers/CurriculumContext'
 
 import '../styles/program-lead-learning-materials.scss'
 
@@ -77,13 +77,10 @@ const getMaterialTagType = (type: LearningMaterialType) => {
   switch (type) {
     case 'E-book':
       return 'blue' as const
-
     case 'Slides':
       return 'purple' as const
-
     case 'Video':
       return 'teal' as const
-
     default:
       return 'gray' as const
   }
@@ -92,51 +89,70 @@ const getMaterialTagType = (type: LearningMaterialType) => {
 const LearningMaterialsPage = ({
   title,
 }: LearningMaterialsPageProps) => {
-  const [materials, setMaterials] =
-    useState<ProgramLearningMaterial[]>(initialLearningMaterials)
+  const {
+    modules,
+    sections,
+    materials,
+    loading,
+    error,
+    createMaterial,
+    updateMaterial,
+    deleteMaterial,
+  } = useCurriculum()
+
+  const orderedModules = useMemo(
+    () =>
+      [...modules].sort(
+        (a, b) => (a.sequence ?? 0) - (b.sequence ?? 0),
+      ),
+    [modules],
+  )
 
   const [searchTerm, setSearchTerm] = useState('')
   const [moduleFilter, setModuleFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all')
 
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [actionError, setActionError] = useState<string | null>(null)
 
   const [editingMaterial, setEditingMaterial] =
-    useState<ProgramLearningMaterial | null>(null)
+    useState<LearningMaterial | null>(null)
 
   const [materialToDelete, setMaterialToDelete] =
-    useState<ProgramLearningMaterial | null>(null)
+    useState<LearningMaterial | null>(null)
 
   const [materialTitle, setMaterialTitle] = useState('')
   const [materialDescription, setMaterialDescription] = useState('')
   const [materialType, setMaterialType] =
     useState<LearningMaterialType>('E-book')
 
-  const [materialModuleId, setMaterialModuleId] = useState(
-    programModules[0]?.id ?? '',
-  )
-
+  const [materialModuleId, setMaterialModuleId] = useState('')
   const [materialSectionId, setMaterialSectionId] = useState('')
 
   const [fileName, setFileName] = useState('')
   const [fileSize, setFileSize] = useState('')
   const [resourceUrl, setResourceUrl] = useState('')
 
-  const availableSections = useMemo(() => {
-    return initialModuleSections
-      .filter((section) => section.moduleId === materialModuleId)
-      .sort((a, b) => a.sequence - b.sequence)
-  }, [materialModuleId])
+  const availableSections = useMemo(
+    () =>
+      sections
+        .filter(
+          (section) => section.moduleId === materialModuleId,
+        )
+        .sort((a, b) => a.sequence - b.sequence),
+    [sections, materialModuleId],
+  )
 
   const filteredMaterials = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase()
 
     return materials.filter((material) => {
-      const module = programModules.find(
+      const module = modules.find(
         (item) => item.id === material.moduleId,
       )
 
-      const section = initialModuleSections.find(
+      const section = sections.find(
         (item) => item.id === material.sectionId,
       )
 
@@ -149,17 +165,26 @@ const LearningMaterialsPage = ({
         (section?.title.toLowerCase().includes(normalizedSearch) ?? false)
 
       const matchesModule =
-        moduleFilter === 'all' || material.moduleId === moduleFilter
+        moduleFilter === 'all' ||
+        material.moduleId === moduleFilter
 
       const matchesType =
-        typeFilter === 'all' || material.type === typeFilter
+        typeFilter === 'all' ||
+        material.type === typeFilter
 
       return matchesSearch && matchesModule && matchesType
     })
-  }, [materials, searchTerm, moduleFilter, typeFilter])
+  }, [
+    materials,
+    modules,
+    sections,
+    searchTerm,
+    moduleFilter,
+    typeFilter,
+  ])
 
-  const statistics = useMemo(() => {
-    return {
+  const statistics = useMemo(
+    () => ({
       total: materials.length,
       ebooks: materials.filter(
         (material) => material.type === 'E-book',
@@ -170,23 +195,20 @@ const LearningMaterialsPage = ({
       videos: materials.filter(
         (material) => material.type === 'Video',
       ).length,
-    }
-  }, [materials])
+    }),
+    [materials],
+  )
 
-  const getModuleTitle = (moduleId: string) => {
-    return (
-      programModules.find((module) => module.id === moduleId)?.title ??
-      'Unknown module'
-    )
-  }
+  const getModuleTitle = (moduleId: string) =>
+    modules.find((module) => module.id === moduleId)?.title ??
+    'Unknown module'
 
   const getSectionTitle = (sectionId: string) => {
     if (!sectionId) return 'Module-level resource'
 
     return (
-      initialModuleSections.find(
-        (section) => section.id === sectionId,
-      )?.title ?? 'Unknown section'
+      sections.find((section) => section.id === sectionId)?.title ??
+      'Unknown section'
     )
   }
 
@@ -194,12 +216,13 @@ const LearningMaterialsPage = ({
     setMaterialTitle('')
     setMaterialDescription('')
     setMaterialType('E-book')
-    setMaterialModuleId(programModules[0]?.id ?? '')
+    setMaterialModuleId(orderedModules[0]?.id ?? '')
     setMaterialSectionId('')
     setFileName('')
     setFileSize('')
     setResourceUrl('')
     setEditingMaterial(null)
+    setActionError(null)
   }
 
   const openCreateModal = () => {
@@ -207,7 +230,7 @@ const LearningMaterialsPage = ({
     setIsModalOpen(true)
   }
 
-  const openEditModal = (material: ProgramLearningMaterial) => {
+  const openEditModal = (material: LearningMaterial) => {
     setEditingMaterial(material)
     setMaterialTitle(material.title)
     setMaterialDescription(material.description)
@@ -217,16 +240,19 @@ const LearningMaterialsPage = ({
     setFileName(material.fileName)
     setFileSize(material.fileSize)
     setResourceUrl(material.resourceUrl)
+    setActionError(null)
     setIsModalOpen(true)
   }
 
   const closeModal = () => {
+    if (isSaving) return
+
     setIsModalOpen(false)
     resetForm()
   }
 
   const handleFileSelection = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: ChangeEvent<HTMLInputElement>,
   ) => {
     const selectedFile = event.target.files?.[0]
 
@@ -243,67 +269,84 @@ const LearningMaterialsPage = ({
     )
   }
 
-  const handleSaveMaterial = () => {
+  const handleSaveMaterial = async () => {
     const trimmedTitle = materialTitle.trim()
+    const trimmedUrl = resourceUrl.trim()
 
-    if (!trimmedTitle || !materialModuleId || !fileName) return
-
-    const now = new Date().toISOString().slice(0, 10)
-
-    if (editingMaterial) {
-      const updatedMaterial: ProgramLearningMaterial = {
-        ...editingMaterial,
-        title: trimmedTitle,
-        description: materialDescription.trim(),
-        type: materialType,
-        moduleId: materialModuleId,
-        sectionId: materialSectionId,
-        fileName,
-        fileSize,
-        resourceUrl: resourceUrl.trim(),
-        updatedAt: now,
-      }
-
-      setMaterials((currentMaterials) =>
-        currentMaterials.map((material) =>
-          material.id === editingMaterial.id
-            ? updatedMaterial
-            : material,
-        ),
-      )
-    } else {
-      const newMaterial: ProgramLearningMaterial = {
-        id: `MAT-${Date.now().toString().slice(-6)}`,
-        title: trimmedTitle,
-        description: materialDescription.trim(),
-        type: materialType,
-        moduleId: materialModuleId,
-        sectionId: materialSectionId,
-        fileName,
-        fileSize,
-        resourceUrl: resourceUrl.trim(),
-        updatedAt: now,
-      }
-
-      setMaterials((currentMaterials) => [
-        newMaterial,
-        ...currentMaterials,
-      ])
+    if (
+      !trimmedTitle ||
+      !materialModuleId ||
+      (!fileName.trim() && !trimmedUrl) ||
+      isSaving
+    ) {
+      return
     }
 
-    closeModal()
+    const now = new Date().toISOString()
+
+    const materialData = {
+      title: trimmedTitle,
+      description: materialDescription.trim(),
+      type: materialType,
+      moduleId: materialModuleId,
+      sectionId: materialSectionId,
+      fileName: fileName.trim() || 'External resource',
+      fileSize: fileSize || '—',
+      resourceUrl: trimmedUrl,
+      updatedAt: now,
+    }
+
+    try {
+      setIsSaving(true)
+      setActionError(null)
+
+      if (editingMaterial) {
+        await updateMaterial(
+          editingMaterial.id,
+          materialData,
+        )
+      } else {
+        const newMaterial: LearningMaterial = {
+          id: crypto.randomUUID(),
+          ...materialData,
+          createdAt: now,
+        }
+
+        await createMaterial(newMaterial)
+      }
+
+      setIsModalOpen(false)
+      resetForm()
+    } catch (err) {
+      setActionError(
+        err instanceof Error
+          ? err.message
+          : 'Unable to save the learning material.',
+      )
+    } finally {
+      setIsSaving(false)
+    }
   }
 
-  const handleDeleteMaterial = () => {
-    if (!materialToDelete) return
+  const handleDeleteMaterial = async () => {
+    if (!materialToDelete || isSaving) return
 
-    setMaterials((currentMaterials) =>
-      currentMaterials.filter(
-        (material) => material.id !== materialToDelete.id,
-      ),
-    )
+    try {
+      setIsSaving(true)
+      setActionError(null)
 
-    setMaterialToDelete(null)
+      await deleteMaterial(materialToDelete.id)
+
+      setMaterialToDelete(null)
+    } catch (err) {
+      setActionError(
+        err instanceof Error
+          ? err.message
+          : 'Unable to delete the learning material.',
+      )
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleModuleChange = (moduleId: string) => {
@@ -314,7 +357,8 @@ const LearningMaterialsPage = ({
   const isFormValid =
     materialTitle.trim().length > 0 &&
     materialModuleId.length > 0 &&
-    fileName.length > 0
+    (fileName.trim().length > 0 ||
+      resourceUrl.trim().length > 0)
 
   return (
     <div className="program-learning-materials">
@@ -337,10 +381,23 @@ const LearningMaterialsPage = ({
         <Button
           renderIcon={Add}
           onClick={openCreateModal}
+          disabled={loading || orderedModules.length === 0}
         >
           Add learning material
         </Button>
       </header>
+
+      {error && (
+        <p role="alert">
+          Unable to load curriculum data: {error}
+        </p>
+      )}
+
+      {actionError && !isModalOpen && !materialToDelete && (
+        <p role="alert">
+          {actionError}
+        </p>
+      )}
 
       <section className="program-learning-materials__statistics">
         <div className="program-learning-materials__stat-card">
@@ -420,13 +477,11 @@ const LearningMaterialsPage = ({
               id="learning-material-module-filter"
               labelText="Filter by module"
               value={moduleFilter}
-              onChange={(event) =>
-                setModuleFilter(event.target.value)
-              }
+              onChange={(event) => setModuleFilter(event.target.value)}
             >
               <SelectItem value="all" text="All modules" />
 
-              {programModules.map((module) => (
+              {orderedModules.map((module) => (
                 <SelectItem
                   key={module.id}
                   value={module.id}
@@ -441,9 +496,7 @@ const LearningMaterialsPage = ({
               id="learning-material-type-filter"
               labelText="Filter by type"
               value={typeFilter}
-              onChange={(event) =>
-                setTypeFilter(event.target.value)
-              }
+              onChange={(event) => setTypeFilter(event.target.value)}
             >
               <SelectItem value="all" text="All types" />
 
@@ -500,8 +553,8 @@ const LearningMaterialsPage = ({
 
                   <TableCell>
                     <div className="program-learning-materials__file">
-                      <span>{material.fileName}</span>
-                      <small>{material.fileSize}</small>
+                      <span>{material.fileName || 'External resource'}</span>
+                      <small>{material.fileSize || '—'}</small>
                     </div>
                   </TableCell>
 
@@ -525,24 +578,23 @@ const LearningMaterialsPage = ({
                       <Button
                         kind="ghost"
                         size="sm"
-                        hasIconOnly
                         renderIcon={Edit}
-                        iconDescription="Edit material"
-                        tooltipPosition="left"
                         onClick={() => openEditModal(material)}
-                      />
+                      >
+                        Edit
+                      </Button>
 
                       <Button
                         kind="ghost"
                         size="sm"
-                        hasIconOnly
                         renderIcon={TrashCan}
-                        iconDescription="Delete material"
-                        tooltipPosition="left"
-                        onClick={() =>
+                        onClick={() => {
+                          setActionError(null)
                           setMaterialToDelete(material)
-                        }
-                      />
+                        }}
+                      >
+                        Delete
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -554,20 +606,28 @@ const LearningMaterialsPage = ({
                     <div className="program-learning-materials__empty">
                       <Document size={32} />
 
-                      <h3>No learning materials found</h3>
+                      <h3>
+                        {loading
+                          ? 'Loading learning materials'
+                          : 'No learning materials found'}
+                      </h3>
 
                       <p>
-                        Try changing your search or filters, or add a
-                        new learning material.
+                        {loading
+                          ? 'Loading curriculum records from the EmONC database.'
+                          : 'Try changing your search or filters, or add a new learning material.'}
                       </p>
 
-                      <Button
-                        kind="tertiary"
-                        renderIcon={Add}
-                        onClick={openCreateModal}
-                      >
-                        Add learning material
-                      </Button>
+                      {!loading && (
+                        <Button
+                          kind="tertiary"
+                          renderIcon={Add}
+                          onClick={openCreateModal}
+                          disabled={orderedModules.length === 0}
+                        >
+                          Add learning material
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -583,7 +643,8 @@ const LearningMaterialsPage = ({
         <p>
           <strong>Resource organization:</strong> Materials are associated
           with their training module and optional learning section.
-          Actual file uploads will be connected to backend storage.
+          File metadata and resource URLs are saved in the EmONC curriculum
+          database. Actual file uploads require backend storage integration.
         </p>
       </div>
 
@@ -595,23 +656,31 @@ const LearningMaterialsPage = ({
             : 'Add learning material'
         }
         primaryButtonText={
-          editingMaterial ? 'Save changes' : 'Add material'
+          isSaving
+            ? 'Saving...'
+            : editingMaterial
+              ? 'Save changes'
+              : 'Add material'
         }
         secondaryButtonText="Cancel"
         onRequestClose={closeModal}
         onRequestSubmit={handleSaveMaterial}
-        primaryButtonDisabled={!isFormValid}
+        primaryButtonDisabled={!isFormValid || isSaving}
         size="lg"
       >
         <div className="program-learning-materials__form">
+          {actionError && (
+            <p role="alert">
+              {actionError}
+            </p>
+          )}
+
           <TextInput
             id="material-title"
             labelText="Material title"
             placeholder="Enter a descriptive resource title"
             value={materialTitle}
-            onChange={(event) =>
-              setMaterialTitle(event.target.value)
-            }
+            onChange={(event) => setMaterialTitle(event.target.value)}
           />
 
           <TextArea
@@ -652,8 +721,9 @@ const LearningMaterialsPage = ({
               onChange={(event) =>
                 handleModuleChange(event.target.value)
               }
+              disabled={orderedModules.length === 0}
             >
-              {programModules.map((module) => (
+              {orderedModules.map((module) => (
                 <SelectItem
                   key={module.id}
                   value={module.id}
@@ -718,14 +788,13 @@ const LearningMaterialsPage = ({
             labelText="External resource URL (optional)"
             placeholder="https://example.com/resource"
             value={resourceUrl}
-            onChange={(event) =>
-              setResourceUrl(event.target.value)
-            }
+            onChange={(event) => setResourceUrl(event.target.value)}
           />
 
           <p className="program-learning-materials__form-note">
-            Demo mode: selecting a file records its name and size only.
-            It does not upload or permanently store the file.
+            A file selection saves its name and size as metadata only.
+            The file itself is not uploaded or stored. Alternatively,
+            provide an external resource URL.
           </p>
         </div>
       </Modal>
@@ -733,17 +802,32 @@ const LearningMaterialsPage = ({
       <Modal
         open={Boolean(materialToDelete)}
         modalHeading="Delete learning material?"
-        primaryButtonText="Delete material"
+        primaryButtonText={
+          isSaving ? 'Deleting...' : 'Delete material'
+        }
         secondaryButtonText="Cancel"
+        primaryButtonDisabled={isSaving}
         danger
-        onRequestClose={() => setMaterialToDelete(null)}
+        onRequestClose={() => {
+          if (!isSaving) {
+            setMaterialToDelete(null)
+            setActionError(null)
+          }
+        }}
         onRequestSubmit={handleDeleteMaterial}
       >
         <p>
           Are you sure you want to delete{' '}
           <strong>{materialToDelete?.title}</strong>? This action will
-          remove the material from this demo directory.
+          permanently remove this material record from the EmONC
+          curriculum database.
         </p>
+
+        {actionError && (
+          <p role="alert">
+            {actionError}
+          </p>
+        )}
       </Modal>
     </div>
   )
