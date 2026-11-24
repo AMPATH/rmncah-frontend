@@ -48,7 +48,8 @@ export interface NewRecommendation {
   gap: string;
   responsiblePersonId: string;
   text: string;
-  classification: Classification;
+  // Empty until the facility MPDSR chair sets it at the case review.
+  classification: Classification | '';
   level: Level | '';
   dateOfCompletion: string;
 }
