@@ -17,10 +17,11 @@ import PersonFields from '../components/log-issue/PersonFields';
 import { delayLevels } from '../constants/delayFactors';
 import { getIssues, getStoredRecommendations } from '../services/issueService';
 import type { StoredIssue, StoredRecommendation } from '../services/issueService';
-import { cancelIssue, editIssue, issueDifferences } from '../services/issueEditService';
+import { editIssue, issueDifferences } from '../services/issueEditService';
 import type { IssueChanges } from '../services/issueEditService';
 import { addDays, daysBetween, getToday, yearsBetween } from '../../../utils/dates';
 import { whyIssueBlocked } from '../utils/issueRules';
+import { delaysMissing } from '../utils/delayRecommendations';
 import { causeOptionsFor, getCausesOfDeath } from '../services/causeService';
 import type { CauseOfDeath } from '../services/causeService';
 
@@ -53,10 +54,8 @@ function IssueEditPage() {
 
   const [values, setValues] = useState<IssueChanges>(emptyChanges);
   const [reason, setReason] = useState('');
-  const [cancelReason, setCancelReason] = useState('');
   const [keptFactor, setKeptFactor] = useState('');
   const [showErrors, setShowErrors] = useState(false);
-  const [showCancelErrors, setShowCancelErrors] = useState(false);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -98,7 +97,6 @@ function IssueEditPage() {
 
   const today = getToday();
   const editBlocked = whyIssueBlocked('edit', issue, currentUser, recommendations, today);
-  const cancelBlocked = whyIssueBlocked('cancel', issue, currentUser, recommendations, today);
   const isDeath = issue.issueType !== 'near-miss';
   const isPerinatal = issue.issueType === 'perinatal';
   const differences = issueDifferences(issue, values);
@@ -125,7 +123,8 @@ function IssueEditPage() {
 
   function toggleFactor(factor: string) {
     const ticked = values.contributingFactors.includes(factor);
-    if (ticked && recommendations.some((recommendation) => recommendation.gap === factor)) {
+    // Each level of delay has its own recommendation, so it must keep at least one factor.
+    if (ticked && delaysMissing(values.contributingFactors.filter((item) => item !== factor)).length > 0) {
       setKeptFactor(factor);
       return;
     }
@@ -157,23 +156,13 @@ function IssueEditPage() {
     run(() => editIssue(issue!, currentUser!.id, values, reason.trim()), 'Issue updated');
   }
 
-  function handleCancel(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (cancelReason.trim() === '') {
-      setShowCancelErrors(true);
-      return;
-    }
-    run(() => cancelIssue(issue!, currentUser!.id, cancelReason.trim(), recommendations), 'Issue cancelled');
-  }
-
   return (
     <div className="page">
       <div className="page-header">
         <div>
           <h1>Edit {issue.code}</h1>
           <p className="page-subtitle">
-            Correct data-entry mistakes. Issue type, setting and place can't change: cancel the issue and log it
-            again instead.
+            Correct data-entry mistakes. Issue type, setting and place can't change.
           </p>
         </div>
       </div>
@@ -236,7 +225,7 @@ function IssueEditPage() {
               kind="warning"
               lowContrast
               title="This factor stays"
-              subtitle={`"${keptFactor}" is the gap of one of this issue's recommendations, so it can't be removed.`}
+              subtitle={`"${keptFactor}" is the last factor of its level of delay. Each level of delay needs at least one factor because it has its own recommendation.`}
               onClose={() => setKeptFactor('')}
             />
           )}
@@ -278,30 +267,6 @@ function IssueEditPage() {
             </Button>
           </div>
         </fieldset>
-      </form>
-
-      <form className="form-card form-stack issue-edit__cancel" onSubmit={handleCancel} noValidate>
-        <h2 className="form-section-title">Cancel this issue</h2>
-        <p className="form-note">
-          For an issue logged twice, or with the wrong type, setting or place. Its recommendations that are still
-          running are cancelled too. Everything stays in the history.
-        </p>
-        <TextArea
-          id="cancelIssueReason"
-          labelText="Reason for cancelling"
-          rows={2}
-          value={cancelReason}
-          disabled={cancelBlocked !== ''}
-          onChange={(event) => setCancelReason(event.target.value)}
-          invalid={showCancelErrors && cancelReason.trim() === ''}
-          invalidText="Give the reason for cancelling"
-        />
-        <div>
-          <Button type="submit" kind="danger" disabled={cancelBlocked !== '' || busy}>
-            Cancel issue
-          </Button>
-        </div>
-        {cancelBlocked && <p className="field-hint">{cancelBlocked}</p>}
       </form>
     </div>
   );
