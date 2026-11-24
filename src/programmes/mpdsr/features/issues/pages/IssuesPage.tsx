@@ -55,7 +55,6 @@ const headers = [
   { key: 'review', header: 'Review' },
   { key: 'recommendations', header: 'Recommendations' },
   { key: 'stillOpen', header: 'Not closed' },
-  { key: 'action', header: 'Actions' },
 ];
 
 function IssuesPage() {
@@ -64,7 +63,6 @@ function IssuesPage() {
   const issuesData = useApiData<StoredIssue[]>(getIssues, []);
   const recommendationsData = useApiData<StoredRecommendation[]>(getStoredRecommendations, []);
   const [filters, setFilters] = useState<IssueFilterValues>(noIssueFilters);
-  const canAdd = can(currentUser, 'recommendation.add');
   const canReview = can(currentUser, 'issue.review');
   const today = getToday();
 
@@ -89,7 +87,6 @@ function IssuesPage() {
       recommendations: ofIssue.length,
       stillOpen: ofIssue.filter((recommendation) => recommendation.status !== 'Closed' && recommendation.status !== 'Cancelled')
         .length,
-      action: '',
     };
   });
 
@@ -206,7 +203,7 @@ function IssuesPage() {
                 <TableHead>
                   <TableRow>
                     {headers.map((header) => {
-                      const { key, ...headerProps } = getHeaderProps({ header, isSortable: header.key !== 'action' });
+                      const { key, ...headerProps } = getHeaderProps({ header });
                       return (
                         <TableHeader key={key} {...headerProps}>
                           {header.header}
@@ -247,13 +244,6 @@ function IssuesPage() {
                                     >
                                       {cell.value}
                                     </Tag>
-                                  )
-                                ) : cell.info.header === 'action' ? (
-                                  canAdd &&
-                                  row.cells.find((item) => item.info.header === 'review')?.value !== 'Cancelled' && (
-                                    <Link className="cds--link" to={`/issues/${row.id}/recommendation`}>
-                                      Add recommendation
-                                    </Link>
                                   )
                                 ) : (
                                   cell.value
