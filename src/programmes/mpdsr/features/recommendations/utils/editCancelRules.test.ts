@@ -22,17 +22,10 @@ describe('edit and cancel rules', () => {
     expect(whyBlocked('edit', makeRecommendation(), county)).not.toBe('');
   });
 
-  it('lets the facility MPDSR chair cancel anything not finished', () => {
-    expect(whyBlocked('cancel', makeRecommendation({ status: 'In progress' }), chair)).toBe('');
-    expect(whyBlocked('cancel', makeRecommendation({ status: 'Overdue' }), chair)).toBe('');
-  });
-
-  it('stops others from cancelling', () => {
-    expect(whyBlocked('cancel', makeRecommendation(), reporter)).not.toBe('');
-  });
-
-  it('cannot cancel what is already closed or cancelled', () => {
-    expect(whyBlocked('cancel', makeRecommendation({ status: 'Closed' }), chair)).not.toBe('');
-    expect(whyBlocked('cancel', makeRecommendation({ status: 'Cancelled' }), chair)).not.toBe('');
+  it('never lets anyone cancel a recommendation', () => {
+    for (const status of ['Open', 'In progress', 'Overdue'] as const) {
+      expect(whyBlocked('cancel', makeRecommendation({ status }), chair)).not.toBe('');
+      expect(whyBlocked('cancel', makeRecommendation({ status }), reporter)).not.toBe('');
+    }
   });
 });
