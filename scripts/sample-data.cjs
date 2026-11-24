@@ -205,12 +205,18 @@ loggedDays.forEach((dateLogged, index) => {
   const dateOfDeath = isDeath ? addDays(dateLogged, -between(1, 10)) : '';
   const dateOfNotification = isDeath ? earliest(addDays(dateOfDeath, between(0, 2)), dateLogged) : addDays(dateLogged, -between(0, 3));
   const periodOfDeath = isDeath ? pickWeighted([['antenatal', 1], ['intrapartum', 2], ['postpartum', 3]]) : '';
-  const factorCount = between(1, 3);
+  // Every issue has at least one factor in each level of delay, and one recommendation for each.
   const factors = [];
-  while (factors.length < factorCount) {
-    const level = pick(Object.keys(delays));
-    const factor = `${level} delay: ${pick(delays[level])}`;
-    if (!factors.includes(factor)) factors.push(factor);
+  const gaps = [];
+  for (const level of Object.keys(delays)) {
+    const picked = [];
+    const howMany = between(1, 2);
+    while (picked.length < howMany) {
+      const factor = pick(delays[level]);
+      if (!picked.includes(factor)) picked.push(factor);
+    }
+    factors.push(...picked.map((factor) => `${level} delay: ${factor}`));
+    gaps.push({ gap: `${level} delay: ${picked.join('; ')}`, first: picked[0] });
   }
   const cause = isDeath ? pick(causesFor(issueType).length ? causesFor(issueType) : ['']) : '';
 
@@ -240,14 +246,8 @@ loggedDays.forEach((dateLogged, index) => {
 
   const chair = pick(at(chairs, facility.name));
   const age = Math.round((new Date(today) - new Date(dateLogged)) / 86400000);
-  const cancelled = age > 30 && chance(0.04);
-  const reviewed = !cancelled && age >= 3 && (age > 14 || chance(0.5));
-
-  if (cancelled) {
-    issue.cancelled = true;
-    issue.cancelReason = 'Logged twice by mistake';
-    issueEvents.push({ id: newId('h'), issueCode: code, at: stamp(addDays(dateLogged, 2)), byUserId: chair.id, action: 'cancelled', note: issue.cancelReason, changes: [] });
-  }
+  // Issues and recommendations are never cancelled.
+  const reviewed = age >= 3 && (age > 14 || chance(0.5));
 
   let reviewDate = '';
   if (reviewed) {
@@ -255,31 +255,29 @@ loggedDays.forEach((dateLogged, index) => {
     issue.review = {
       reviewDate,
       finalCause: cause,
-      maternalCondition: issueType === 'perinatal' ? pick(['M1 · Complications of placenta, cord and membranes', 'M2 · Maternal complications of pregnancy', 'M3 · Other complications of labour and delivery', 'M5 · No maternal condition identified']) : '',
       completedAt: stamp(reviewDate),
       completedById: chair.id,
     };
     issueEvents.push({ id: newId('h'), issueCode: code, at: stamp(reviewDate), byUserId: chair.id, action: 'reviewed', note: `Case review on ${reviewDate}`, changes: [] });
     notify(logger.id, reviewDate, `${chair.fullName} reviewed ${code} with no changes to what you logged.`, code, 'reviewed', chair.fullName);
-  } else if (!cancelled) {
+  } else {
     notify(chair.id, dateLogged, `${code} was logged and is waiting for your case review`, code, 'review-needed');
   }
   issues.push(issue);
 
-  const recommendationCount = Math.min(between(1, 3), factors.length);
-  factors.slice(0, recommendationCount).forEach((gap, position) => {
+  gaps.forEach(({ gap, first }, position) => {
     const recCode = `${code}-R${position + 1}`;
-    const classification = pickWeighted([['immediate', 3], ['intermediate', 2], ['long-term', 1]]);
+    // The classification and date of completion are set by the chair at the case review.
+    const classification = reviewed ? pickWeighted([['immediate', 3], ['intermediate', 2], ['long-term', 1]]) : '';
     const months = { immediate: 1, intermediate: 3, 'long-term': 6 }[classification];
-    const startDay = reviewDate || dateLogged;
-    const dueDate = addMonths(startDay, months);
+    const dueDate = reviewed ? addDays(addMonths(reviewDate, months), -between(0, 10)) : '';
     const recommendation = {
       id: newId('r'),
       code: recCode,
       issueId: issue.id,
       issueCode: code,
       gap,
-      text: actionsFor[gap.replace(/^\w+ delay: /, '')] ?? 'Follow up the gap at the next MPDSR meeting',
+      text: actionsFor[first] ?? 'Follow up the gap at the next MPDSR meeting',
       classification,
       level: '',
       responsiblePersonId: '',
@@ -291,11 +289,6 @@ loggedDays.forEach((dateLogged, index) => {
     };
     recommendations.push(recommendation);
 
-    if (cancelled) {
-      recommendation.status = 'Cancelled';
-      event(recCode, addDays(dateLogged, 2), chair.id, 'cancelled', 'Pending review', 'Cancelled', 'Issue cancelled');
-      return;
-    }
     if (!reviewed) return;
 
     const levelChoices = [['facility', 5], ['sub-county', 2], ['county', 2]];
@@ -400,7 +393,7 @@ fs.writeFileSync(DB, JSON.stringify(db, null, 2) + '\n');
 
 const count = (list, test) => list.filter(test).length;
 console.log(`Saved ${DB}. Your previous data is in ${BACKUP}.`);
-console.log(`Issues: ${issues.length} (maternal ${count(issues, (i) => i.issueType === 'maternal')}, perinatal ${count(issues, (i) => i.issueType === 'perinatal')}, near miss ${count(issues, (i) => i.issueType === 'near-miss')}, reviewed ${count(issues, (i) => i.review)}, cancelled ${count(issues, (i) => i.cancelled)})`);
+console.log(`Issues: ${issues.length} (maternal ${count(issues, (i) => i.issueType === 'maternal')}, perinatal ${count(issues, (i) => i.issueType === 'perinatal')}, near miss ${count(issues, (i) => i.issueType === 'near-miss')}, reviewed ${count(issues, (i) => i.review)})`);
 const statuses = {};
 for (const recommendation of recommendations) statuses[recommendation.status] = (statuses[recommendation.status] ?? 0) + 1;
 console.log(`Recommendations: ${recommendations.length} (${Object.entries(statuses).map(([status, total]) => `${status} ${total}`).join(', ')})`);
