@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from 'react-router';
 import { Button, DataTableSkeleton, InlineNotification, Tag } from '@carbon/react';
-import { Add, Edit, TaskApproved } from '@carbon/icons-react';
+import { Edit, TaskApproved } from '@carbon/icons-react';
 import { useCurrentUser } from '../../../context/currentUserContext';
 import { can } from '../../../auth/permissions';
 import { issuesInScope } from '../../../auth/scope';
@@ -84,14 +84,9 @@ function IssueDetailPage() {
               {isReviewed(issue) ? 'View review' : 'Review case'}
             </Button>
           )}
-          {can(currentUser, 'recommendation.add') && !issue.cancelled && (
+          {whyIssueBlocked('edit', issue, currentUser, ofIssue, getToday()) === '' && (
             <Button kind="tertiary" renderIcon={Edit} onClick={() => navigate(`/issues/${issue.code}/edit`)}>
-              {whyIssueBlocked('edit', issue, currentUser, ofIssue, getToday()) === '' ? 'Edit or cancel' : 'Cancel issue'}
-            </Button>
-          )}
-          {can(currentUser, 'recommendation.add') && !issue.cancelled && (
-            <Button renderIcon={Add} onClick={() => navigate(`/issues/${issue.code}/recommendation`)}>
-              Add recommendation
+              Edit issue
             </Button>
           )}
         </div>
@@ -125,9 +120,6 @@ function IssueDetailPage() {
               { label: 'Review date', value: orDash(issue.review.reviewDate) },
               { label: 'Reviewed by', value: nameOf(issue.review.completedById) },
               { label: 'Final cause of death', value: orDash(issue.review.finalCause) },
-              ...(issue.issueType === 'perinatal'
-                ? [{ label: 'Maternal condition', value: orDash(issue.review.maternalCondition) }]
-                : []),
               { label: 'Completed', value: formatDateTime(issue.review.completedAt) },
             ]}
           />
