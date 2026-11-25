@@ -39,7 +39,7 @@ import type {
   SiteAssessmentStatus,
 } from '../../../data/models'
 
-import '../styles/county-mentor-site-assessments.scss'
+import '../styles/facility-assessments.scss'
 
 interface SiteAssessmentsPageProps {
   title: string
