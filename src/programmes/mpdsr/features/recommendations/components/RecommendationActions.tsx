@@ -45,7 +45,6 @@ function RecommendationActions({ recommendation, user, holderName }: Recommendat
     { label: 'Approve or reject', to: `/actions/${code}/close`, rule: 'approve' },
     { label: 'Reassign', to: `/actions/${code}/reassign`, rule: 'reassign' },
     { label: 'Edit', to: `/actions/${code}/edit`, rule: 'edit' },
-    { label: 'Cancel recommendation', to: `/actions/${code}/edit`, rule: 'cancel' },
   ];
   const available = actions.filter((action) => whyBlocked(action.rule, recommendation, user) === '');
 
@@ -58,7 +57,7 @@ function RecommendationActions({ recommendation, user, holderName }: Recommendat
       {available.map((action, index) => (
         <Button
           key={action.label}
-          kind={index === 0 ? 'primary' : action.rule === 'cancel' ? 'danger--tertiary' : 'tertiary'}
+          kind={index === 0 ? 'primary' : 'tertiary'}
           size="md"
           onClick={() => navigate(action.to)}
         >

@@ -9,7 +9,6 @@ const users = [makeUser({ id: 'u2', fullName: 'Brian Kiprono' }), makeUser({ id:
 const review = {
   reviewDate: '2026-11-19',
   finalCause: 'Obstetric haemorrhage',
-  maternalCondition: '',
 };
 
 describe('case review', () => {
@@ -21,7 +20,7 @@ describe('case review', () => {
       review,
       contributingFactors: [factor],
       existing: [recommendation],
-      edited: [{ ...recommendation, gap: factor, responsiblePersonId: 'u5', removed: false }],
+      edited: [{ ...recommendation, gap: factor, responsiblePersonId: 'u5' }],
       added: [],
       users,
     });
@@ -35,19 +34,22 @@ describe('case review', () => {
     expect(changes[3]).toMatchObject({ from: 'Brian Kiprono', to: 'Grace Wanjiru' });
   });
 
-  it('records a removed recommendation as cancelled', () => {
-    const recommendation = makeRecommendation();
+  it('records the classification and date of completion the chair sets', () => {
+    const recommendation = makeRecommendation({ classification: '', dueDate: '' });
     const changes = reviewDifferences({
       issue: makeIssue(),
       review: { ...review, finalCause: '' },
       contributingFactors: [],
       existing: [recommendation],
-      edited: [{ ...recommendation, removed: true }],
+      edited: [{ ...recommendation, classification: 'immediate', dueDate: '2026-12-10' }],
       added: [],
       users,
     });
 
-    expect(changes).toEqual([{ field: recommendation.code, from: recommendation.text, to: 'Removed (cancelled)' }]);
+    expect(changes).toEqual([
+      { field: `${recommendation.code} classification`, from: '—', to: 'immediate' },
+      { field: `${recommendation.code} date of completion`, from: '—', to: '2026-12-10' },
+    ]);
   });
 
   it('locks the issue once the review is complete', () => {
@@ -60,12 +62,14 @@ describe('case review', () => {
 });
 
 describe('reporterSummary', () => {
-  it('lists what changed, without level or responsible person', () => {
+  it('lists what changed, without the fields only the chair sets', () => {
     const text = reporterSummary('MP-1', 'Jane Chair', [
       { field: 'Cause of death', from: 'A', to: 'B' },
       { field: 'MP-1-R1 text', from: 'x', to: 'y' },
       { field: 'MP-1-R1 level', from: '—', to: 'facility' },
       { field: 'MP-1-R1 responsible person', from: '—', to: 'Mercy' },
+      { field: 'MP-1-R1 classification', from: '—', to: 'immediate' },
+      { field: 'MP-1-R1 date of completion', from: '—', to: '2026-12-10' },
     ]);
     expect(text).toBe('Jane Chair reviewed MP-1 and changed: Cause of death, MP-1-R1 text. Open the issue to see the details.');
   });

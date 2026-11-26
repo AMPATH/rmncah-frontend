@@ -8,16 +8,14 @@ import type { IssueFieldChange } from './issueEditService';
 import type { IssueReview } from '../utils/caseReview';
 import {
   addRecommendationToIssue,
-  cancelRecommendation,
   releaseRecommendation,
   reviewRecommendation,
-  withdrawHeldRecommendation,
 } from '../../recommendations/services/recommendationService';
 import type { ReviewChanges } from '../../recommendations/services/recommendationService';
 
+// Recommendations are never removed or cancelled in the review: the chair completes each one.
 export interface ReviewedRecommendation extends ReviewChanges {
   code: string;
-  removed: boolean;
 }
 
 export interface CaseReviewInput {
@@ -37,19 +35,18 @@ function joined(values: string[]) {
 
 export function recommendationChanges(original: StoredRecommendation, edited: ReviewedRecommendation, users: User[]) {
   const nameOf = (id: string) => users.find((user) => user.id === id)?.fullName ?? '—';
-  if (edited.removed) {
-    return [{ field: original.code, from: original.text, to: 'Removed (cancelled)' }];
-  }
   const changes: IssueFieldChange[] = [];
   if (edited.text !== original.text) changes.push({ field: `${original.code} text`, from: original.text, to: edited.text });
   if (edited.gap !== original.gap) changes.push({ field: `${original.code} gap`, from: original.gap || '—', to: edited.gap });
   if (edited.classification !== original.classification) {
-    changes.push({ field: `${original.code} classification`, from: original.classification, to: edited.classification });
+    changes.push({ field: `${original.code} classification`, from: original.classification || '—', to: edited.classification || '—' });
   }
   if (edited.level !== original.level) {
     changes.push({ field: `${original.code} level`, from: original.level || '—', to: edited.level || '—' });
   }
-  if (edited.dueDate !== original.dueDate) changes.push({ field: `${original.code} due date`, from: original.dueDate, to: edited.dueDate });
+  if (edited.dueDate !== original.dueDate) {
+    changes.push({ field: `${original.code} date of completion`, from: original.dueDate || '—', to: edited.dueDate || '—' });
+  }
   if (edited.responsiblePersonId !== original.responsiblePersonId) {
     changes.push({
       field: `${original.code} responsible person`,
@@ -70,9 +67,6 @@ export function reviewDifferences(input: Omit<CaseReviewInput, 'byUserId'>): Iss
   if (joined(contributingFactors) !== joined(issue.contributingFactors)) {
     changes.push({ field: 'Contributing factors', from: joined(issue.contributingFactors), to: joined(contributingFactors) });
   }
-  if (review.maternalCondition) {
-    changes.push({ field: 'Maternal condition', from: '—', to: review.maternalCondition });
-  }
   for (const item of edited) {
     const original = existing.find((recommendation) => recommendation.code === item.code);
     if (original) changes.push(...recommendationChanges(original, item, users));
@@ -83,13 +77,16 @@ export function reviewDifferences(input: Omit<CaseReviewInput, 'byUserId'>): Iss
   return changes;
 }
 
-// The reporter does not set the level or the responsible person, so those are left out.
+// The reporter does not set the classification, date of completion, level or responsible person,
+// so those are left out.
+const chairOnlyFields = [' classification', ' date of completion', ' level', ' responsible person'];
+
 export function reporterSummary(issueCode: string, chairName: string, changes: IssueFieldChange[]): string {
   const fields = [
     ...new Set(
       changes
         .map((change) => change.field)
-        .filter((field) => !field.endsWith(' level') && !field.endsWith(' responsible person'))
+        .filter((field) => !chairOnlyFields.some((ending) => field.endsWith(ending)))
     ),
   ];
   if (fields.length === 0) return `${chairName} reviewed ${issueCode} with no changes to what you logged.`;
@@ -118,10 +115,6 @@ export async function completeCaseReview(input: CaseReviewInput): Promise<Stored
     const original = existing.find((recommendation) => recommendation.code === item.code);
     if (!original) continue;
     const held = original.status === 'Pending review';
-    if (item.removed) {
-      await (held ? withdrawHeldRecommendation : cancelRecommendation)(original, byUserId, 'Removed in the case review');
-      continue;
-    }
     const itemChanges = recommendationChanges(original, item, users);
     const fields = {
       text: item.text,

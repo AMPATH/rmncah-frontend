@@ -1,4 +1,4 @@
-import type { DraftRecommendation, IssueType, Setting } from '../types/issue.types';
+import type { IssueType, Setting } from '../types/issue.types';
 
 export interface LogIssueDraft {
   savedAt: string;
@@ -17,7 +17,8 @@ export interface LogIssueDraft {
   dateOfNotification: string;
   selectedFactors: string[];
   comments: string;
-  recommendations: DraftRecommendation[];
+  // One recommendation for each level of delay, keyed by delay (1st, 2nd, 3rd).
+  recommendationTexts?: Record<string, string>;
 }
 
 export function draftKeyFor(userId: string): string {

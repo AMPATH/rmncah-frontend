@@ -23,7 +23,7 @@ export function whyIssueBlocked(
     recommendations.every((recommendation) => recommendation.status === 'Closed' || recommendation.status === 'Cancelled');
 
   if (action === 'cancel') {
-    return isChair ? '' : 'Only the facility MPDSR chair can cancel an issue.';
+    return 'Issues cannot be cancelled.';
   }
 
   if (isReviewed(issue)) {

@@ -14,6 +14,7 @@ import PersonFields from '../components/log-issue/PersonFields';
 import RecommendationsStep from '../components/log-issue/RecommendationsStep';
 import ReviewStep from '../components/log-issue/ReviewStep';
 import { delayLevels } from '../constants/delayFactors';
+import { delayGaps, delaysMissing } from '../utils/delayRecommendations';
 import { addDays, daysBetween, getToday, yearsBetween } from '../../../utils/dates';
 import { showToast } from '../../../components/shared/toast/toast';
 import { clearDraft, draftKeyFor, loadDraft, saveDraft } from '../utils/logIssueDraft';
@@ -77,7 +78,7 @@ function LogIssuePage() {
   const [dateOfNotification, setDateOfNotification] = useState('');
   const [selectedFactors, setSelectedFactors] = useState<string[]>([]);
   const [comments, setComments] = useState('');
-  const [recommendations, setRecommendations] = useState<DraftRecommendation[]>([]);
+  const [recommendationTexts, setRecommendationTexts] = useState<Record<string, string>>({});
   const [showErrors, setShowErrors] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -86,7 +87,7 @@ function LogIssuePage() {
   const issuesData = useApiData<StoredIssue[]>(getIssues, []);
   const duplicates = findDuplicates(issuesData.data, { issueType, loggedAt, dateOfDeath, dateOfNotification });
   const causeOptions = causeOptionsFor(causesData.data, issueType);
-  const { currentUser, users: allUsers, locations, scope } = useCurrentUser();
+  const { currentUser, locations, scope } = useCurrentUser();
 
   const loggedAtOptions = locations
     .filter(
@@ -115,8 +116,6 @@ function LogIssuePage() {
   const above = placesAbove(loggedAt, locations);
   const subCounty = above.find((location) => location.type === 'sub-county')?.name ?? '';
   const county = above.find((location) => location.type === 'county')?.name ?? '';
-
-  const users = allUsers.filter((user) => user.role !== 'SYSTEM_ADMIN' && user.id !== currentUser?.id && user.active !== false);
 
   const draftKey = draftKeyFor(currentUser?.id ?? 'anonymous');
   const [offeredDraft, setOfferedDraft] = useState<LogIssueDraft | null | undefined>(undefined);
@@ -148,7 +147,7 @@ function LogIssuePage() {
       dateOfNotification,
       selectedFactors,
       comments,
-      recommendations,
+      recommendationTexts,
     });
   });
 
@@ -166,7 +165,7 @@ function LogIssuePage() {
     setDateOfNotification(draft.dateOfNotification);
     setSelectedFactors(draft.selectedFactors);
     setComments(draft.comments);
-    setRecommendations(draft.recommendations);
+    setRecommendationTexts(draft.recommendationTexts ?? {});
     setFurthestStep(draft.furthestStep);
     setStep(draft.step);
     setOfferedDraft(null);
@@ -249,13 +248,13 @@ function LogIssuePage() {
       return dateOfBirth !== '';
     }
     if (index === 2) {
-      return selectedFactors.length > 0;
+      return delaysMissing(selectedFactors).length === 0;
     }
     if (index === 3) {
       return dateOfNotification !== '' && (!isDeath || dateOfDeath !== '');
     }
     if (index === 4) {
-      return recommendations.length > 0;
+      return delayGaps(selectedFactors).every((item) => (recommendationTexts[item.delay] ?? '').trim() !== '');
     }
     return true;
   }
@@ -282,7 +281,7 @@ function LogIssuePage() {
     setDateOfNotification('');
     setSelectedFactors([]);
     setComments('');
-    setRecommendations([]);
+    setRecommendationTexts({});
     setShowErrors(false);
   }
 
@@ -318,6 +317,15 @@ function LogIssuePage() {
       contributingFactors: selectedFactors,
       comments,
     };
+    // One recommendation for each level of delay. The chair fills in the rest at the review.
+    const recommendations: DraftRecommendation[] = delayGaps(selectedFactors).map((item) => ({
+      gap: item.gap,
+      text: (recommendationTexts[item.delay] ?? '').trim(),
+      classification: '',
+      level: '',
+      responsiblePersonId: '',
+      dateOfCompletion: '',
+    }));
     setSaving(true);
     try {
       await createIssueWithRecommendations({ ...issue, loggedById: currentUser?.id }, recommendations, today);
@@ -345,7 +353,7 @@ function LogIssuePage() {
     { label: 'Date of death', value: isDeath ? dateOfDeath || '—' : 'n/a' },
     { label: 'Date of notification', value: dateOfNotification || '—' },
     { label: 'Comments', value: comments || '—' },
-    { label: 'Recommendations', value: recommendations.length },
+    { label: 'Recommendations', value: delayLevels.length },
   ];
 
   return (
@@ -495,23 +503,17 @@ function LogIssuePage() {
 
           {step === 4 && (
             <RecommendationsStep
-              held
-              recommendations={recommendations}
-              gapOptions={selectedFactors}
-              users={users}
-              today={today}
+              selectedFactors={selectedFactors}
+              texts={recommendationTexts}
               showErrors={showErrors}
-              onAdd={(recommendation) => setRecommendations((current) => [...current, recommendation])}
-              onRemove={(index) =>
-                setRecommendations((current) => current.filter((_, i) => i !== index))
-              }
+              onTextChange={(delay, text) => setRecommendationTexts((current) => ({ ...current, [delay]: text }))}
             />
           )}
 
           {step === 5 && (
             <>
               <DuplicateWarning matches={duplicates} />
-              <ReviewStep items={reviewItems} recommendationCount={recommendations.length} />
+              <ReviewStep items={reviewItems} recommendationCount={delayLevels.length} />
             </>
           )}
         </section>

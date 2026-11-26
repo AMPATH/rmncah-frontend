@@ -30,8 +30,8 @@ describe('whyIssueBlocked', () => {
     expect(whyIssueBlocked('edit', issue, chair, finished, '2026-12-30')).not.toBe('');
   });
 
-  it('lets only the chair cancel', () => {
-    expect(whyIssueBlocked('cancel', issue, chair, running, '2026-11-11')).toBe('');
+  it('never lets anyone cancel an issue', () => {
+    expect(whyIssueBlocked('cancel', issue, chair, running, '2026-11-11')).not.toBe('');
     expect(whyIssueBlocked('cancel', issue, logger, running, '2026-11-11')).not.toBe('');
   });
 
