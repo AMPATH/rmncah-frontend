@@ -1,4 +1,6 @@
+
 import { useMemo, useState } from 'react'
+
 import {
   Button,
   Modal,
@@ -24,8 +26,9 @@ import {
 } from '@carbon/icons-react'
 
 import type { ProgramModule } from '../types/program-lead.types.ts'
+import type { TrainingModule } from '../../../data/models'
 
-import { programModules as initialModules } from '../data/programLeadDashboardData'
+import { useCurriculum } from '../../../data/providers/CurriculumContext'
 
 import '../styles/program-lead-modules.scss'
 
@@ -35,6 +38,10 @@ interface TrainingModulesPageProps {
 }
 
 type ModuleStatus = ProgramModule['status']
+
+type CurriculumDisplayModule = TrainingModule & {
+  displayOrder: number
+}
 
 const tableHeaders = [
   'Module ID',
@@ -76,25 +83,109 @@ const formatDate = (date: string) => {
   })
 }
 
+const mapTrainingModule = (
+  module: TrainingModule,
+  sections: ReturnType<typeof useCurriculum>['sections'],
+  materials: ReturnType<typeof useCurriculum>['materials'],
+): ProgramModule => {
+  const sectionsCount = sections.filter(
+    (section) => section.moduleId === module.id,
+  ).length
+
+  const materialsCount = materials.filter(
+    (material) => material.moduleId === module.id,
+  ).length
+
+  let status: ModuleStatus
+
+  if (module.status === 'Draft') {
+    status = 'Draft'
+  } else if (module.status === 'Incomplete content') {
+    status = 'Incomplete content'
+  } else if (sectionsCount > 0 && materialsCount > 0) {
+    status = 'Completed'
+  } else {
+    status = 'Incomplete content'
+  }
+
+  return {
+    id: module.id,
+    title: module.title,
+    category: module.category,
+    sectionsCount,
+    materialsCount,
+    status,
+    updatedAt: module.updatedAt,
+  }
+}
+
 const TrainingModulesPage = ({
   title,
   onNavigate,
 }: TrainingModulesPageProps) => {
-  const [modules, setModules] = useState<ProgramModule[]>(initialModules)
+  const {
+    modules: curriculumModules,
+    sections,
+    materials,
+    loading,
+    error,
+    createModule,
+    updateModule,
+    refresh,
+  } = useCurriculum()
 
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
 
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [actionError, setActionError] = useState<string | null>(null)
+
   const [editingModule, setEditingModule] =
     useState<ProgramModule | null>(null)
 
-  const [selectedModule, setSelectedModule] =
-    useState<ProgramModule | null>(null)
+  const [selectedModuleId, setSelectedModuleId] =
+    useState<string | null>(null)
 
   const [moduleTitle, setModuleTitle] = useState('')
   const [moduleCategory, setModuleCategory] = useState('EmONC')
 
+  /**
+   * Display the official curriculum in its defined sequence.
+   */
+  const officialModules = useMemo<CurriculumDisplayModule[]>(() => {
+    return curriculumModules
+      .map((module, index) => ({
+        ...module,
+        displayOrder: module.sequence ?? index + 1,
+      }))
+      .sort((a, b) => a.displayOrder - b.displayOrder)
+  }, [curriculumModules])
+
+  /**
+   * Derive the directory from the shared curriculum records.
+   */
+  const modules = useMemo<ProgramModule[]>(() => {
+    return curriculumModules.map((module) =>
+      mapTrainingModule(module, sections, materials),
+    )
+  }, [curriculumModules, sections, materials])
+
+  /**
+   * Resolve the selected module using its database ID.
+   */
+  const selectedModule = useMemo(() => {
+    if (!selectedModuleId) return null
+
+    return (
+      modules.find((module) => module.id === selectedModuleId) ?? null
+    )
+  }, [modules, selectedModuleId])
+
+  /**
+   * Apply search and status filters.
+   */
   const filteredModules = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase()
 
@@ -112,6 +203,9 @@ const TrainingModulesPage = ({
     })
   }, [modules, searchTerm, statusFilter])
 
+  /**
+   * Calculate directory statistics.
+   */
   const statistics = useMemo(() => {
     return {
       total: modules.length,
@@ -127,73 +221,131 @@ const TrainingModulesPage = ({
     }
   }, [modules])
 
+  /**
+   * Open the create module modal.
+   */
   const openCreateModal = () => {
+    setIsDetailsModalOpen(false)
+    setSelectedModuleId(null)
+
     setEditingModule(null)
     setModuleTitle('')
     setModuleCategory('EmONC')
+    setActionError(null)
+
     setIsModalOpen(true)
   }
 
+  /**
+   * Open the edit module modal.
+   */
   const openEditModal = (module: ProgramModule) => {
+    setIsDetailsModalOpen(false)
+    setSelectedModuleId(null)
+
     setEditingModule(module)
     setModuleTitle(module.title)
     setModuleCategory(module.category)
+    setActionError(null)
+
     setIsModalOpen(true)
   }
 
+  /**
+   * Close the create or edit modal.
+   */
   const closeModal = () => {
+    if (isSaving) return
+
     setIsModalOpen(false)
     setEditingModule(null)
     setModuleTitle('')
     setModuleCategory('EmONC')
+    setActionError(null)
   }
 
-  const handleSaveModule = () => {
+  /**
+   * Save module changes through the shared curriculum provider.
+   */
+  const handleSaveModule = async () => {
     const trimmedTitle = moduleTitle.trim()
 
-    if (!trimmedTitle) return
+    if (!trimmedTitle || isSaving) return
 
     const currentDate = new Date().toISOString()
 
-    if (editingModule) {
-      const updatedModule: ProgramModule = {
-        ...editingModule,
-        title: trimmedTitle,
-        category: moduleCategory,
-        updatedAt: currentDate,
+    setIsSaving(true)
+    setActionError(null)
+
+    try {
+      if (editingModule) {
+        await updateModule(editingModule.id, {
+          title: trimmedTitle,
+          category: moduleCategory,
+          updatedAt: currentDate,
+        })
+      } else {
+        const newModule: TrainingModule = {
+          id: crypto.randomUUID(),
+          title: trimmedTitle,
+          category: moduleCategory,
+          description: '',
+          status: 'Draft',
+          publishedAt: null,
+          createdAt: currentDate,
+          updatedAt: currentDate,
+        }
+
+        await createModule(newModule)
       }
 
-      setModules((currentModules) =>
-        currentModules.map((module) =>
-          module.id === editingModule.id ? updatedModule : module,
-        ),
-      )
+      await refresh()
 
-      setSelectedModule((currentSelected) =>
-        currentSelected?.id === editingModule.id
-          ? updatedModule
-          : currentSelected,
+      setIsModalOpen(false)
+      setEditingModule(null)
+      setModuleTitle('')
+      setModuleCategory('EmONC')
+    } catch (saveError) {
+      setActionError(
+        saveError instanceof Error
+          ? saveError.message
+          : 'Unable to save the training module. Please try again.',
       )
-    } else {
-      const newModule: ProgramModule = {
-        id: `MOD-${Date.now().toString().slice(-6)}`,
-        title: trimmedTitle,
-        category: moduleCategory,
-        sectionsCount: 0,
-        materialsCount: 0,
-        status: 'Draft',
-        updatedAt: currentDate,
-      }
-
-      setModules((currentModules) => [newModule, ...currentModules])
-      setSelectedModule(newModule)
+    } finally {
+      setIsSaving(false)
     }
-
-    closeModal()
   }
 
+  /**
+   * Open the selected module details modal.
+   */
   const handleViewModule = (module: ProgramModule) => {
-    setSelectedModule(module)
+    setSelectedModuleId(module.id)
+    setIsDetailsModalOpen(true)
+  }
+
+  /**
+   * Close the module details modal.
+   */
+  const closeDetailsModal = () => {
+    setIsDetailsModalOpen(false)
+    setSelectedModuleId(null)
+  }
+
+  /**
+   * Navigate to module sections.
+   */
+  const openModuleSections = () => {
+    closeDetailsModal()
+    onNavigate('/program-lead/module-sections')
+  }
+
+  /**
+   * Navigate to learning materials.
+   */
+  const openLearningMaterials = () => {
+    closeDetailsModal()
+    onNavigate('/program-lead/learning-materials')
   }
 
   return (
@@ -215,10 +367,84 @@ const TrainingModulesPage = ({
         <Button
           renderIcon={Add}
           onClick={openCreateModal}
+          disabled={loading}
         >
           Create module
         </Button>
       </div>
+
+      {error && (
+        <div className="program-modules__demo-notice" role="alert">
+          <span className="program-modules__demo-indicator" />
+          <p>{error}</p>
+        </div>
+      )}
+
+      {actionError && (
+        <div className="program-modules__demo-notice" role="alert">
+          <span className="program-modules__demo-indicator" />
+          <p>{actionError}</p>
+        </div>
+      )}
+
+      <section className="program-modules__official-curriculum">
+        <div className="program-modules__official-header">
+          <div>
+            <span className="program-modules__eyebrow">
+              APPROVED TRAINING FRAMEWORK
+            </span>
+
+            <h2>Official EmONC curriculum</h2>
+
+            <p>
+              The approved training modules from the MNCH Mentorship Guide.
+              This curriculum is loaded from the shared EmONC curriculum
+              database and is also used by the training module directory.
+            </p>
+          </div>
+
+          <span className="program-modules__official-count">
+            {officialModules.length} modules
+          </span>
+        </div>
+
+        {loading ? (
+          <div className="program-modules__empty">
+            Loading official curriculum...
+          </div>
+        ) : officialModules.length === 0 ? (
+          <div className="program-modules__empty">
+            No curriculum modules are available.
+          </div>
+        ) : (
+          <ol className="program-modules__official-list">
+            {officialModules.map((module) => (
+              <li
+                key={module.id}
+                className="program-modules__official-item"
+              >
+                <span className="program-modules__official-order">
+                  {String(module.displayOrder).padStart(2, '0')}
+                </span>
+
+                <div className="program-modules__official-copy">
+                  <span className="program-modules__official-id">
+                    {module.id}
+                  </span>
+
+                  <strong>{module.title}</strong>
+
+                  {module.subTrackCount && (
+                    <span className="program-modules__official-subtracks">
+                      {module.subTrackCount} PPH sub-tracks
+                    </span>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
 
       <section className="program-modules__statistics">
         <div className="program-modules__stat-card">
@@ -344,87 +570,99 @@ const TrainingModulesPage = ({
             </TableHead>
 
             <TableBody>
-              {filteredModules.map((module) => (
-                <TableRow key={module.id}>
-                  <TableCell>
-                    <span className="program-modules__module-id">
-                      {module.id}
-                    </span>
-                  </TableCell>
-
-                  <TableCell>
-                    <button
-                      type="button"
-                      className="program-modules__module-name"
-                      onClick={() => handleViewModule(module)}
-                    >
-                      {module.title}
-                    </button>
-                  </TableCell>
-
-                  <TableCell>{module.category}</TableCell>
-
-                  <TableCell>{module.sectionsCount}</TableCell>
-
-                  <TableCell>{module.materialsCount}</TableCell>
-
-                  <TableCell>
-                    <Tag type={getStatusTagType(module.status)}>
-                      {module.status}
-                    </Tag>
-                  </TableCell>
-
-                  <TableCell>
-                    {formatDate(module.updatedAt)}
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="program-modules__row-actions">
-                      <Button
-                        kind="ghost"
-                        size="sm"
-                        onClick={() => handleViewModule(module)}
-                      >
-                        View
-                      </Button>
-
-                      <Button
-                        kind="ghost"
-                        size="sm"
-                        renderIcon={Edit}
-                        iconDescription="Edit module"
-                        hasIconOnly
-                        onClick={() => openEditModal(module)}
-                      />
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-
-              {filteredModules.length === 0 && (
+              {loading ? (
                 <TableRow>
                   <TableCell colSpan={8}>
                     <div className="program-modules__empty">
-                      <Document size={28} />
-
-                      <strong>No training modules found</strong>
-
-                      <p>
-                        Try changing your search or status filter, or
-                        create a new training module.
-                      </p>
-
-                      <Button
-                        kind="tertiary"
-                        size="sm"
-                        renderIcon={Add}
-                        onClick={openCreateModal}
-                      >
-                        Create module
-                      </Button>
+                      Loading training modules...
                     </div>
                   </TableCell>
                 </TableRow>
+              ) : (
+                <>
+                  {filteredModules.map((module) => (
+                    <TableRow key={module.id}>
+                      <TableCell>
+                        <span className="program-modules__module-id">
+                          {module.id}
+                        </span>
+                      </TableCell>
+
+                      <TableCell>
+                        <button
+                          type="button"
+                          className="program-modules__module-name"
+                          onClick={() => handleViewModule(module)}
+                        >
+                          {module.title}
+                        </button>
+                      </TableCell>
+
+                      <TableCell>{module.category}</TableCell>
+
+                      <TableCell>{module.sectionsCount}</TableCell>
+
+                      <TableCell>{module.materialsCount}</TableCell>
+
+                      <TableCell>
+                        <Tag type={getStatusTagType(module.status)}>
+                          {module.status}
+                        </Tag>
+                      </TableCell>
+
+                      <TableCell>
+                        {formatDate(module.updatedAt)}
+                      </TableCell>
+
+                      <TableCell>
+                        <div className="program-modules__row-actions">
+                          <Button
+                            kind="ghost"
+                            size="sm"
+                            onClick={() => handleViewModule(module)}
+                          >
+                            View
+                          </Button>
+
+                          <Button
+                            kind="ghost"
+                            size="sm"
+                            renderIcon={Edit}
+                            iconDescription="Edit module"
+                            hasIconOnly
+                            onClick={() => openEditModal(module)}
+                          />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+
+                  {filteredModules.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={8}>
+                        <div className="program-modules__empty">
+                          <Document size={28} />
+
+                          <strong>No training modules found</strong>
+
+                          <p>
+                            Try changing your search or status filter, or
+                            create a new training module.
+                          </p>
+
+                          <Button
+                            kind="tertiary"
+                            size="sm"
+                            renderIcon={Add}
+                            onClick={openCreateModal}
+                          >
+                            Create module
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </>
               )}
             </TableBody>
           </Table>
@@ -446,9 +684,7 @@ const TrainingModulesPage = ({
           <Button
             kind="tertiary"
             renderIcon={DocumentMultiple_01}
-            onClick={() =>
-              onNavigate('/program-lead/module-sections')
-            }
+            onClick={openModuleSections}
           >
             Manage module sections
           </Button>
@@ -456,120 +692,108 @@ const TrainingModulesPage = ({
           <Button
             kind="tertiary"
             renderIcon={Document}
-            onClick={() =>
-              onNavigate('/program-lead/learning-materials')
-            }
+            onClick={openLearningMaterials}
           >
             Manage learning materials
           </Button>
         </div>
       </section>
 
-      {selectedModule && (
-        <section className="program-modules__details">
-          <div className="program-modules__details-header">
-            <div>
-              <span className="program-modules__eyebrow">
-                MODULE DETAILS
-              </span>
+      <div className="program-modules__demo-notice">
+        <span className="program-modules__demo-indicator" />
 
-              <h2>{selectedModule.title}</h2>
+        <p>
+          Development mode: curriculum changes are currently stored in the
+          local JSON Server development database. Production backend
+          integration is planned.
+        </p>
+      </div>
 
-              <p>{selectedModule.id}</p>
+      {/* View module details */}
+      <Modal
+        open={isDetailsModalOpen}
+        modalHeading="Training module details"
+        primaryButtonText="Close"
+        onRequestClose={closeDetailsModal}
+        onRequestSubmit={closeDetailsModal}
+      >
+        {selectedModule && (
+          <div className="program-modules__details">
+            <h3>{selectedModule.title}</h3>
+
+            <p>{selectedModule.id}</p>
+
+            <div className="program-modules__details-grid">
+              <div>
+                <span>Category</span>
+                <strong>{selectedModule.category}</strong>
+              </div>
+
+              <div>
+                <span>Status</span>
+                <Tag type={getStatusTagType(selectedModule.status)}>
+                  {selectedModule.status}
+                </Tag>
+              </div>
+
+              <div>
+                <span>Module sections</span>
+                <strong>{selectedModule.sectionsCount}</strong>
+              </div>
+
+              <div>
+                <span>Learning materials</span>
+                <strong>{selectedModule.materialsCount}</strong>
+              </div>
+
+              <div>
+                <span>Last updated</span>
+                <strong>{formatDate(selectedModule.updatedAt)}</strong>
+              </div>
             </div>
 
-            <div className="program-modules__details-actions">
+            <div className="program-modules__details-footer">
               <Button
                 kind="tertiary"
-                size="sm"
+                onClick={openModuleSections}
+              >
+                Manage module sections
+              </Button>
+
+              <Button
+                kind="tertiary"
+                onClick={openLearningMaterials}
+              >
+                Manage learning materials
+              </Button>
+
+              <Button
+                kind="tertiary"
                 renderIcon={Edit}
                 onClick={() => openEditModal(selectedModule)}
               >
                 Edit module
               </Button>
-
-              <Button
-                kind="ghost"
-                size="sm"
-                onClick={() => setSelectedModule(null)}
-              >
-                Close
-              </Button>
             </div>
           </div>
+        )}
+      </Modal>
 
-          <div className="program-modules__details-grid">
-            <div>
-              <span>Category</span>
-              <strong>{selectedModule.category}</strong>
-            </div>
-
-            <div>
-              <span>Status</span>
-              <Tag type={getStatusTagType(selectedModule.status)}>
-                {selectedModule.status}
-              </Tag>
-            </div>
-
-            <div>
-              <span>Module sections</span>
-              <strong>{selectedModule.sectionsCount}</strong>
-            </div>
-
-            <div>
-              <span>Learning materials</span>
-              <strong>{selectedModule.materialsCount}</strong>
-            </div>
-
-            <div>
-              <span>Last updated</span>
-              <strong>{formatDate(selectedModule.updatedAt)}</strong>
-            </div>
-          </div>
-
-          <div className="program-modules__details-footer">
-            <Button
-              kind="tertiary"
-              size="sm"
-              onClick={() =>
-                onNavigate('/program-lead/module-sections')
-              }
-            >
-              Open module sections
-            </Button>
-
-            <Button
-              kind="tertiary"
-              size="sm"
-              onClick={() =>
-                onNavigate('/program-lead/learning-materials')
-              }
-            >
-              Open learning materials
-            </Button>
-          </div>
-        </section>
-      )}
-
-      <div className="program-modules__demo-notice">
-        <span className="program-modules__demo-indicator" />
-
-        <p>
-          Demonstration mode: module changes are held in local page state.
-          They are not yet saved to the backend.
-        </p>
-      </div>
-
+      {/* Create and edit module */}
       <Modal
         open={isModalOpen}
         modalHeading={
           editingModule ? 'Edit training module' : 'Create training module'
         }
         primaryButtonText={
-          editingModule ? 'Save changes' : 'Create module'
+          isSaving
+            ? 'Saving...'
+            : editingModule
+              ? 'Save changes'
+              : 'Create module'
         }
         secondaryButtonText="Cancel"
-        primaryButtonDisabled={!moduleTitle.trim()}
+        primaryButtonDisabled={!moduleTitle.trim() || isSaving}
         onRequestClose={closeModal}
         onRequestSubmit={handleSaveModule}
       >
@@ -585,6 +809,7 @@ const TrainingModulesPage = ({
             placeholder="e.g. Basic Emergency Obstetric Care"
             value={moduleTitle}
             onChange={(event) => setModuleTitle(event.target.value)}
+            disabled={isSaving}
           />
 
           <Select
@@ -592,10 +817,14 @@ const TrainingModulesPage = ({
             labelText="Module category"
             value={moduleCategory}
             onChange={(event) => setModuleCategory(event.target.value)}
+            disabled={isSaving}
           >
             <SelectItem value="EmONC" text="EmONC" />
             <SelectItem value="Basic EmONC" text="Basic EmONC" />
-            <SelectItem value="Comprehensive EmONC" text="Comprehensive EmONC" />
+            <SelectItem
+              value="Comprehensive EmONC"
+              text="Comprehensive EmONC"
+            />
             <SelectItem value="Maternal Health" text="Maternal Health" />
             <SelectItem value="Newborn Health" text="Newborn Health" />
             <SelectItem value="Other" text="Other" />
@@ -605,6 +834,10 @@ const TrainingModulesPage = ({
             New modules start as Draft. Add sections and learning
             materials to move a module towards content completion.
           </div>
+
+          {actionError && (
+            <p role="alert">{actionError}</p>
+          )}
         </div>
       </Modal>
     </div>
