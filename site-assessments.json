@@ -5972,7 +5972,10 @@
                 "id": "b16-r6",
                 "source": {
                   "block": 16,
-                  "row": 6
+                  "rows": [
+                    6,
+                    7
+                  ]
                 },
                 "response": {
                   "type": "yesno",
@@ -6050,16 +6053,6 @@
                     "yes",
                     "no"
                   ]
-                }
-              },
-              {
-                "id": "b16-r7",
-                "source": {
-                  "block": 16,
-                  "row": 7
-                },
-                "response": {
-                  "type": "unresolved"
                 }
               }
             ]
@@ -6989,6 +6982,1088 @@
       }
     }
   ],
-  "assessments": [],
-  "findings": []
+  "assessments": [
+    {
+      "id": "72i25jsqXR0",
+      "facilityId": "facility-burnt-forest-sub-county-hospital",
+      "mentorId": null,
+      "templateId": "emonc-mentorship-assessment-tool-v1",
+      "templateVersion": "1.0.0",
+      "assessmentDate": "2026-11-26",
+      "status": "draft",
+      "sections": [
+        {
+          "sectionId": "facility-profile",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "human-resources",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "equipment-and-supplies",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "referral",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "drugs",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "other-essential-services",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "signal-function-capacity",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "mentorship-process",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "data",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "infection-prevention-control",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "exit-questionnaire",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "mpdsr-source",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "quality-improvement",
+          "answers": {},
+          "notes": ""
+        }
+      ],
+      "analysis": {
+        "strengths": "",
+        "gaps": "",
+        "recommendations": "",
+        "overallNotes": ""
+      },
+      "findings": [],
+      "scoreSummary": {
+        "facility-profile": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "human-resources": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 13
+        },
+        "equipment-and-supplies": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 32
+        },
+        "referral": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 4
+        },
+        "drugs": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 18
+        },
+        "other-essential-services": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 4
+        },
+        "signal-function-capacity": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 12
+        },
+        "mentorship-process": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "data": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 10
+        },
+        "infection-prevention-control": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "exit-questionnaire": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "mpdsr-source": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 0
+        },
+        "quality-improvement": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        }
+      },
+      "overallSummary": null,
+      "createdAt": "2026-11-26T11:32:56.213Z",
+      "updatedAt": "2026-11-26T11:32:56.213Z",
+      "completedAt": null
+    },
+    {
+      "id": "QC-mdV0eTt0",
+      "facilityId": "facility-burnt-forest-sub-county-hospital",
+      "mentorId": null,
+      "templateId": "emonc-mentorship-assessment-tool-v1",
+      "templateVersion": "1.0.0",
+      "assessmentDate": "2026-11-26",
+      "status": "draft",
+      "sections": [
+        {
+          "sectionId": "facility-profile",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "human-resources",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "equipment-and-supplies",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "referral",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "drugs",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "other-essential-services",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "signal-function-capacity",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "mentorship-process",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "data",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "infection-prevention-control",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "exit-questionnaire",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "mpdsr-source",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "quality-improvement",
+          "answers": {},
+          "notes": ""
+        }
+      ],
+      "analysis": {
+        "strengths": "",
+        "gaps": "",
+        "recommendations": "",
+        "overallNotes": ""
+      },
+      "findings": [],
+      "scoreSummary": {
+        "facility-profile": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "human-resources": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 13
+        },
+        "equipment-and-supplies": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 32
+        },
+        "referral": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 4
+        },
+        "drugs": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 18
+        },
+        "other-essential-services": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 4
+        },
+        "signal-function-capacity": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 12
+        },
+        "mentorship-process": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "data": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 10
+        },
+        "infection-prevention-control": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "exit-questionnaire": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "mpdsr-source": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 0
+        },
+        "quality-improvement": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        }
+      },
+      "overallSummary": null,
+      "createdAt": "2026-11-26T11:33:30.559Z",
+      "updatedAt": "2026-11-26T11:33:30.559Z",
+      "completedAt": null
+    },
+    {
+      "id": "3T8pgoJjqkM",
+      "facilityId": "facility-burnt-forest-sub-county-hospital",
+      "mentorId": null,
+      "templateId": "emonc-mentorship-assessment-tool-v1",
+      "templateVersion": "1.0.0",
+      "assessmentDate": "2026-11-26",
+      "status": "draft",
+      "sections": [
+        {
+          "sectionId": "facility-profile",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "human-resources",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "equipment-and-supplies",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "referral",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "drugs",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "other-essential-services",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "signal-function-capacity",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "mentorship-process",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "data",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "infection-prevention-control",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "exit-questionnaire",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "mpdsr-source",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "quality-improvement",
+          "answers": {},
+          "notes": ""
+        }
+      ],
+      "analysis": {
+        "strengths": "",
+        "gaps": "",
+        "recommendations": "",
+        "overallNotes": ""
+      },
+      "findings": [],
+      "scoreSummary": {
+        "facility-profile": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "human-resources": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 13
+        },
+        "equipment-and-supplies": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 32
+        },
+        "referral": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 4
+        },
+        "drugs": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 18
+        },
+        "other-essential-services": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 4
+        },
+        "signal-function-capacity": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 12
+        },
+        "mentorship-process": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "data": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 10
+        },
+        "infection-prevention-control": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "exit-questionnaire": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "mpdsr-source": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 0
+        },
+        "quality-improvement": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        }
+      },
+      "overallSummary": null,
+      "createdAt": "2026-11-26T11:33:34.533Z",
+      "updatedAt": "2026-11-26T11:33:34.533Z",
+      "completedAt": null
+    },
+    {
+      "id": "GxgbEK3axH4",
+      "facilityId": "facility-kapsabet-county-referral-hospital",
+      "mentorId": null,
+      "templateId": "emonc-mentorship-assessment-tool-v1",
+      "templateVersion": "1.0.0",
+      "assessmentDate": "2026-11-26",
+      "status": "draft",
+      "sections": [
+        {
+          "sectionId": "facility-profile",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "human-resources",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "equipment-and-supplies",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "referral",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "drugs",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "other-essential-services",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "signal-function-capacity",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "mentorship-process",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "data",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "infection-prevention-control",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "exit-questionnaire",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "mpdsr-source",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "quality-improvement",
+          "answers": {},
+          "notes": ""
+        }
+      ],
+      "analysis": {
+        "strengths": "",
+        "gaps": "",
+        "recommendations": "",
+        "overallNotes": ""
+      },
+      "findings": [],
+      "scoreSummary": {
+        "facility-profile": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "human-resources": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 13
+        },
+        "equipment-and-supplies": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 32
+        },
+        "referral": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 4
+        },
+        "drugs": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 18
+        },
+        "other-essential-services": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 4
+        },
+        "signal-function-capacity": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 12
+        },
+        "mentorship-process": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "data": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 10
+        },
+        "infection-prevention-control": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "exit-questionnaire": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "mpdsr-source": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 0
+        },
+        "quality-improvement": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        }
+      },
+      "overallSummary": null,
+      "createdAt": "2026-11-26T11:45:08.990Z",
+      "updatedAt": "2026-11-26T11:45:08.990Z",
+      "completedAt": null
+    },
+    {
+      "id": "1Sny7urvk6I",
+      "facilityId": "facility-kapsabet-county-referral-hospital",
+      "mentorId": null,
+      "templateId": "emonc-mentorship-assessment-tool-v1",
+      "templateVersion": "1.0.0",
+      "assessmentDate": "2026-11-27",
+      "status": "draft",
+      "sections": [
+        {
+          "sectionId": "facility-profile",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "human-resources",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "equipment-and-supplies",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "referral",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "drugs",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "other-essential-services",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "signal-function-capacity",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "mentorship-process",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "data",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "infection-prevention-control",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "exit-questionnaire",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "mpdsr-source",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "quality-improvement",
+          "answers": {},
+          "notes": ""
+        }
+      ],
+      "analysis": {
+        "strengths": "",
+        "gaps": "",
+        "recommendations": "",
+        "overallNotes": ""
+      },
+      "findings": [],
+      "scoreSummary": {
+        "facility-profile": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "human-resources": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 13
+        },
+        "equipment-and-supplies": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 32
+        },
+        "referral": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 4
+        },
+        "drugs": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 18
+        },
+        "other-essential-services": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 4
+        },
+        "signal-function-capacity": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 12
+        },
+        "mentorship-process": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "data": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 10
+        },
+        "infection-prevention-control": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "exit-questionnaire": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "mpdsr-source": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 0
+        },
+        "quality-improvement": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        }
+      },
+      "overallSummary": null,
+      "createdAt": "2026-11-27T08:43:51.286Z",
+      "updatedAt": "2026-11-27T08:43:51.286Z",
+      "completedAt": null
+    },
+    {
+      "id": "qpParB9epfw",
+      "facilityId": "facility-kapsabet-county-referral-hospital",
+      "mentorId": null,
+      "templateId": "emonc-mentorship-assessment-tool-v1",
+      "templateVersion": "1.0.0",
+      "assessmentDate": "2026-11-27",
+      "status": "draft",
+      "sections": [
+        {
+          "sectionId": "facility-profile",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "human-resources",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "equipment-and-supplies",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "referral",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "drugs",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "other-essential-services",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "signal-function-capacity",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "mentorship-process",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "data",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "infection-prevention-control",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "exit-questionnaire",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "mpdsr-source",
+          "answers": {},
+          "notes": ""
+        },
+        {
+          "sectionId": "quality-improvement",
+          "answers": {},
+          "notes": ""
+        }
+      ],
+      "analysis": {
+        "strengths": "",
+        "gaps": "",
+        "recommendations": "",
+        "overallNotes": ""
+      },
+      "findings": [],
+      "scoreSummary": {
+        "facility-profile": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "human-resources": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 13
+        },
+        "equipment-and-supplies": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 32
+        },
+        "referral": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 4
+        },
+        "drugs": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 18
+        },
+        "other-essential-services": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 4
+        },
+        "signal-function-capacity": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 12
+        },
+        "mentorship-process": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "data": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 10
+        },
+        "infection-prevention-control": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "exit-questionnaire": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        },
+        "mpdsr-source": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 0
+        },
+        "quality-improvement": {
+          "pointsObtained": 0,
+          "maximumPoints": 0,
+          "percentage": null,
+          "answered": 0,
+          "unanswered": 5
+        }
+      },
+      "overallSummary": null,
+      "createdAt": "2026-11-27T09:08:42.617Z",
+      "updatedAt": "2026-11-27T09:08:42.617Z",
+      "completedAt": null
+    }
+  ],
+  "findings": [],
+  "$schema": "./node_modules/json-server/schema.json"
 }

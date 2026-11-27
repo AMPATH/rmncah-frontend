@@ -1,70 +1,27 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { Button } from '@carbon/react'
 
-import {
-  Button,
-  Modal,
-  Search,
-  Select,
-  SelectItem,
-  Tag,
-  TextArea,
-  TextInput,
-} from '@carbon/react'
-
-import {
-  Add,
-  ArrowLeft,
-  Building,
-  CheckmarkFilled,
-  Edit,
-  TrashCan,
-} from '@carbon/icons-react'
-
-import {
-  facilityRepository,
-} from '../../../data/repositories'
-
-import {
-  siteAssessmentService,
-} from '../services/site-assessment.service.ts'
+import { facilityRepository } from '../../../data/repositories'
+import AssessmentSectionRenderer from '../components/AssessmentSectionRenderer'
+import { getOfficialAssessmentTemplate } from '../data/assessment-template.service'
+import { assessmentService } from '../services/assessment.service'
 
 import type {
-  SiteAssessmentRecord,
-  SiteAssessmentFormData,
-  SiteAssessmentFindingFormData,
-} from '../types/site-assessment.types.ts'
-
-import type {
-  SiteAssessmentFinding,
-  SiteAssessmentStatus,
-} from '../../../data/models'
+  Assessment,
+  AssessmentAnswer,
+  AssessmentTemplate,
+  AssessmentTemplateQuestion,
+  AssessmentTemplateSection,
+} from '../types'
 
 import '../styles/facility-assessments.scss'
 
-interface SiteAssessmentsPageProps {
+interface FacilityAssessmentsPageProps {
   title: string
 }
 
-const emptyAssessmentForm: SiteAssessmentFormData = {
-  facilityId: '',
-  assessmentDate: new Date().toISOString().slice(0, 10),
-  assessorName: '',
-  status: 'Scheduled',
-  summary: '',
-  nextFollowUpDate: '',
-}
-
-const emptyFindingForm: SiteAssessmentFindingFormData = {
-  title: '',
-  description: '',
-  assignedTo: '',
-  dueDate: '',
-  status: 'Open',
-  resolutionNotes: '',
-}
-
-function formatDate(value: string | null | undefined): string {
-  if (!value) return 'Not scheduled'
+function formatDate(value: string): string {
+  if (!value) return 'Not recorded'
 
   const date = new Date(`${value.slice(0, 10)}T00:00:00`)
 
@@ -77,891 +34,773 @@ function formatDate(value: string | null | undefined): string {
   }).format(date)
 }
 
-function statusTag(status: string) {
-  const type =
-    status === 'Completed' || status === 'Resolved'
-      ? 'green'
-      : status === 'In Progress'
-        ? 'blue'
-        : status === 'Cancelled' || status === 'Deferred'
-          ? 'gray'
-          : 'warm-gray'
+function getQuestionRows(
+  template: AssessmentTemplate,
+  item: AssessmentTemplateQuestion,
+) {
+  const block = template.blocks[item.source.block]
 
-  return <Tag type={type}>{status}</Tag>
+  if (!block?.rows) return []
+
+  const indexes = item.source.rows ?? (
+    item.source.row === undefined ? [] : [item.source.row]
+  )
+
+  return indexes
+    .map((index) => block.rows?.[index])
+    .filter((row) => row !== undefined)
 }
 
-function SiteAssessmentsPage({
+function isAnswerable(
+  template: AssessmentTemplate,
+  item: AssessmentTemplateQuestion,
+): boolean {
+  if (item.response.type === 'unresolved') return false
+
+  const rows = getQuestionRows(template, item)
+
+  if (item.response.type === 'yesno') {
+    return (
+      rows.length > 0 &&
+      rows.every((row) => {
+        const yesIndex = row.cells.findIndex((cell) =>
+          /^\s*YES(?:\s|\[|$)/i.test(cell.paragraphs.join(' ').trim()),
+        )
+        const noIndex = row.cells.findIndex((cell) =>
+          /^\s*NO(?:\s|\[|$)/i.test(cell.paragraphs.join(' ').trim()),
+        )
+
+        if (yesIndex === -1 || noIndex === -1) return false
+
+        return row.cells.some((cell, index) => {
+          if (index === yesIndex || index === noIndex) return false
+
+          return cell.paragraphs.some(
+            (paragraph) =>
+              paragraph.trim().length > 0 &&
+              !/^\d+\.?$/.test(paragraph.trim()),
+          )
+        })
+      })
+    )
+  }
+
+  if (
+    [
+      'yesno-pair',
+      'signal-function',
+      'yesno-and-conditional-select',
+      'number-group',
+      'document-checklist',
+    ].includes(item.response.type) &&
+    rows.length === 0
+  ) {
+    return false
+  }
+
+  return true
+}
+
+function hasValue(value: unknown): boolean {
+  if (typeof value === 'number') return Number.isFinite(value)
+  if (typeof value === 'boolean') return true
+  if (typeof value === 'string') return value.trim().length > 0
+  if (Array.isArray(value)) return value.length > 0
+  return value !== null && value !== undefined
+}
+
+function isQuestionAnswered(
+  item: AssessmentTemplateQuestion,
+  answer: AssessmentAnswer | undefined,
+): boolean {
+  if (!hasValue(answer)) return false
+
+  if (item.response.type === 'yesno') {
+    return answer === 'yes' || answer === 'no'
+  }
+
+  if (item.response.type === 'yesno-pair') {
+    if (!answer || typeof answer !== 'object' || Array.isArray(answer)) {
+      return false
+    }
+
+    const pair = answer as Record<string, unknown>
+    return (
+      (pair.available === 'yes' || pair.available === 'no') &&
+      (pair.enoughForMonth === 'yes' || pair.enoughForMonth === 'no')
+    )
+  }
+
+  if (item.response.type === 'signal-function') {
+    if (!answer || typeof answer !== 'object' || Array.isArray(answer)) {
+      return false
+    }
+
+    const fields = answer as Record<string, unknown>
+    const yesNoFields = item.response.fields.filter(
+      (field) => field.type === 'yesno',
+    )
+    const reasonFields = item.response.fields.filter(
+      (field) => field.type === 'reason-select',
+    )
+
+    return yesNoFields.every((field) => {
+      const response = fields[field.id]
+
+      if (response !== 'yes' && response !== 'no') return false
+
+      if (response === 'no') {
+        const reasonField = reasonFields.find((reason) =>
+          reason.id.toLowerCase().includes(field.id.toLowerCase()),
+        )
+
+        if (reasonField && !hasValue(fields[reasonField.id])) return false
+      }
+
+      return true
+    })
+  }
+
+  if (item.response.type === 'yesno-and-conditional-select') {
+    if (!answer || typeof answer !== 'object' || Array.isArray(answer)) {
+      return false
+    }
+
+    const fields = answer as Record<string, unknown>
+    const yesNoValue = Object.values(fields).find(
+      (value) => value === 'yes' || value === 'no',
+    )
+
+    if (yesNoValue !== 'yes' && yesNoValue !== 'no') return false
+
+    if (yesNoValue === 'no') return true
+
+    return (
+      Array.isArray(fields.serviceAreas) &&
+      fields.serviceAreas.length > 0
+    )
+  }
+
+  if (!answer || typeof answer !== 'object' || Array.isArray(answer)) {
+    return hasValue(answer)
+  }
+
+  const values = Object.values(answer as Record<string, unknown>)
+  return values.length > 0 && values.every(hasValue)
+}
+
+function getSectionProgress(
+  template: AssessmentTemplate,
+  section: AssessmentTemplateSection,
+  answers: Record<string, AssessmentAnswer>,
+) {
+  const answerableItems = section.items.filter((item) =>
+    isAnswerable(template, item),
+  )
+
+  const answered = answerableItems.filter((item) =>
+    isQuestionAnswered(item, answers[item.id]),
+  ).length
+
+  return {
+    answered,
+    total: answerableItems.length,
+    unanswered: answerableItems.length - answered,
+  }
+}
+
+function getAssessmentProgress(
+  template: AssessmentTemplate,
+  assessment: Assessment,
+) {
+  return template.questionnaire.sections.reduce(
+    (total, section) => {
+      const record = assessment.sections.find(
+        (entry) => entry.sectionId === section.id,
+      )
+
+      const progress = getSectionProgress(
+        template,
+        section,
+        record?.answers ?? {},
+      )
+
+      return {
+        answered: total.answered + progress.answered,
+        total: total.total + progress.total,
+      }
+    },
+    { answered: 0, total: 0 },
+  )
+}
+
+export default function FacilityAssessmentsPage({
   title,
-}: SiteAssessmentsPageProps) {
-  const [, setRefreshKey] = useState(0)
+}: FacilityAssessmentsPageProps) {
+  const allFacilities = facilityRepository.getAll()
+  const facilities = allFacilities
+    .filter((facility) => facility.status === 'Active')
+    .sort((a, b) => a.name.localeCompare(b.name))
 
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('All')
-  const [facilityFilter, setFacilityFilter] = useState('All')
+  const [template, setTemplate] = useState<AssessmentTemplate | null>(null)
+  const [assessments, setAssessments] = useState<Assessment[]>([])
+  const [selectedAssessment, setSelectedAssessment] =
+    useState<Assessment | null>(null)
+  const [selectedSectionIndex, setSelectedSectionIndex] = useState(0)
+  const [facilityId, setFacilityId] = useState('')
+  const [assessmentDate, setAssessmentDate] = useState(
+    new Date().toISOString().slice(0, 10),
+  )
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
 
-  const [selectedAssessmentId, setSelectedAssessmentId] =
-    useState<string | null>(null)
-
-  const [assessmentModalOpen, setAssessmentModalOpen] =
-    useState(false)
-
-  const [findingModalOpen, setFindingModalOpen] =
-    useState(false)
-
-  const [editingAssessmentId, setEditingAssessmentId] =
-    useState<string | null>(null)
-
-  const [editingFindingId, setEditingFindingId] =
-    useState<string | null>(null)
-
-  const [assessmentForm, setAssessmentForm] =
-    useState<SiteAssessmentFormData>(emptyAssessmentForm)
-
-  const [findingForm, setFindingForm] =
-    useState<SiteAssessmentFindingFormData>(emptyFindingForm)
-
-  const [formError, setFormError] = useState('')
-  const [findingError, setFindingError] = useState('')
-
-  const facilities = facilityRepository.getAll()
-
-  const assessments = siteAssessmentService.getAll()
-
-  const summary = siteAssessmentService.getSummary()
-
-  const filteredAssessments = useMemo(() => {
-    const searchTerm = search.toLowerCase().trim()
-
-    return assessments.filter((assessment) => {
-      const matchesSearch =
-        assessment.facility?.name
-          .toLowerCase()
-          .includes(searchTerm) ||
-        assessment.assessorName
-          .toLowerCase()
-          .includes(searchTerm) ||
-        assessment.summary
-          .toLowerCase()
-          .includes(searchTerm)
-
-      const matchesStatus =
-        statusFilter === 'All' ||
-        assessment.status === statusFilter
-
-      const matchesFacility =
-        facilityFilter === 'All' ||
-        assessment.facilityId === facilityFilter
-
-      return matchesSearch && matchesStatus && matchesFacility
-    })
-  }, [
-    assessments,
-    search,
-    statusFilter,
-    facilityFilter,
-  ])
-
-  const selectedAssessment =
-    selectedAssessmentId
-      ? siteAssessmentService.getById(selectedAssessmentId)
-      : null
-
-  function refresh() {
-    setRefreshKey((current) => current + 1)
+  async function refreshAssessments() {
+    const records = await assessmentService.getAll()
+    setAssessments(records)
   }
 
-  function openCreateAssessment() {
-    setEditingAssessmentId(null)
-    setAssessmentForm({
-      ...emptyAssessmentForm,
-      assessmentDate: new Date().toISOString().slice(0, 10),
-    })
-    setFormError('')
-    setAssessmentModalOpen(true)
-  }
+  useEffect(() => {
+    let active = true
 
-  function openEditAssessment(assessment: SiteAssessmentRecord) {
-    setEditingAssessmentId(assessment.id)
+    async function load() {
+      setLoading(true)
+      setError('')
 
-    setAssessmentForm({
-      facilityId: assessment.facilityId,
-      assessmentDate: assessment.assessmentDate,
-      assessorName: assessment.assessorName,
-      status: assessment.status,
-      summary: assessment.summary,
-      nextFollowUpDate: assessment.nextFollowUpDate ?? '',
-    })
+      try {
+        const [officialTemplate, records] = await Promise.all([
+          getOfficialAssessmentTemplate(),
+          assessmentService.getAll(),
+        ])
 
-    setFormError('')
-    setAssessmentModalOpen(true)
-  }
+        if (!active) return
 
-  function closeAssessmentModal() {
-    setAssessmentModalOpen(false)
-    setEditingAssessmentId(null)
-    setAssessmentForm(emptyAssessmentForm)
-    setFormError('')
-  }
+        setTemplate(officialTemplate)
+        setAssessments(records)
+      } catch (loadError) {
+        if (active) {
+          setError(
+            loadError instanceof Error
+              ? loadError.message
+              : 'Unable to load Facility Assessment data.',
+          )
+        }
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
 
-  function handleSaveAssessment() {
-    if (
-      !assessmentForm.facilityId ||
-      !assessmentForm.assessmentDate ||
-      !assessmentForm.assessorName.trim() ||
-      !assessmentForm.summary.trim()
-    ) {
-      setFormError('Complete all required fields.')
+    void load()
+
+    return () => {
+      active = false
+    }
+  }, [])
+
+  async function startAssessment() {
+    if (!template || !facilityId || !assessmentDate) {
+      setError('Select a facility and assessment date.')
       return
     }
 
-    try {
-      if (editingAssessmentId) {
-        siteAssessmentService.update(
-          editingAssessmentId,
-          assessmentForm,
-        )
-      } else {
-        siteAssessmentService.create(assessmentForm)
-      }
+    setSaving(true)
+    setError('')
 
-      closeAssessmentModal()
-      refresh()
-    } catch (error) {
-      setFormError(
-        error instanceof Error
-          ? error.message
+    try {
+      const created = await assessmentService.createDraft(
+        facilityId,
+        assessmentDate,
+        template,
+      )
+
+      await refreshAssessments()
+      setSelectedAssessment(created)
+      setSelectedSectionIndex(0)
+    } catch (startError) {
+      setError(
+        startError instanceof Error
+          ? startError.message
+          : 'Unable to start the assessment.',
+      )
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  function openAssessment(assessment: Assessment) {
+    setSelectedAssessment(assessment)
+    setSelectedSectionIndex(0)
+    setError('')
+  }
+
+  function updateAnswer(
+    questionId: string,
+    answer: AssessmentAnswer,
+  ) {
+    if (!selectedAssessment || selectedAssessment.status !== 'draft') return
+
+    const currentSection = template?.questionnaire.sections[
+      selectedSectionIndex
+    ]
+
+    if (!currentSection) return
+
+    setSelectedAssessment((current) => {
+      if (!current) return current
+
+      return {
+        ...current,
+        sections: current.sections.map((section) =>
+          section.sectionId === currentSection.id
+            ? {
+                ...section,
+                answers: {
+                  ...section.answers,
+                  [questionId]: answer,
+                },
+              }
+            : section,
+        ),
+      }
+    })
+  }
+
+  function updateSectionNotes(notes: string) {
+    if (!selectedAssessment || selectedAssessment.status !== 'draft') return
+
+    const currentSection = template?.questionnaire.sections[
+      selectedSectionIndex
+    ]
+
+    if (!currentSection) return
+
+    setSelectedAssessment((current) => {
+      if (!current) return current
+
+      return {
+        ...current,
+        sections: current.sections.map((section) =>
+          section.sectionId === currentSection.id
+            ? { ...section, notes }
+            : section,
+        ),
+      }
+    })
+  }
+
+  async function saveDraft() {
+    if (!selectedAssessment || selectedAssessment.status !== 'draft') return
+
+    setSaving(true)
+    setError('')
+
+    try {
+      const updated = await assessmentService.updateDraft(
+        selectedAssessment.id,
+        {
+          assessmentDate: selectedAssessment.assessmentDate,
+          sections: selectedAssessment.sections,
+          analysis: selectedAssessment.analysis,
+          findings: selectedAssessment.findings,
+        },
+      )
+
+      setSelectedAssessment(updated)
+      await refreshAssessments()
+    } catch (saveError) {
+      setError(
+        saveError instanceof Error
+          ? saveError.message
           : 'Unable to save the assessment.',
       )
+    } finally {
+      setSaving(false)
     }
   }
 
-  function handleDeleteAssessment(id: string) {
-    const confirmed = window.confirm(
-      'Delete this assessment and all its associated findings?',
-    )
+  async function completeAssessment() {
+    if (!selectedAssessment || !template) return
 
-    if (!confirmed) return
+    const unanswered = template.questionnaire.sections.flatMap((section) => {
+      const record = selectedAssessment.sections.find(
+        (entry) => entry.sectionId === section.id,
+      )
 
-    siteAssessmentService.delete(id)
-
-    setSelectedAssessmentId(null)
-    refresh()
-  }
-
-  function handleStatusChange(
-    id: string,
-    status: SiteAssessmentStatus,
-  ) {
-    siteAssessmentService.updateStatus(id, status)
-    refresh()
-  }
-
-  function openCreateFinding() {
-    if (!selectedAssessment) return
-
-    setEditingFindingId(null)
-    setFindingForm(emptyFindingForm)
-    setFindingError('')
-    setFindingModalOpen(true)
-  }
-
-  function openEditFinding(finding: SiteAssessmentFinding) {
-    setEditingFindingId(finding.id)
-
-    setFindingForm({
-      title: finding.title,
-      description: finding.description,
-      assignedTo: finding.assignedTo,
-      dueDate: finding.dueDate ?? '',
-      status: finding.status,
-      resolutionNotes: finding.resolutionNotes,
+      return section.items
+        .filter((item) => isAnswerable(template, item))
+        .filter(
+          (item) => !isQuestionAnswered(item, record?.answers[item.id]),
+        )
+        .map(() => ({
+          sectionId: section.id,
+          sectionTitle: section.title,
+        }))
     })
 
-    setFindingError('')
-    setFindingModalOpen(true)
-  }
+    if (unanswered.length > 0) {
+      const firstSectionIndex = template.questionnaire.sections.findIndex(
+        (section) => section.id === unanswered[0].sectionId,
+      )
 
-  function closeFindingModal() {
-    setFindingModalOpen(false)
-    setEditingFindingId(null)
-    setFindingForm(emptyFindingForm)
-    setFindingError('')
-  }
-
-  function handleSaveFinding() {
-    if (
-      !findingForm.title.trim() ||
-      !findingForm.description.trim() ||
-      !findingForm.assignedTo.trim()
-    ) {
-      setFindingError(
-        'Enter a title, description and responsible person.',
+      setSelectedSectionIndex(Math.max(firstSectionIndex, 0))
+      setError(
+        `${unanswered.length} answerable questionnaire item(s) remain unanswered. Complete them before finalizing the assessment.`,
       )
       return
     }
 
-    if (!selectedAssessment) return
+    setSaving(true)
+    setError('')
 
     try {
-      if (editingFindingId) {
-        siteAssessmentService.updateFinding(
-          editingFindingId,
-          findingForm,
-        )
-      } else {
-        siteAssessmentService.createFinding(
-          selectedAssessment.id,
-          findingForm,
-        )
-      }
+      await assessmentService.updateDraft(selectedAssessment.id, {
+        assessmentDate: selectedAssessment.assessmentDate,
+        sections: selectedAssessment.sections,
+        analysis: selectedAssessment.analysis,
+        findings: selectedAssessment.findings,
+      })
 
-      closeFindingModal()
-      refresh()
-    } catch (error) {
-      setFindingError(
-        error instanceof Error
-          ? error.message
-          : 'Unable to save the finding.',
+      const completed = await assessmentService.completeDraft(
+        selectedAssessment.id,
       )
+
+      setSelectedAssessment(completed)
+      await refreshAssessments()
+    } catch (completeError) {
+      setError(
+        completeError instanceof Error
+          ? completeError.message
+          : 'Unable to complete the assessment.',
+      )
+    } finally {
+      setSaving(false)
     }
   }
 
-  function handleDeleteFinding(id: string) {
-    if (!window.confirm('Delete this finding?')) return
+  const currentSection = template?.questionnaire.sections[
+    selectedSectionIndex
+  ]
 
-    siteAssessmentService.deleteFinding(id)
-    refresh()
-  }
+  const currentSectionRecord = currentSection && selectedAssessment
+    ? selectedAssessment.sections.find(
+        (section) => section.sectionId === currentSection.id,
+      )
+    : undefined
 
-  function renderAssessmentModal() {
+  const selectedFacility = selectedAssessment
+    ? allFacilities.find(
+        (facility) => facility.id === selectedAssessment.facilityId,
+      )
+    : undefined
+
+  const overallProgress = template && selectedAssessment
+    ? getAssessmentProgress(template, selectedAssessment)
+    : { answered: 0, total: 0 }
+
+  if (loading) {
     return (
-      <Modal
-        open={assessmentModalOpen}
-        modalHeading={
-          editingAssessmentId
-            ? 'Edit site assessment'
-            : 'Record site assessment'
-        }
-        primaryButtonText="Save assessment"
-        secondaryButtonText="Cancel"
-        onRequestClose={closeAssessmentModal}
-        onRequestSubmit={handleSaveAssessment}
-        size="md"
-      >
-        <div className="site-assessment-form">
-          {formError && (
-            <p className="site-assessment-form__error">
-              {formError}
-            </p>
-          )}
-
-          <Select
-            id="site-assessment-facility"
-            labelText="Facility *"
-            value={assessmentForm.facilityId}
-            onChange={(event) =>
-              setAssessmentForm((current) => ({
-                ...current,
-                facilityId: event.target.value,
-              }))
-            }
-          >
-            <SelectItem value="" text="Select a facility" />
-
-            {facilities.map((facility) => (
-              <SelectItem
-                key={facility.id}
-                value={facility.id}
-                text={facility.name}
-              />
-            ))}
-          </Select>
-
-          <TextInput
-            id="site-assessment-date"
-            type="date"
-            labelText="Assessment date *"
-            value={assessmentForm.assessmentDate}
-            onChange={(event) =>
-              setAssessmentForm((current) => ({
-                ...current,
-                assessmentDate: event.target.value,
-              }))
-            }
-          />
-
-          <TextInput
-            id="site-assessment-assessor"
-            labelText="Assessor / assessment team *"
-            placeholder="Enter assessor name"
-            value={assessmentForm.assessorName}
-            onChange={(event) =>
-              setAssessmentForm((current) => ({
-                ...current,
-                assessorName: event.target.value,
-              }))
-            }
-          />
-
-          <Select
-            id="site-assessment-status"
-            labelText="Assessment status *"
-            value={assessmentForm.status}
-            onChange={(event) =>
-              setAssessmentForm((current) => ({
-                ...current,
-                status: event.target.value as SiteAssessmentStatus,
-              }))
-            }
-          >
-            <SelectItem value="Scheduled" text="Scheduled" />
-            <SelectItem value="In Progress" text="In Progress" />
-            <SelectItem value="Completed" text="Completed" />
-            <SelectItem value="Cancelled" text="Cancelled" />
-          </Select>
-
-          <TextArea
-            id="site-assessment-summary"
-            labelText="Assessment summary *"
-            placeholder="Enter a summary of the assessment..."
-            value={assessmentForm.summary}
-            onChange={(event) =>
-              setAssessmentForm((current) => ({
-                ...current,
-                summary: event.target.value,
-              }))
-            }
-            rows={4}
-          />
-
-          <TextInput
-            id="site-assessment-follow-up"
-            type="date"
-            labelText="Next follow-up date"
-            value={assessmentForm.nextFollowUpDate}
-            onChange={(event) =>
-              setAssessmentForm((current) => ({
-                ...current,
-                nextFollowUpDate: event.target.value,
-              }))
-            }
-          />
-
-          <p className="site-assessment-form__hint">
-            This is a general assessment record. The official
-            programme checklist and assessment criteria will be
-            incorporated when supplied.
-          </p>
-        </div>
-      </Modal>
+      <div className="facility-assessments">
+        <p>Loading Facility Assessment...</p>
+      </div>
     )
   }
 
-  function renderFindingModal() {
+  if (!template) {
     return (
-      <Modal
-        open={findingModalOpen}
-        modalHeading={
-          editingFindingId
-            ? 'Edit finding'
-            : 'Record a finding'
-        }
-        primaryButtonText="Save finding"
-        secondaryButtonText="Cancel"
-        onRequestClose={closeFindingModal}
-        onRequestSubmit={handleSaveFinding}
-        size="md"
-      >
-        <div className="site-assessment-form">
-          {findingError && (
-            <p className="site-assessment-form__error">
-              {findingError}
+      <div className="facility-assessments">
+        <h1>{title}</h1>
+        <p role="alert">{error || 'The official assessment template is unavailable.'}</p>
+      </div>
+    )
+  }
+
+  if (selectedAssessment && currentSection) {
+    const sectionProgress = getSectionProgress(
+      template,
+      currentSection,
+      currentSectionRecord?.answers ?? {},
+    )
+
+    const readOnly = selectedAssessment.status === 'completed'
+
+    return (
+      <main className="facility-assessments">
+        <div className="facility-assessments__topbar">
+          <Button
+            kind="ghost"
+            onClick={() => {
+              setSelectedAssessment(null)
+              setError('')
+            }}
+          >
+            Back to assessments
+          </Button>
+
+          <span>
+            {readOnly ? 'Completed assessment' : 'Draft assessment'}
+          </span>
+        </div>
+
+        <header className="facility-assessments__header">
+          <div>
+            <p className="facility-assessments__eyebrow">
+              MENTOR WORKSPACE
             </p>
-          )}
+            <h1>{selectedFacility?.name ?? 'Facility assessment'}</h1>
+            <p>
+              {selectedFacility?.county ?? 'County not recorded'}
+              {' · '}
+              {formatDate(selectedAssessment.assessmentDate)}
+            </p>
+          </div>
 
-          <TextInput
-            id="finding-title"
-            labelText="Finding title *"
-            value={findingForm.title}
-            onChange={(event) =>
-              setFindingForm((current) => ({
-                ...current,
-                title: event.target.value,
-              }))
-            }
+          <span className={`facility-assessments__status facility-assessments__status--${selectedAssessment.status}`}>
+            {selectedAssessment.status === 'draft' ? 'Draft' : 'Completed'}
+          </span>
+        </header>
+
+        <section className="facility-assessments__progress">
+          <div>
+            <strong>
+              {overallProgress.answered} of {overallProgress.total}
+            </strong>
+            <span>answerable items completed</span>
+          </div>
+          <progress
+            value={overallProgress.answered}
+            max={Math.max(overallProgress.total, 1)}
+          />
+        </section>
+
+        <nav className="facility-assessments__section-nav" aria-label="Assessment sections">
+          {template.questionnaire.sections.map((section, index) => {
+            const progress = getSectionProgress(
+              template,
+              section,
+              selectedAssessment.sections.find(
+                (record) => record.sectionId === section.id,
+              )?.answers ?? {},
+            )
+
+            return (
+              <button
+                type="button"
+                key={section.id}
+                className={index === selectedSectionIndex ? 'is-active' : ''}
+                onClick={() => setSelectedSectionIndex(index)}
+              >
+                <span>{index + 1}. {section.title}</span>
+                <small>{progress.answered}/{progress.total}</small>
+              </button>
+            )
+          })}
+        </nav>
+
+        <div className="facility-assessments__section-content">
+          <div className="facility-assessments__section-summary">
+            <div>
+              <h2>{currentSection.title}</h2>
+              <p>
+                {sectionProgress.answered} answered · {sectionProgress.unanswered} remaining
+              </p>
+            </div>
+            <span>Section {selectedSectionIndex + 1} of {template.questionnaire.sections.length}</span>
+          </div>
+
+          <AssessmentSectionRenderer
+            template={template}
+            section={currentSection}
+            answers={currentSectionRecord?.answers ?? {}}
+            onAnswerChange={updateAnswer}
           />
 
-          <TextArea
-            id="finding-description"
-            labelText="Description *"
-            value={findingForm.description}
-            onChange={(event) =>
-              setFindingForm((current) => ({
-                ...current,
-                description: event.target.value,
-              }))
-            }
-            rows={4}
-          />
+          <div className="facility-assessments__notes">
+            <label htmlFor="assessment-section-notes">Section notes</label>
+            <textarea
+              id="assessment-section-notes"
+              rows={3}
+              value={currentSectionRecord?.notes ?? ''}
+              disabled={readOnly}
+              onChange={(event) => updateSectionNotes(event.target.value)}
+            />
+          </div>
+        </div>
 
-          <TextInput
-            id="finding-assigned-to"
-            labelText="Responsible person / team *"
-            value={findingForm.assignedTo}
-            onChange={(event) =>
-              setFindingForm((current) => ({
-                ...current,
-                assignedTo: event.target.value,
-              }))
-            }
-          />
+        {error && (
+          <p className="facility-assessments__error" role="alert">
+            {error}
+          </p>
+        )}
 
-          <TextInput
-            id="finding-due-date"
-            type="date"
-            labelText="Target date"
-            value={findingForm.dueDate}
-            onChange={(event) =>
-              setFindingForm((current) => ({
-                ...current,
-                dueDate: event.target.value,
-              }))
-            }
-          />
-
-          <Select
-            id="finding-status"
-            labelText="Follow-up status"
-            value={findingForm.status}
-            onChange={(event) =>
-              setFindingForm((current) => ({
-                ...current,
-                status: event.target.value as SiteAssessmentFindingFormData['status'],
-              }))
+        <footer className="facility-assessments__footer">
+          <Button
+            kind="secondary"
+            disabled={selectedSectionIndex === 0}
+            onClick={() =>
+              setSelectedSectionIndex((index) => Math.max(index - 1, 0))
             }
           >
-            <SelectItem value="Open" text="Open" />
-            <SelectItem value="In Progress" text="In Progress" />
-            <SelectItem value="Resolved" text="Resolved" />
-            <SelectItem value="Deferred" text="Deferred" />
-          </Select>
+            Previous section
+          </Button>
 
-          <TextArea
-            id="finding-resolution"
-            labelText="Resolution / progress notes"
-            value={findingForm.resolutionNotes}
-            onChange={(event) =>
-              setFindingForm((current) => ({
-                ...current,
-                resolutionNotes: event.target.value,
-              }))
-            }
-            rows={3}
-          />
-        </div>
-      </Modal>
+          <div>
+            {!readOnly && (
+              <>
+                <Button
+                  kind="secondary"
+                  disabled={saving}
+                  onClick={() => void saveDraft()}
+                >
+                  {saving ? 'Saving...' : 'Save draft'}
+                </Button>
+
+                <Button
+                  disabled={saving}
+                  onClick={() => void completeAssessment()}
+                >
+                  Complete assessment
+                </Button>
+              </>
+            )}
+
+            {selectedSectionIndex < template.questionnaire.sections.length - 1 && (
+              <Button
+                kind="tertiary"
+                onClick={() =>
+                  setSelectedSectionIndex((index) =>
+                    Math.min(index + 1, template.questionnaire.sections.length - 1),
+                  )
+                }
+              >
+                Next section
+              </Button>
+            )}
+          </div>
+        </footer>
+      </main>
     )
   }
 
   return (
-    <div className="county-site-assessments">
-      {!selectedAssessment ? (
-        <>
-          <header className="county-site-assessments__header">
-            <div>
-              <p className="county-site-assessments__eyebrow">
-                COUNTY MENTOR WORKSPACE
-              </p>
+    <main className="facility-assessments">
+      <header className="facility-assessments__header">
+        <div>
+          <p className="facility-assessments__eyebrow">MENTOR WORKSPACE</p>
+          <h1>{title}</h1>
+          <p>
+            Conduct and review facility assessments using the official
+            EMONC Mentorship Assessment Tool.
+          </p>
+        </div>
+      </header>
 
-              <h1>{title}</h1>
+      <section className="facility-assessments__start">
+        <div>
+          <h2>Start a facility assessment</h2>
+          <p>Select a registered facility and record the assessment date.</p>
+        </div>
 
-              <p>
-                Monitor facility assessments, document findings
-                and follow up on improvement actions.
-              </p>
-            </div>
-
-            <Button
-              renderIcon={Add}
-              onClick={openCreateAssessment}
+        <div className="facility-assessments__start-fields">
+          <label>
+            Facility
+            <select
+              value={facilityId}
+              onChange={(event) => setFacilityId(event.target.value)}
             >
-              Record assessment
-            </Button>
-          </header>
-
-          <section className="site-assessment-summary">
-            <article className="site-assessment-summary__card">
-              <span>Total assessments</span>
-              <strong>{summary.totalAssessments}</strong>
-              <p>Assessment records</p>
-            </article>
-
-            <article className="site-assessment-summary__card">
-              <span>Facilities assessed</span>
-              <strong>{summary.facilitiesAssessed}</strong>
-              <p>With completed assessments</p>
-            </article>
-
-            <article className="site-assessment-summary__card">
-              <span>Pending assessments</span>
-              <strong>{summary.pendingAssessments}</strong>
-              <p>Scheduled or in progress</p>
-            </article>
-
-            <article className="site-assessment-summary__card">
-              <span>Open follow-ups</span>
-              <strong>{summary.openFollowUps}</strong>
-              <p>Open or in-progress findings</p>
-            </article>
-          </section>
-
-          <section className="site-assessment-register">
-            <div className="site-assessment-register__heading">
-              <div>
-                <h2>Assessment register</h2>
-                <p>
-                  Review and manage facility assessment records.
-                </p>
-              </div>
-
-              <span>{filteredAssessments.length} records</span>
-            </div>
-
-            <div className="site-assessment-filters">
-              <Search
-                id="site-assessment-search"
-                labelText="Search assessments"
-                placeholder="Search facility, assessor or summary"
-                value={search}
-                onChange={(event) =>
-                  setSearch(event.target.value)
-                }
-              />
-
-              <Select
-                id="site-assessment-status-filter"
-                labelText="Assessment status"
-                value={statusFilter}
-                onChange={(event) =>
-                  setStatusFilter(event.target.value)
-                }
-              >
-                <SelectItem value="All" text="All statuses" />
-                <SelectItem value="Scheduled" text="Scheduled" />
-                <SelectItem value="In Progress" text="In Progress" />
-                <SelectItem value="Completed" text="Completed" />
-                <SelectItem value="Cancelled" text="Cancelled" />
-              </Select>
-
-              <Select
-                id="site-assessment-facility-filter"
-                labelText="Facility"
-                value={facilityFilter}
-                onChange={(event) =>
-                  setFacilityFilter(event.target.value)
-                }
-              >
-                <SelectItem value="All" text="All facilities" />
-
-                {facilities.map((facility) => (
-                  <SelectItem
-                    key={facility.id}
-                    value={facility.id}
-                    text={facility.name}
-                  />
-                ))}
-              </Select>
-            </div>
-
-            <div className="site-assessment-table-wrap">
-              <table className="site-assessment-table">
-                <thead>
-                  <tr>
-                    <th>Facility</th>
-                    <th>Assessment date</th>
-                    <th>Assessor</th>
-                    <th>Status</th>
-                    <th>Open findings</th>
-                    <th>Next follow-up</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {filteredAssessments.map((assessment) => (
-                    <tr key={assessment.id}>
-                      <td>
-                        <button
-                          className="site-assessment-facility-link"
-                          onClick={() =>
-                            setSelectedAssessmentId(assessment.id)
-                          }
-                        >
-                          <Building size={17} />
-                          {assessment.facility?.name ?? 'Unknown facility'}
-                        </button>
-
-                        <small>
-                          {assessment.facility?.county ?? 'County not recorded'}
-                        </small>
-                      </td>
-
-                      <td>{formatDate(assessment.assessmentDate)}</td>
-
-                      <td>{assessment.assessorName}</td>
-
-                      <td>{statusTag(assessment.status)}</td>
-
-                      <td>
-                        <strong>{assessment.openFindings}</strong>
-                      </td>
-
-                      <td>{formatDate(assessment.nextFollowUpDate)}</td>
-
-                      <td>
-                        <div className="site-assessment-actions">
-                          <Button
-                            kind="ghost"
-                            size="sm"
-                            hasIconOnly
-                            renderIcon={Edit}
-                            iconDescription="Edit assessment"
-                            onClick={() =>
-                              openEditAssessment(assessment)
-                            }
-                          />
-
-                          <Button
-                            kind="ghost"
-                            size="sm"
-                            hasIconOnly
-                            renderIcon={TrashCan}
-                            iconDescription="Delete assessment"
-                            onClick={() =>
-                              handleDeleteAssessment(assessment.id)
-                            }
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-
-                  {filteredAssessments.length === 0 && (
-                    <tr>
-                      <td colSpan={7}>
-                        <div className="site-assessment-empty">
-                          <Building size={28} />
-                          <strong>No assessments found</strong>
-                          <p>
-                            Try changing your filters or record a
-                            new assessment.
-                          </p>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </>
-      ) : (
-        <section className="site-assessment-detail">
-          <div className="site-assessment-detail__top">
-            <Button
-              kind="ghost"
-              renderIcon={ArrowLeft}
-              onClick={() => setSelectedAssessmentId(null)}
-            >
-              Back to assessments
-            </Button>
-
-            <div className="site-assessment-actions">
-              <Button
-                kind="secondary"
-                renderIcon={Edit}
-                onClick={() => openEditAssessment(selectedAssessment)}
-              >
-                Edit assessment
-              </Button>
-
-              <Button
-                kind="danger--tertiary"
-                renderIcon={TrashCan}
-                onClick={() =>
-                  handleDeleteAssessment(selectedAssessment.id)
-                }
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
-
-          <header className="site-assessment-detail__header">
-            <div>
-              <p className="county-site-assessments__eyebrow">
-                FACILITY ASSESSMENT
-              </p>
-
-              <h1>
-                {selectedAssessment.facility?.name ?? 'Unknown facility'}
-              </h1>
-
-              <p>
-                {selectedAssessment.facility?.county ?? 'County not recorded'}
-                {' · '}
-                {formatDate(selectedAssessment.assessmentDate)}
-              </p>
-            </div>
-
-            {statusTag(selectedAssessment.status)}
-          </header>
-
-          <div className="site-assessment-detail__grid">
-            <article>
-              <span>Assessor</span>
-              <strong>{selectedAssessment.assessorName}</strong>
-            </article>
-
-            <article>
-              <span>Open findings</span>
-              <strong>{selectedAssessment.openFindings}</strong>
-            </article>
-
-            <article>
-              <span>Resolved findings</span>
-              <strong>{selectedAssessment.resolvedFindings}</strong>
-            </article>
-
-            <article>
-              <span>Next follow-up</span>
-              <strong>
-                {formatDate(selectedAssessment.nextFollowUpDate)}
-              </strong>
-            </article>
-          </div>
-
-          <section className="site-assessment-detail__section">
-            <h2>Assessment summary</h2>
-            <p>{selectedAssessment.summary}</p>
-
-            <div className="site-assessment-status-control">
-              <Select
-                id="site-assessment-detail-status"
-                labelText="Update assessment status"
-                value={selectedAssessment.status}
-                onChange={(event) =>
-                  handleStatusChange(
-                    selectedAssessment.id,
-                    event.target.value as SiteAssessmentStatus,
-                  )
-                }
-              >
-                <SelectItem value="Scheduled" text="Scheduled" />
-                <SelectItem value="In Progress" text="In Progress" />
-                <SelectItem value="Completed" text="Completed" />
-                <SelectItem value="Cancelled" text="Cancelled" />
-              </Select>
-            </div>
-          </section>
-
-          <section className="site-assessment-detail__section">
-            <div className="site-assessment-register__heading">
-              <div>
-                <h2>Findings and follow-ups</h2>
-                <p>
-                  Record improvement items, assign responsibility
-                  and track resolution.
-                </p>
-              </div>
-
-              <Button
-                renderIcon={Add}
-                onClick={openCreateFinding}
-              >
-                Add finding
-              </Button>
-            </div>
-
-            <div className="site-assessment-findings">
-              {selectedAssessment.findings.map((finding) => (
-                <article
-                  className="site-assessment-finding"
-                  key={finding.id}
-                >
-                  <div className="site-assessment-finding__top">
-                    <div>
-                      <h3>{finding.title}</h3>
-                      {statusTag(finding.status)}
-                    </div>
-
-                    <div className="site-assessment-actions">
-                      <Button
-                        kind="ghost"
-                        size="sm"
-                        hasIconOnly
-                        renderIcon={Edit}
-                        iconDescription="Edit finding"
-                        onClick={() => openEditFinding(finding)}
-                      />
-
-                      <Button
-                        kind="ghost"
-                        size="sm"
-                        hasIconOnly
-                        renderIcon={TrashCan}
-                        iconDescription="Delete finding"
-                        onClick={() => handleDeleteFinding(finding.id)}
-                      />
-                    </div>
-                  </div>
-
-                  <p>{finding.description}</p>
-
-                  <div className="site-assessment-finding__meta">
-                    <span>
-                      Responsible: <strong>{finding.assignedTo}</strong>
-                    </span>
-
-                    <span>
-                      Target date: <strong>{formatDate(finding.dueDate)}</strong>
-                    </span>
-                  </div>
-
-                  {finding.resolutionNotes && (
-                    <div className="site-assessment-finding__resolution">
-                      <CheckmarkFilled size={16} />
-                      {finding.resolutionNotes}
-                    </div>
-                  )}
-                </article>
+              <option value="">Select a facility</option>
+              {facilities.map((facility) => (
+                <option value={facility.id} key={facility.id}>
+                  {facility.name} — {facility.county}
+                </option>
               ))}
+            </select>
+          </label>
 
-              {selectedAssessment.findings.length === 0 && (
-                <div className="site-assessment-empty">
-                  <CheckmarkFilled size={28} />
-                  <strong>No findings recorded</strong>
-                  <p>
-                    Findings can be added when the assessment has
-                    been reviewed.
-                  </p>
-                </div>
-              )}
-            </div>
-          </section>
-        </section>
+          <label>
+            Assessment date
+            <input
+              type="date"
+              value={assessmentDate}
+              onChange={(event) => setAssessmentDate(event.target.value)}
+            />
+          </label>
+
+          <Button
+            disabled={saving || !facilityId || !assessmentDate}
+            onClick={() => void startAssessment()}
+          >
+            {saving ? 'Starting...' : 'Start assessment'}
+          </Button>
+        </div>
+      </section>
+
+      {error && (
+        <p className="facility-assessments__error" role="alert">
+          {error}
+        </p>
       )}
 
-      {renderAssessmentModal()}
-      {renderFindingModal()}
+      <section className="facility-assessments__history">
+        <div className="facility-assessments__history-heading">
+          <div>
+            <h2>Assessment history</h2>
+            <p>Each facility visit is retained as a separate assessment.</p>
+          </div>
+          <span>{assessments.length} records</span>
+        </div>
 
-      <div className="site-assessment-demo-note">
-        <span>LOCAL DEMO STORAGE</span>
-        Assessment records are currently saved in this browser.
-        Official assessment criteria will be added when supplied.
-      </div>
-    </div>
+        {assessments.length === 0 ? (
+          <div className="facility-assessments__empty">
+            No facility assessments have been started.
+          </div>
+        ) : (
+          <div className="facility-assessments__table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Facility</th>
+                  <th>County</th>
+                  <th>Assessment date</th>
+                  <th>Status</th>
+                  <th>Progress</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {assessments.map((assessment) => {
+                  const facility = allFacilities.find(
+                    (entry) => entry.id === assessment.facilityId,
+                  )
+                  const progress = getAssessmentProgress(template, assessment)
+
+                  return (
+                    <tr key={assessment.id}>
+                      <td>{facility?.name ?? 'Facility no longer available'}</td>
+                      <td>{facility?.county ?? '—'}</td>
+                      <td>{formatDate(assessment.assessmentDate)}</td>
+                      <td>
+                        <span className={`facility-assessments__status facility-assessments__status--${assessment.status}`}>
+                          {assessment.status === 'draft' ? 'Draft' : 'Completed'}
+                        </span>
+                      </td>
+                      <td>{progress.answered}/{progress.total}</td>
+                      <td>
+                        <Button
+                          kind="ghost"
+                          size="sm"
+                          onClick={() => openAssessment(assessment)}
+                        >
+                          {assessment.status === 'draft' ? 'Continue' : 'View'}
+                        </Button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+    </main>
   )
 }
-
-export default SiteAssessmentsPage
