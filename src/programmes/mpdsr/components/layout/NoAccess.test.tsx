@@ -6,18 +6,18 @@ import NoAccess from './NoAccess';
 describe('NoAccess', () => {
   afterEach(cleanup);
 
-  it('asks to choose a user when nobody is signed in', () => {
-    render(<NoAccess signedIn={false} />);
-    expect(screen.getByText('Choose a user first')).toBeTruthy();
+  it('says when the signed-in account has no MPDSR role', () => {
+    render(<NoAccess noRole />);
+    expect(screen.getByText('Your account has no MPDSR role yet')).toBeTruthy();
   });
 
   it('explains a missing permission', () => {
-    render(<NoAccess signedIn />);
+    render(<NoAccess />);
     expect(screen.getByText("You don't have access to this page")).toBeTruthy();
   });
 
   it('tells a deactivated user so', () => {
-    render(<NoAccess signedIn deactivated />);
+    render(<NoAccess deactivated />);
     expect(screen.getByText('This account is deactivated')).toBeTruthy();
   });
 });
