@@ -44,6 +44,11 @@ export const mentorNavigation: RoleNavigation = {
           icon: <Certificate size={20} />,
         },
         {
+          label: 'Facility Assessments',
+          path: '/mentor/facility-assessments',
+          icon: <DocumentTasks size={20} />,
+        },
+        {
           label: 'Resources',
           path: '/mentor/resources',
           icon: <FolderOpen size={20} />,

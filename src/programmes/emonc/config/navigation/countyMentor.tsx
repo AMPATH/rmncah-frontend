@@ -4,7 +4,6 @@ import {
   User,
   Events,
   Hospital,
-  DocumentTasks,
   Chat,
   Certificate,
   ChartLine,
@@ -43,11 +42,6 @@ export const countyMentorNavigation: RoleNavigation = {
           label: 'Facilities',
           path: '/county-mentor/facilities',
           icon: <Hospital size={20} />,
-        },
-        {
-          label: 'Site assessments',
-          path: '/county-mentor/site-assessments',
-          icon: <DocumentTasks size={20} />,
         },
         {
           label: 'Feedback & challenges',

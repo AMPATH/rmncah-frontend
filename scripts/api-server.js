@@ -1,3 +1,4 @@
+
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { App } from '@tinyhttp/app';
@@ -62,9 +63,11 @@ async function createDatabase(fileName) {
 async function startServer() {
   const mpdsr = await createDatabase('mpdsrdb.json');
   const emonc = await createDatabase('emoncdb.json');
+  const assessments = await createDatabase('site-assessments.json');
 
   const mpdsrApp = createApp(mpdsr.db);
   const emoncApp = createApp(emonc.db);
+  const assessmentsApp = createApp(assessments.db);
 
   const app = new App();
 
@@ -75,27 +78,33 @@ async function startServer() {
       databases: {
         mpdsr: '/api',
         emonc: '/emonc-api',
+        assessments: '/assessment-api',
       },
     });
   });
 
-  // Existing programme API — db.json
+  // Existing programme API — mpdsrdb.json
   app.use('/api', mpdsrApp);
 
   // Dedicated EmONC curriculum API — emoncdb.json
   app.use('/emonc-api', emoncApp);
 
+  // Dedicated Facility Assessment API — site-assessments.json
+  app.use('/assessment-api', assessmentsApp);
+
   const server = app.listen(PORT, () => {
     console.log(`AMPATH API listening on port ${PORT}`);
     console.log('MPDSR and other programme data: /api/*');
     console.log('EmONC curriculum data: /emonc-api/*');
-    console.log('Both databases are loaded independently.');
+    console.log('Facility Assessments data: /assessment-api/*');
+    console.log('All three databases are loaded independently.');
   });
 
   const shutdown = async () => {
     await Promise.all([
       mpdsr.fileWatcher?.close(),
       emonc.fileWatcher?.close(),
+      assessments.fileWatcher?.close(),
     ]);
 
     server.close(() => process.exit(0));

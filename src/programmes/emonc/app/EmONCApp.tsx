@@ -15,7 +15,7 @@ import CountyMentorsPage from '../features/county-mentor/pages/MentorsPage'
 import CountyCohortsPage from '../features/county-mentor/pages/CohortsPage'
 import CountyMenteesPage from '../features/county-mentor/pages/MenteesPage'
 import CountyFacilitiesPage from '../features/county-mentor/pages/FacilitiesPage'
-import CountySiteAssessmentsPage from '../features/county-mentor/pages/SiteAssessmentsPage'
+import FacilityAssessmentsPage from '../features/facility-assessments/pages/FacilityAssessmentsPage'
 import CountyFeedbackPage from '../features/county-mentor/pages/FeedbackPage'
 
 // Program Lead pages
@@ -174,12 +174,6 @@ function App() {
       return <CountyFacilitiesPage title={pageTitle} />
     }
 
-    if (
-      activeRole === 'county-mentor' &&
-      activePath === '/county-mentor/site-assessments'
-    ) {
-      return <CountySiteAssessmentsPage title={pageTitle} />
-    }
 
     if (
       activeRole === 'county-mentor' &&
@@ -261,6 +255,13 @@ function App() {
     }
 
     // Mentor
+    if (
+      activeRole === 'mentor' &&
+      activePath === '/mentor/facility-assessments'
+    ) {
+      return <FacilityAssessmentsPage title={pageTitle} />
+    }
+
     if (
       activeRole === 'mentor' &&
       activePath === '/mentor/overview'
