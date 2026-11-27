@@ -18,11 +18,14 @@ function GuardedPage() {
   const { currentUser, ready } = useCurrentUser();
   const needed = permissionsForPath(pathname);
 
+  if (ready && currentUser === null) {
+    return <NoAccess noRole />;
+  }
   if (ready && currentUser?.active === false) {
-    return <NoAccess signedIn deactivated />;
+    return <NoAccess deactivated />;
   }
   if (ready && needed.length > 0 && !canAny(currentUser, needed)) {
-    return <NoAccess signedIn={currentUser !== null} />;
+    return <NoAccess />;
   }
   return (
     <Fragment key={currentUser?.id}>
