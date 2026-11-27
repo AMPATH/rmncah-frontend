@@ -34,7 +34,8 @@ import {
   UserMultiple,
   UserProfile,
 } from '@carbon/icons-react';
-import { useCurrentUser } from '../../../context/currentUserContext';
+import { CAN_ACT_AS, useCurrentUser } from '../../../context/currentUserContext';
+import { useAuth } from '../../../../../app/auth/hooks/useAuth';
 import { canAny, roleLabels } from '../../../auth/permissions';
 import { permissionsForPath } from '../../../auth/pageAccess';
 import { useApiData } from '../../../hooks/useApiData';
@@ -81,7 +82,11 @@ function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderConten
   const isLargeScreen = useMediaQuery(LARGE_SCREEN_QUERY);
   const navigate = useNavigate();
   const location = useLocation();
-  const { currentUser, users, locations, setCurrentUserId } = useCurrentUser();
+  const { currentUser, isActingAs, users, locations, setCurrentUserId } = useCurrentUser();
+  const { state: authState, signOut } = useAuth();
+  // The name on the account that signed in, from the backend.
+  const accountName = authState.status === 'signedIn' ? `${authState.user.firstName} ${authState.user.lastName}` : '';
+  const accountEmail = authState.status === 'signedIn' ? authState.user.email : '';
 
   
   const visibleGroups = navGroups
@@ -107,23 +112,19 @@ function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderConten
     setConfirmingLogout(true);
   }
 
+  // Ends the session on the server; the app then shows the sign-in page.
   function confirmLogout() {
     setConfirmingLogout(false);
     setCurrentUserId('');
-    navigate('/');
-    showToast('You are logged out.');
+    void signOut('You are signed out.');
   }
 
   function handleSwitchUser(id: string) {
     setProfileOpen(false);
-    if (id === '') {
-      handleLogout();
-      return;
-    }
     setCurrentUserId(id);
     navigate('/mpdsr');
-    const name = users.find((user) => user.id === id)?.fullName ?? 'the new user';
-    showToast(`Signed out. Now signed in as ${name}.`);
+    const name = users.find((user) => user.id === id)?.fullName;
+    showToast(name ? `Now acting as ${name} (testing).` : 'Back to your own account.');
   }
 
   return (
@@ -168,18 +169,21 @@ function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderConten
         <div inert={profileOpen === false}>
         <div className="profile-panel__user">
           <span className="profile-panel__avatar" aria-hidden="true">
-            {currentUser ? initialsOf(currentUser.fullName) : <UserAvatar size={20} />}
+            {accountName ? initialsOf(accountName) : <UserAvatar size={20} />}
           </span>
           <div>
-            <p className="profile-panel__name">{currentUser?.fullName ?? 'Not signed in'}</p>
+            <p className="profile-panel__name">{accountName}</p>
+            <p className="profile-panel__role">{accountEmail}</p>
+            {isActingAs && currentUser && (
+              <p className="profile-panel__role">Acting as {currentUser.fullName} (testing)</p>
+            )}
             {currentUser ? (
               <>
                 <p className="profile-panel__role">{roleLabels[currentUser.role]}</p>
                 <p className="profile-panel__role">{currentUser.assignedLocations.join(', ')}</p>
-                {currentUser.email && <p className="profile-panel__role">{currentUser.email}</p>}
               </>
             ) : (
-              <p className="profile-panel__role">Choose a user below</p>
+              <p className="profile-panel__role">No MPDSR role yet</p>
             )}
           </div>
         </div>
@@ -198,17 +202,18 @@ function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderConten
           </Button>
         )}
 
-        {}
+        {/* Only in development (npm run dev): try the app as another user. */}
+        {CAN_ACT_AS && (
         <div className="profile-panel__acting-as">
           <Select
             id="actingAs"
-            labelText="Acting as (testing)"
+            labelText="Acting as (development only)"
             size="sm"
-            value={currentUser?.id ?? ''}
+            value={isActingAs ? (currentUser?.id ?? '') : ''}
             onChange={(event) => handleSwitchUser(event.target.value)}
             helperText={users.length === 0 ? 'No users yet. Add them under "users" in mpdsrdb.json.' : undefined}
           >
-            <SelectItem value="" text="Choose a user" />
+            <SelectItem value="" text="Myself" />
             {actingAsGroups(users, locations).map((group) => (
               <SelectItemGroup key={group.label} label={group.label}>
                 {group.options.map((option) => (
@@ -218,6 +223,7 @@ function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderConten
             ))}
           </Select>
         </div>
+        )}
 
         <Button
           className="profile-panel__button"
@@ -272,7 +278,7 @@ function HeaderContent({ isSideNavExpanded, onClickSideNavExpand }: HeaderConten
         onRequestSubmit={confirmLogout}
       >
         <p>
-          {currentUser ? `You are signed in as ${currentUser.fullName}. ` : ''}
+          {accountName ? `You are signed in as ${accountName}. ` : ''}
           You will need to sign in again to continue.
         </p>
       </Modal>
