@@ -32,6 +32,7 @@ import { delayLevels } from '../constants/delayFactors';
 import { getIssues, getStoredRecommendations } from '../services/issueService';
 import type { StoredIssue, StoredRecommendation } from '../services/issueService';
 import { causeOptionsFor, getCausesOfDeath } from '../services/causeService';
+import { emptyDelayLevels, getDelayLevels } from '../services/contributingFactorService';
 import type { CauseOfDeath } from '../services/causeService';
 import { completeCaseReview, reviewDifferences } from '../services/reviewService';
 import type { ReviewedRecommendation } from '../services/reviewService';
@@ -187,6 +188,7 @@ interface ReviewFormProps {
 }
 
 function ReviewForm({ issue, recommendations, causeOptions, userId, users, locations }: ReviewFormProps) {
+  const delayData = useApiData(getDelayLevels, emptyDelayLevels);
   const navigate = useNavigate();
   const today = getToday();
   const isDeath = issue.issueType !== 'near-miss';
@@ -506,7 +508,9 @@ function ReviewForm({ issue, recommendations, causeOptions, userId, users, locat
                 write a new one in the next step.
               </p>
               <ContributingFactors
-                delayLevels={delayLevels}
+                delayLevels={delayData.data}
+                loading={delayData.loading}
+                loadFailed={delayData.failed}
                 selectedFactors={factors}
                 showErrors={showErrors}
                 onToggleFactor={toggleFactor}

@@ -1,0 +1,154 @@
+@use '../../styles/tokens' as *;
+
+.login {
+  min-height: 100vh;
+  display: flex;
+  flex-wrap: wrap;
+  background: $background;
+
+  &__intro {
+    flex: 1 1 420px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
+    padding: 48px;
+    background: $primary;
+    color: #ffffff;
+
+    h1 {
+      max-width: 480px;
+      margin: 0;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 600;
+      line-height: 1.2;
+    }
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+  }
+
+  &__lead {
+    max-width: 480px;
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #dbe4ff;
+  }
+
+  &__panel {
+    flex: 1 1 420px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+  }
+
+  &__form {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    h2 {
+      margin: 0;
+      color: $text;
+      font-size: 1.75rem;
+      font-weight: 600;
+    }
+  }
+
+  &__hint {
+    margin: 6px 0 0;
+    color: $muted;
+  }
+
+  &__submit {
+    width: 100%;
+    max-width: none;
+  }
+
+  &__link {
+    align-self: flex-start;
+    color: $primary;
+    font-size: 0.875rem;
+  }
+
+  &__error {
+    margin: -8px 0 0;
+    color: #da1e28;
+    font-size: 0.75rem;
+  }
+}
+
+.auth-rules {
+  display: grid;
+  gap: 6px;
+  margin: -8px 0 0;
+  padding: 0;
+  list-style: none;
+  color: $muted;
+  font-size: 0.8125rem;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__met {
+    color: #0e6027;
+  }
+
+  &__state {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+}
+
+.auth-wait {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  background: $background;
+}
+
+.auth-sessions {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid $border;
+
+  &__item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid $border;
+  }
+
+  &__name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: $text;
+    font-weight: 600;
+  }
+}

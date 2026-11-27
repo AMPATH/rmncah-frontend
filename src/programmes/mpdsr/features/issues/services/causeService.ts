@@ -1,4 +1,4 @@
-import { apiGet } from '../../../api/apiClient';
+import { backendGetAll } from '../../../api/backendApi';
 import type { IssueType } from '../types/issue.types';
 
 export interface CauseOfDeath {
@@ -9,12 +9,31 @@ export interface CauseOfDeath {
   active: boolean;
 }
 
-export async function getCausesOfDeath(): Promise<CauseOfDeath[]> {
-  try {
-    return await apiGet<CauseOfDeath[]>('/causesOfDeath');
-  } catch {
-    return [];
+// A cause as the backend sends it, from GET /api/icd11-causes.
+interface Icd11Cause {
+  id: string;
+  code: string;
+  description: string;
+}
+
+async function loadFor(caseType: 'MATERNAL' | 'PERINATAL', appliesTo: IssueType): Promise<CauseOfDeath[]> {
+  const causes = await backendGetAll<Icd11Cause>('/icd11-causes', { caseType });
+  return causes.map((cause) => ({ id: cause.id, code: cause.code, name: cause.description, appliesTo, active: true }));
+}
+
+// The ICD-11 list is long (over 1,100 causes) and does not change, so it is fetched once per page load.
+let cached: Promise<CauseOfDeath[]> | null = null;
+
+export function getCausesOfDeath(): Promise<CauseOfDeath[]> {
+  if (!cached) {
+    cached = Promise.all([loadFor('MATERNAL', 'maternal'), loadFor('PERINATAL', 'perinatal')])
+      .then(([maternal, perinatal]) => [...maternal, ...perinatal])
+      .catch((error: unknown) => {
+        cached = null;
+        throw error;
+      });
   }
+  return cached;
 }
 
 export function causeLabel(cause: CauseOfDeath) {

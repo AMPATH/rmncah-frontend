@@ -14,7 +14,6 @@ import ContributingFactors from '../components/log-issue/ContributingFactors';
 import DateFields from '../components/log-issue/DateFields';
 import PeriodDetailFields from '../components/log-issue/PeriodDetailFields';
 import PersonFields from '../components/log-issue/PersonFields';
-import { delayLevels } from '../constants/delayFactors';
 import { getIssues, getStoredRecommendations } from '../services/issueService';
 import type { StoredIssue, StoredRecommendation } from '../services/issueService';
 import { editIssue, issueDifferences } from '../services/issueEditService';
@@ -23,6 +22,7 @@ import { addDays, daysBetween, getToday, yearsBetween } from '../../../utils/dat
 import { whyIssueBlocked } from '../utils/issueRules';
 import { delaysMissing } from '../utils/delayRecommendations';
 import { causeOptionsFor, getCausesOfDeath } from '../services/causeService';
+import { emptyDelayLevels, getDelayLevels } from '../services/contributingFactorService';
 import type { CauseOfDeath } from '../services/causeService';
 
 const MAX_PERINATAL_AGE_DAYS = 42;
@@ -48,6 +48,7 @@ function IssueEditPage() {
   const issuesData = useApiData<StoredIssue[]>(getIssues, []);
   const recommendationsData = useApiData<StoredRecommendation[]>(getStoredRecommendations, []);
   const causesData = useApiData<CauseOfDeath[]>(getCausesOfDeath, []);
+  const delayData = useApiData(getDelayLevels, emptyDelayLevels);
 
   const issue = issuesInScope(issuesData.data, scope).find((item) => item.code === code);
   const recommendations = recommendationsData.data.filter((recommendation) => recommendation.issueId === issue?.id);
@@ -230,7 +231,9 @@ function IssueEditPage() {
             />
           )}
           <ContributingFactors
-            delayLevels={delayLevels}
+            delayLevels={delayData.data}
+            loading={delayData.loading}
+            loadFailed={delayData.failed}
             selectedFactors={values.contributingFactors}
             showErrors={false}
             onToggleFactor={toggleFactor}

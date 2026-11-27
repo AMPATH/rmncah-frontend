@@ -29,6 +29,7 @@ import BackButton from '../../../components/layout/BackButton';
 import { useApiData } from '../../../hooks/useApiData';
 import { PHONE_QUERY, useMediaQuery } from '../../../hooks/useMediaQuery';
 import { causeOptionsFor, getCausesOfDeath } from '../services/causeService';
+import { emptyDelayLevels, getDelayLevels } from '../services/contributingFactorService';
 import type { CauseOfDeath } from '../services/causeService';
 import './LogIssuePage.scss';
 
@@ -84,6 +85,7 @@ function LogIssuePage() {
 
   const phone = useMediaQuery(PHONE_QUERY);
   const causesData = useApiData<CauseOfDeath[]>(getCausesOfDeath, []);
+  const delayData = useApiData(getDelayLevels, emptyDelayLevels);
   const issuesData = useApiData<StoredIssue[]>(getIssues, []);
   const duplicates = findDuplicates(issuesData.data, { issueType, loggedAt, dateOfDeath, dateOfNotification });
   const causeOptions = causeOptionsFor(causesData.data, issueType);
@@ -456,7 +458,9 @@ function LogIssuePage() {
                 onCauseOfDeathChange={setCauseOfDeath}
               />
               <ContributingFactors
-                delayLevels={delayLevels}
+                delayLevels={delayData.data}
+                loading={delayData.loading}
+                loadFailed={delayData.failed}
                 showErrors={showErrors}
                 selectedFactors={selectedFactors}
                 onToggleFactor={toggleFactor}

@@ -1,9 +1,12 @@
 import { useNavigate } from 'react-router';
-import { ClickableTile, Theme } from '@carbon/react';
+import { Button, ClickableTile, InlineNotification, Theme } from '@carbon/react';
 import { ArrowRight } from '@carbon/icons-react';
+import { useAuth } from '../auth/hooks/useAuth';
+import { canOpenProgramme } from '../auth/utils/programmeAccess';
+import type { ProgrammeModule } from '../auth/services/authApi';
 import './ProgrammeSelectPage.scss';
 
-const programmes = [
+const programmes: { path: string; name: string; fullName: string; description: string; code: string; module: ProgrammeModule }[] = [
   {
     path: '/mpdsr',
     name: 'MPDSR',
@@ -11,6 +14,7 @@ const programmes = [
     description:
       'Coordinate maternal and perinatal death reviews, track recommendations, and monitor responses.',
     code: '01',
+    module: 'MPDSR',
   },
   {
     path: '/emonc/',
@@ -19,11 +23,16 @@ const programmes = [
     description:
       'Access mentorship, training modules, learning resources, and facility-based support.',
     code: '02',
+    module: 'EMONC',
   },
 ];
 
 function ProgrammeSelectPage() {
   const navigate = useNavigate();
+  const { state, signOut } = useAuth();
+  const user = state.status === 'signedIn' ? state.user : null;
+  const firstName = user?.firstName ?? '';
+  const available = programmes.filter((programme) => canOpenProgramme(user, programme.module));
 
   return (
     <Theme theme="g10" className="programme-select">
@@ -32,7 +41,7 @@ function ProgrammeSelectPage() {
           <p className="programme-select__eyebrow">
             AMPATH · RMNCAH PROGRAMMES
           </p>
-          <h1>Welcome</h1>
+          <h1>{firstName ? `Welcome, ${firstName}` : 'Welcome'}</h1>
           <p className="programme-select__subtitle">
             Select a programme to continue to your workspace.
           </p>
@@ -42,7 +51,16 @@ function ProgrammeSelectPage() {
           className="programme-select__options"
           aria-label="Available programmes"
         >
-          {programmes.map((programme) => (
+          {available.length === 0 && (
+            <InlineNotification
+              kind="info"
+              lowContrast
+              hideCloseButton
+              title="No programmes yet"
+              subtitle="Your account has no programme roles. Ask your system administrator for access."
+            />
+          )}
+          {available.map((programme) => (
             <ClickableTile
               key={programme.path}
               className="programme-select__tile"
@@ -80,6 +98,17 @@ function ProgrammeSelectPage() {
         <footer className="programme-select__footer">
           <p>Maternal and Newborn Health Programmes</p>
           <p>AMPATH</p>
+          <span className="programme-select__account">
+            <Button kind="ghost" size="sm" onClick={() => navigate('/change-password')}>
+              Change password
+            </Button>
+            <Button kind="ghost" size="sm" onClick={() => navigate('/sessions')}>
+              Signed-in devices
+            </Button>
+            <Button kind="ghost" size="sm" onClick={() => void signOut()}>
+              Sign out
+            </Button>
+          </span>
         </footer>
       </main>
     </Theme>

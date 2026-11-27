@@ -1,4 +1,4 @@
-import { Checkbox, InlineNotification } from '@carbon/react';
+import { Checkbox, InlineLoading, InlineNotification } from '@carbon/react';
 import type { DelayLevel } from '../../constants/delayFactors';
 import { delaysMissing } from '../../utils/delayRecommendations';
 import './ContributingFactors.scss';
@@ -8,6 +8,9 @@ interface ContributingFactorsProps {
   selectedFactors: string[];
   showErrors: boolean;
   onToggleFactor: (factor: string) => void;
+  // The factors come from the backend: still loading, or it could not be reached.
+  loading?: boolean;
+  loadFailed?: boolean;
 }
 
 function ContributingFactors({
@@ -15,6 +18,8 @@ function ContributingFactors({
   selectedFactors,
   showErrors,
   onToggleFactor,
+  loading = false,
+  loadFailed = false,
 }: ContributingFactorsProps) {
   const missing = delaysMissing(selectedFactors);
 
@@ -24,6 +29,17 @@ function ContributingFactors({
       <p className="field-hint">
         Tick at least one factor in each level of delay. Each level of delay gets its own recommendation.
       </p>
+
+      {loading && <InlineLoading description="Loading contributing factors..." />}
+      {loadFailed && (
+        <InlineNotification
+          kind="error"
+          lowContrast
+          hideCloseButton
+          title="Couldn't load the contributing factors"
+          subtitle="Check that the backend is running and that your account has an MPDSR role, then reload the page."
+        />
+      )}
 
       <div className="contributing-factors__groups">
         {delayLevels.map((level) => (

@@ -1,4 +1,5 @@
-import { clearAuthToken, getAuthToken } from './authToken';
+import { getAccessToken } from '../../../app/auth/services/authSession';
+import { endSessionHere, refreshAccessToken } from '../../../app/auth/services/authApi';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
 
@@ -14,8 +15,6 @@ export class ApiError extends Error {
   }
 }
 
-export const UNAUTHORIZED_EVENT = 'mpdsr:unauthorized';
-
 type QueryValue = string | number | boolean | undefined | null;
 
 function toQueryString(params?: Record<string, QueryValue>): string {
@@ -30,14 +29,15 @@ function toQueryString(params?: Record<string, QueryValue>): string {
   return text ? `?${text}` : '';
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+async function request<T>(path: string, init: RequestInit = {}, isRetry = false): Promise<T> {
   const headers = new Headers(init.headers);
   if (!(init.body instanceof FormData)) {
     headers.set('Content-Type', 'application/json');
   }
   headers.set('Accept', 'application/json');
 
-  const token = getAuthToken();
+  // The token from the shared sign-in (src/app/auth).
+  const token = getAccessToken();
   if (token) {
     headers.set('Authorization', `Bearer ${token}`);
   }
@@ -50,9 +50,20 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     throw new ApiError(0, "Can't reach the server. Check your connection and try again.");
   }
 
+  // The access token lasts 15 minutes: renew it once and repeat the request.
+  // If it can't be renewed, the session is over and the app sends the user to sign in.
   if (response.status === 401) {
-    clearAuthToken();
-    window.dispatchEvent(new Event(UNAUTHORIZED_EVENT));
+    let renewed = false;
+    if (!isRetry) {
+      try {
+        renewed = await refreshAccessToken();
+      } catch {
+        throw new ApiError(0, "Can't reach the server. Check your connection and try again.");
+      }
+    }
+    if (renewed) return request<T>(path, init, true);
+    endSessionHere();
+    throw new ApiError(401, 'Your session has ended. Sign in again to continue.');
   }
 
   if (!response.ok) {
@@ -63,7 +74,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
       message = body.message ?? message;
       fieldErrors = body.fieldErrors ?? {};
     } catch {
-     
+      // No JSON body: keep the default message.
     }
     if (response.status === 403) {
       message = "You don't have permission to do this.";
